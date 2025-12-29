@@ -1,0 +1,46 @@
+---
+title: Introduction
+description: Welcome to NGFW.sh - Next-generation firewall management for modern networks
+---
+
+import { Card, CardGrid } from '@astrojs/starlight/components';
+
+NGFW.sh is a cloud-managed next-generation firewall platform that brings enterprise-grade security to home and small business networks.
+
+## What is NGFW.sh?
+
+NGFW.sh combines powerful on-device firewall capabilities with a cloud management portal, giving you:
+
+- **Real-time traffic monitoring** - See what's happening on your network
+- **Advanced threat protection** - IDS/IPS, malware blocking, and DNS filtering
+- **Easy VPN access** - WireGuard VPN server with QR code provisioning
+- **Fleet management** - Manage multiple devices from a single dashboard
+
+## Key Features
+
+<CardGrid stagger>
+  <Card title="Firewall Rules" icon="shield">
+    Create and manage firewall rules with an intuitive interface. Support for zones, schedules, and traffic shaping.
+  </Card>
+  <Card title="DNS Filtering" icon="filter">
+    Block ads, trackers, and malicious domains at the DNS level with customizable blocklists.
+  </Card>
+  <Card title="VPN Server" icon="lock">
+    Built-in WireGuard VPN server for secure remote access to your network.
+  </Card>
+  <Card title="Traffic Analytics" icon="graph">
+    Real-time traffic logs with application detection, geo-location, and threat intelligence.
+  </Card>
+</CardGrid>
+
+## Architecture
+
+NGFW.sh consists of three main components:
+
+1. **Router Agent** - Runs on your router hardware, executing firewall rules and reporting metrics
+2. **Cloud API** - Hosted on Cloudflare Workers, handles authentication and configuration storage
+3. **Web Portal** - React-based dashboard for configuration and monitoring
+
+## Getting Started
+
+Ready to secure your network? Head to the [Quick Start](/getting-started/quick-start) guide to get up and running in minutes.

@@ -1,0 +1,48 @@
+{
+	"compatibility_date": "2025-10-08",
+	"main": "src/index.ts",
+	"name": "ngfw-api",
+	"upload_source_maps": true,
+	"observability": {
+		"enabled": true
+	},
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "ngfw-db",
+			"database_id": "TODO_CREATE_D1_DATABASE"
+		}
+	],
+	"kv_namespaces": [
+		{
+			"binding": "DEVICES",
+			"id": "TODO_CREATE_KV_NAMESPACE"
+		},
+		{
+			"binding": "CONFIGS",
+			"id": "TODO_CREATE_KV_NAMESPACE"
+		},
+		{
+			"binding": "SESSIONS",
+			"id": "TODO_CREATE_KV_NAMESPACE"
+		},
+		{
+			"binding": "CACHE",
+			"id": "TODO_CREATE_KV_NAMESPACE"
+		}
+	],
+	"r2_buckets": [
+		{
+			"binding": "FIRMWARE",
+			"bucket_name": "ngfw-firmware"
+		},
+		{
+			"binding": "BACKUPS",
+			"bucket_name": "ngfw-backups"
+		},
+		{
+			"binding": "REPORTS",
+			"bucket_name": "ngfw-reports"
+		}
+	]
+}

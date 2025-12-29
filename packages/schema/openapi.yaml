@@ -1,0 +1,1965 @@
+openapi: 3.1.0
+info:
+  title: NGFW.sh API
+  description: Next-generation firewall management API for router configuration, monitoring, and fleet management
+  version: 1.0.0
+  contact:
+    name: NGFW.sh Support
+    url: https://ngfw.sh
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: https://api.ngfw.sh
+    description: Production API
+  - url: http://localhost:8787
+    description: Local development
+
+security:
+  - bearerAuth: []
+
+tags:
+  - name: System
+    description: System health, hardware info, and power management
+  - name: WAN
+    description: WAN connection configuration and status
+  - name: LAN
+    description: LAN and VLAN configuration
+  - name: WiFi
+    description: Wireless network and radio configuration
+  - name: DHCP
+    description: DHCP server, leases, and reservations
+  - name: Firewall
+    description: Firewall rules, zones, and policies
+  - name: NAT
+    description: NAT rules and UPnP management
+  - name: Traffic
+    description: Traffic logs and statistics
+  - name: DNS
+    description: DNS filtering and blocklists
+  - name: IDS
+    description: Intrusion detection and prevention
+  - name: VPN Server
+    description: WireGuard VPN server configuration
+  - name: VPN Client
+    description: VPN client profiles and connections
+  - name: QoS
+    description: Quality of Service and traffic shaping
+  - name: DDNS
+    description: Dynamic DNS configuration
+  - name: Firmware
+    description: Firmware updates and boot slots
+  - name: Backup
+    description: Configuration backup and restore
+  - name: Fleet
+    description: Multi-device fleet management
+  - name: User
+    description: User profile and authentication
+  - name: Billing
+    description: Subscription plans and payments
+
+paths:
+  /api/system/status:
+    get:
+      tags: [System]
+      summary: Get system status
+      description: Returns system health, uptime, and connection statistics
+      operationId: getSystemStatus
+      responses:
+        '200':
+          description: System status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SystemStatus'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /api/system/interfaces:
+    get:
+      tags: [System]
+      summary: List network interfaces
+      operationId: getSystemInterfaces
+      responses:
+        '200':
+          description: Interface list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/NetworkInterface'
+
+  /api/system/hardware:
+    get:
+      tags: [System]
+      summary: Get hardware information
+      operationId: getSystemHardware
+      responses:
+        '200':
+          description: Hardware info
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HardwareInfo'
+
+  /api/system/reboot:
+    post:
+      tags: [System]
+      summary: Reboot system
+      operationId: rebootSystem
+      responses:
+        '202':
+          description: Reboot initiated
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /api/system/shutdown:
+    post:
+      tags: [System]
+      summary: Shutdown system
+      operationId: shutdownSystem
+      responses:
+        '202':
+          description: Shutdown initiated
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /api/wan/config:
+    get:
+      tags: [WAN]
+      summary: Get WAN configuration
+      operationId: getWanConfig
+      responses:
+        '200':
+          description: WAN configuration
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WanConfig'
+    put:
+      tags: [WAN]
+      summary: Update WAN configuration
+      operationId: updateWanConfig
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WanConfig'
+      responses:
+        '200':
+          description: Configuration updated
+        '400':
+          $ref: '#/components/responses/InvalidConfig'
+
+  /api/wan/status:
+    get:
+      tags: [WAN]
+      summary: Get WAN connection status
+      operationId: getWanStatus
+      responses:
+        '200':
+          description: Connection status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WanStatus'
+
+  /api/wan/renew:
+    post:
+      tags: [WAN]
+      summary: Renew DHCP lease
+      operationId: renewWanLease
+      responses:
+        '200':
+          description: Lease renewed
+
+  /api/wan/release:
+    post:
+      tags: [WAN]
+      summary: Release DHCP lease
+      operationId: releaseWanLease
+      responses:
+        '200':
+          description: Lease released
+
+  /api/lan/config:
+    get:
+      tags: [LAN]
+      summary: Get LAN configuration
+      operationId: getLanConfig
+      responses:
+        '200':
+          description: LAN configuration
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LanConfig'
+    put:
+      tags: [LAN]
+      summary: Update LAN configuration
+      operationId: updateLanConfig
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LanConfig'
+      responses:
+        '200':
+          description: Configuration updated
+
+  /api/lan/vlans:
+    get:
+      tags: [LAN]
+      summary: List VLANs
+      operationId: listVlans
+      responses:
+        '200':
+          description: VLAN list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Vlan'
+    post:
+      tags: [LAN]
+      summary: Create VLAN
+      operationId: createVlan
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VlanCreate'
+      responses:
+        '201':
+          description: VLAN created
+
+  /api/lan/vlans/{id}:
+    parameters:
+      - $ref: '#/components/parameters/VlanId'
+    put:
+      tags: [LAN]
+      summary: Update VLAN
+      operationId: updateVlan
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VlanCreate'
+      responses:
+        '200':
+          description: VLAN updated
+    delete:
+      tags: [LAN]
+      summary: Delete VLAN
+      operationId: deleteVlan
+      responses:
+        '204':
+          description: VLAN deleted
+
+  /api/wifi/radios:
+    get:
+      tags: [WiFi]
+      summary: List WiFi radios
+      operationId: listWifiRadios
+      responses:
+        '200':
+          description: Radio list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/WifiRadio'
+
+  /api/wifi/networks:
+    get:
+      tags: [WiFi]
+      summary: List WiFi networks
+      operationId: listWifiNetworks
+      responses:
+        '200':
+          description: Network list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/WifiNetwork'
+    post:
+      tags: [WiFi]
+      summary: Create WiFi network
+      operationId: createWifiNetwork
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WifiNetworkCreate'
+      responses:
+        '201':
+          description: Network created
+
+  /api/wifi/networks/{id}:
+    parameters:
+      - $ref: '#/components/parameters/NetworkId'
+    put:
+      tags: [WiFi]
+      summary: Update WiFi network
+      operationId: updateWifiNetwork
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WifiNetworkCreate'
+      responses:
+        '200':
+          description: Network updated
+    delete:
+      tags: [WiFi]
+      summary: Delete WiFi network
+      operationId: deleteWifiNetwork
+      responses:
+        '204':
+          description: Network deleted
+
+  /api/wifi/clients:
+    get:
+      tags: [WiFi]
+      summary: List connected clients
+      operationId: listWifiClients
+      responses:
+        '200':
+          description: Client list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/WifiClient'
+
+  /api/dhcp/config:
+    get:
+      tags: [DHCP]
+      summary: Get DHCP configuration
+      operationId: getDhcpConfig
+      responses:
+        '200':
+          description: DHCP configuration
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DhcpConfig'
+    put:
+      tags: [DHCP]
+      summary: Update DHCP configuration
+      operationId: updateDhcpConfig
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DhcpConfig'
+      responses:
+        '200':
+          description: Configuration updated
+
+  /api/dhcp/leases:
+    get:
+      tags: [DHCP]
+      summary: List active leases
+      operationId: listDhcpLeases
+      responses:
+        '200':
+          description: Lease list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DhcpLease'
+
+  /api/dhcp/reservations:
+    get:
+      tags: [DHCP]
+      summary: List static reservations
+      operationId: listDhcpReservations
+      responses:
+        '200':
+          description: Reservation list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DhcpReservation'
+    post:
+      tags: [DHCP]
+      summary: Create reservation
+      operationId: createDhcpReservation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DhcpReservationCreate'
+      responses:
+        '201':
+          description: Reservation created
+
+  /api/firewall/rules:
+    get:
+      tags: [Firewall]
+      summary: List firewall rules
+      operationId: listFirewallRules
+      responses:
+        '200':
+          description: Rule list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FirewallRule'
+    post:
+      tags: [Firewall]
+      summary: Create firewall rule
+      operationId: createFirewallRule
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FirewallRuleCreate'
+      responses:
+        '201':
+          description: Rule created
+
+  /api/firewall/rules/{id}:
+    parameters:
+      - $ref: '#/components/parameters/RuleId'
+    put:
+      tags: [Firewall]
+      summary: Update firewall rule
+      operationId: updateFirewallRule
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FirewallRuleCreate'
+      responses:
+        '200':
+          description: Rule updated
+    delete:
+      tags: [Firewall]
+      summary: Delete firewall rule
+      operationId: deleteFirewallRule
+      responses:
+        '204':
+          description: Rule deleted
+
+  /api/firewall/zones:
+    get:
+      tags: [Firewall]
+      summary: List firewall zones
+      operationId: listFirewallZones
+      responses:
+        '200':
+          description: Zone list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FirewallZone'
+
+  /api/nat/rules:
+    get:
+      tags: [NAT]
+      summary: List NAT rules
+      operationId: listNatRules
+      responses:
+        '200':
+          description: Rule list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/NatRule'
+    post:
+      tags: [NAT]
+      summary: Create NAT rule
+      operationId: createNatRule
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NatRuleCreate'
+      responses:
+        '201':
+          description: Rule created
+
+  /api/traffic/logs:
+    get:
+      tags: [Traffic]
+      summary: Get traffic logs
+      operationId: getTrafficLogs
+      parameters:
+        - name: action
+          in: query
+          schema:
+            type: string
+            enum: [accept, drop, reject]
+        - name: proto
+          in: query
+          schema:
+            type: string
+            enum: [tcp, udp, icmp, all]
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+            maximum: 500
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+      responses:
+        '200':
+          description: Traffic logs
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrafficLogResponse'
+
+  /api/traffic/stats:
+    get:
+      tags: [Traffic]
+      summary: Get traffic statistics
+      operationId: getTrafficStats
+      responses:
+        '200':
+          description: Traffic statistics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrafficStats'
+
+  /api/dns/config:
+    get:
+      tags: [DNS]
+      summary: Get DNS configuration
+      operationId: getDnsConfig
+      responses:
+        '200':
+          description: DNS configuration
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DnsConfig'
+    put:
+      tags: [DNS]
+      summary: Update DNS configuration
+      operationId: updateDnsConfig
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DnsConfig'
+      responses:
+        '200':
+          description: Configuration updated
+
+  /api/dns/blocklists:
+    get:
+      tags: [DNS]
+      summary: List blocklists
+      operationId: listDnsBlocklists
+      responses:
+        '200':
+          description: Blocklist list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DnsBlocklist'
+    post:
+      tags: [DNS]
+      summary: Add blocklist
+      operationId: addDnsBlocklist
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DnsBlocklistCreate'
+      responses:
+        '201':
+          description: Blocklist added
+
+  /api/dns/stats:
+    get:
+      tags: [DNS]
+      summary: Get DNS statistics
+      operationId: getDnsStats
+      responses:
+        '200':
+          description: DNS statistics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DnsStats'
+
+  /api/ids/config:
+    get:
+      tags: [IDS]
+      summary: Get IDS/IPS configuration
+      operationId: getIdsConfig
+      responses:
+        '200':
+          description: IDS configuration
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IdsConfig'
+    put:
+      tags: [IDS]
+      summary: Update IDS/IPS configuration
+      operationId: updateIdsConfig
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IdsConfig'
+      responses:
+        '200':
+          description: Configuration updated
+
+  /api/ids/alerts:
+    get:
+      tags: [IDS]
+      summary: Get alert history
+      operationId: getIdsAlerts
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+      responses:
+        '200':
+          description: Alert list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/IdsAlert'
+
+  /api/vpn/server/config:
+    get:
+      tags: [VPN Server]
+      summary: Get VPN server configuration
+      operationId: getVpnServerConfig
+      responses:
+        '200':
+          description: Server configuration
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VpnServerConfig'
+    put:
+      tags: [VPN Server]
+      summary: Update VPN server configuration
+      operationId: updateVpnServerConfig
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VpnServerConfig'
+      responses:
+        '200':
+          description: Configuration updated
+
+  /api/vpn/server/peers:
+    get:
+      tags: [VPN Server]
+      summary: List VPN peers
+      operationId: listVpnPeers
+      responses:
+        '200':
+          description: Peer list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/VpnPeer'
+    post:
+      tags: [VPN Server]
+      summary: Create VPN peer
+      operationId: createVpnPeer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VpnPeerCreate'
+      responses:
+        '201':
+          description: Peer created
+
+  /api/vpn/server/peers/{id}:
+    parameters:
+      - $ref: '#/components/parameters/PeerId'
+    put:
+      tags: [VPN Server]
+      summary: Update VPN peer
+      operationId: updateVpnPeer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VpnPeerCreate'
+      responses:
+        '200':
+          description: Peer updated
+    delete:
+      tags: [VPN Server]
+      summary: Delete VPN peer
+      operationId: deleteVpnPeer
+      responses:
+        '204':
+          description: Peer deleted
+
+  /api/vpn/client/profiles:
+    get:
+      tags: [VPN Client]
+      summary: List VPN profiles
+      operationId: listVpnProfiles
+      responses:
+        '200':
+          description: Profile list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/VpnProfile'
+    post:
+      tags: [VPN Client]
+      summary: Create VPN profile
+      operationId: createVpnProfile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VpnProfileCreate'
+      responses:
+        '201':
+          description: Profile created
+
+  /api/qos/config:
+    get:
+      tags: [QoS]
+      summary: Get QoS configuration
+      operationId: getQosConfig
+      responses:
+        '200':
+          description: QoS configuration
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QosConfig'
+    put:
+      tags: [QoS]
+      summary: Update QoS configuration
+      operationId: updateQosConfig
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QosConfig'
+      responses:
+        '200':
+          description: Configuration updated
+
+  /api/ddns/config:
+    get:
+      tags: [DDNS]
+      summary: Get DDNS configuration
+      operationId: getDdnsConfig
+      responses:
+        '200':
+          description: DDNS configuration
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DdnsConfig'
+    put:
+      tags: [DDNS]
+      summary: Update DDNS configuration
+      operationId: updateDdnsConfig
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DdnsConfig'
+      responses:
+        '200':
+          description: Configuration updated
+
+  /api/ddns/status:
+    get:
+      tags: [DDNS]
+      summary: Get DDNS status
+      operationId: getDdnsStatus
+      responses:
+        '200':
+          description: DDNS status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DdnsStatus'
+
+  /api/firmware/current:
+    get:
+      tags: [Firmware]
+      summary: Get current firmware info
+      operationId: getCurrentFirmware
+      responses:
+        '200':
+          description: Firmware info
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FirmwareInfo'
+
+  /api/firmware/available:
+    get:
+      tags: [Firmware]
+      summary: Get available updates
+      operationId: getAvailableFirmware
+      responses:
+        '200':
+          description: Available updates
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FirmwareUpdate'
+
+  /api/backup/list:
+    get:
+      tags: [Backup]
+      summary: List saved backups
+      operationId: listBackups
+      responses:
+        '200':
+          description: Backup list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Backup'
+
+  /api/backup/create:
+    post:
+      tags: [Backup]
+      summary: Create backup
+      operationId: createBackup
+      responses:
+        '201':
+          description: Backup created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Backup'
+
+  /api/backup/factory-reset:
+    post:
+      tags: [Backup]
+      summary: Factory reset
+      operationId: factoryReset
+      responses:
+        '202':
+          description: Factory reset initiated
+
+  /api/fleet/devices:
+    get:
+      tags: [Fleet]
+      summary: List managed devices
+      operationId: listFleetDevices
+      responses:
+        '200':
+          description: Device list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FleetDevice'
+    post:
+      tags: [Fleet]
+      summary: Register device
+      operationId: registerFleetDevice
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FleetDeviceCreate'
+      responses:
+        '201':
+          description: Device registered
+
+  /api/fleet/devices/{id}:
+    parameters:
+      - $ref: '#/components/parameters/DeviceId'
+    delete:
+      tags: [Fleet]
+      summary: Remove device
+      operationId: removeFleetDevice
+      responses:
+        '204':
+          description: Device removed
+
+  /api/user/profile:
+    get:
+      tags: [User]
+      summary: Get user profile
+      operationId: getUserProfile
+      responses:
+        '200':
+          description: User profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+    put:
+      tags: [User]
+      summary: Update user profile
+      operationId: updateUserProfile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserProfileUpdate'
+      responses:
+        '200':
+          description: Profile updated
+
+  /api/user/sessions:
+    get:
+      tags: [User]
+      summary: List active sessions
+      operationId: listUserSessions
+      responses:
+        '200':
+          description: Session list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserSession'
+
+  /api/billing/plan:
+    get:
+      tags: [Billing]
+      summary: Get current plan
+      operationId: getBillingPlan
+      responses:
+        '200':
+          description: Current plan
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BillingPlan'
+
+  /api/billing/usage:
+    get:
+      tags: [Billing]
+      summary: Get current period usage
+      operationId: getBillingUsage
+      responses:
+        '200':
+          description: Usage data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BillingUsage'
+
+  /api/billing/invoices:
+    get:
+      tags: [Billing]
+      summary: List invoices
+      operationId: listInvoices
+      responses:
+        '200':
+          description: Invoice list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Invoice'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token issued by WorkOS AuthKit
+
+  parameters:
+    VlanId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+    NetworkId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+    RuleId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+    PeerId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+    DeviceId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+
+  responses:
+    Unauthorized:
+      description: Invalid or expired token
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Forbidden:
+      description: Insufficient permissions
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    InvalidConfig:
+      description: Configuration validation failed
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+  schemas:
+    Error:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code:
+              type: string
+              enum: [UNAUTHORIZED, FORBIDDEN, NOT_FOUND, INVALID_CONFIG, DEVICE_OFFLINE, PLAN_LIMIT, RATE_LIMIT]
+            message:
+              type: string
+            field:
+              type: string
+            details:
+              type: object
+
+    SystemStatus:
+      type: object
+      properties:
+        uptime:
+          type: integer
+        cpu:
+          type: integer
+          minimum: 0
+          maximum: 100
+        memory:
+          type: integer
+          minimum: 0
+          maximum: 100
+        temperature:
+          type: integer
+        load:
+          type: array
+          items:
+            type: number
+        connections:
+          type: integer
+        wan_ip:
+          type: string
+          format: ipv4
+        firmware:
+          type: string
+
+    NetworkInterface:
+      type: object
+      properties:
+        name:
+          type: string
+        status:
+          type: string
+          enum: [up, down]
+        ip:
+          type: string
+        mac:
+          type: string
+        rx_bytes:
+          type: integer
+        tx_bytes:
+          type: integer
+        rx_rate:
+          type: integer
+        tx_rate:
+          type: integer
+
+    HardwareInfo:
+      type: object
+      properties:
+        model:
+          type: string
+        cpu:
+          type: string
+        memory:
+          type: string
+        storage:
+          type: string
+        serial:
+          type: string
+
+    WanConfig:
+      type: object
+      properties:
+        connection_type:
+          type: string
+          enum: [dhcp, static, pppoe]
+        ip_address:
+          type: string
+          format: ipv4
+        subnet_mask:
+          type: string
+        gateway:
+          type: string
+          format: ipv4
+        dns:
+          type: array
+          items:
+            type: string
+            format: ipv4
+        mtu:
+          type: integer
+          default: 1500
+
+    WanStatus:
+      type: object
+      properties:
+        connected:
+          type: boolean
+        ip_address:
+          type: string
+          format: ipv4
+        gateway:
+          type: string
+          format: ipv4
+        dns:
+          type: array
+          items:
+            type: string
+        uptime:
+          type: integer
+
+    LanConfig:
+      type: object
+      properties:
+        ip_address:
+          type: string
+          format: ipv4
+        subnet_mask:
+          type: string
+        dhcp_enabled:
+          type: boolean
+
+    Vlan:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        subnet:
+          type: string
+        ports:
+          type: array
+          items:
+            type: string
+        enabled:
+          type: boolean
+
+    VlanCreate:
+      type: object
+      required: [id, name, subnet]
+      properties:
+        id:
+          type: integer
+          minimum: 1
+          maximum: 4094
+        name:
+          type: string
+        subnet:
+          type: string
+        enabled:
+          type: boolean
+          default: true
+
+    WifiRadio:
+      type: object
+      properties:
+        id:
+          type: string
+        band:
+          type: string
+          enum: ['2.4GHz', '5GHz', '6GHz']
+        channel:
+          type: integer
+        width:
+          type: string
+          enum: ['20MHz', '40MHz', '80MHz', '160MHz']
+        enabled:
+          type: boolean
+
+    WifiNetwork:
+      type: object
+      properties:
+        id:
+          type: integer
+        ssid:
+          type: string
+        enabled:
+          type: boolean
+        hidden:
+          type: boolean
+        security:
+          type: object
+          properties:
+            mode:
+              type: string
+              enum: [open, wpa2, wpa3, wpa2/wpa3]
+        vlan:
+          type: integer
+        isolated:
+          type: boolean
+
+    WifiNetworkCreate:
+      type: object
+      required: [ssid, security]
+      properties:
+        ssid:
+          type: string
+          minLength: 1
+          maxLength: 32
+        enabled:
+          type: boolean
+          default: true
+        hidden:
+          type: boolean
+          default: false
+        security:
+          type: object
+          required: [mode]
+          properties:
+            mode:
+              type: string
+              enum: [open, wpa2, wpa3, wpa2/wpa3]
+            password:
+              type: string
+              minLength: 8
+        vlan:
+          type: integer
+        isolated:
+          type: boolean
+          default: false
+
+    WifiClient:
+      type: object
+      properties:
+        mac:
+          type: string
+        ip:
+          type: string
+          format: ipv4
+        hostname:
+          type: string
+        ssid:
+          type: string
+        signal:
+          type: integer
+        connected_at:
+          type: string
+          format: date-time
+
+    DhcpConfig:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+        range_start:
+          type: string
+          format: ipv4
+        range_end:
+          type: string
+          format: ipv4
+        lease_time:
+          type: integer
+        gateway:
+          type: string
+          format: ipv4
+        dns:
+          type: array
+          items:
+            type: string
+            format: ipv4
+        domain:
+          type: string
+
+    DhcpLease:
+      type: object
+      properties:
+        ip:
+          type: string
+          format: ipv4
+        mac:
+          type: string
+        hostname:
+          type: string
+        vendor:
+          type: string
+        expires:
+          type: string
+        static:
+          type: boolean
+        online:
+          type: boolean
+
+    DhcpReservation:
+      type: object
+      properties:
+        ip:
+          type: string
+          format: ipv4
+        mac:
+          type: string
+        hostname:
+          type: string
+
+    DhcpReservationCreate:
+      type: object
+      required: [ip, mac]
+      properties:
+        ip:
+          type: string
+          format: ipv4
+        mac:
+          type: string
+          pattern: '^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$'
+        hostname:
+          type: string
+
+    FirewallRule:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        enabled:
+          type: boolean
+        zone_from:
+          type: string
+        zone_to:
+          type: string
+        source:
+          type: string
+        destination:
+          type: string
+        protocol:
+          type: string
+          enum: [all, tcp, udp, icmp]
+        port:
+          type: string
+        action:
+          type: string
+          enum: [accept, drop, reject]
+        log:
+          type: boolean
+        hits:
+          type: integer
+
+    FirewallRuleCreate:
+      type: object
+      required: [name, zone_from, zone_to, action]
+      properties:
+        name:
+          type: string
+        enabled:
+          type: boolean
+          default: true
+        zone_from:
+          type: string
+        zone_to:
+          type: string
+        source:
+          type: string
+          default: any
+        destination:
+          type: string
+          default: any
+        protocol:
+          type: string
+          enum: [all, tcp, udp, icmp]
+          default: all
+        port:
+          type: string
+          default: '*'
+        action:
+          type: string
+          enum: [accept, drop, reject]
+        log:
+          type: boolean
+          default: false
+
+    FirewallZone:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        interfaces:
+          type: array
+          items:
+            type: string
+        masquerade:
+          type: boolean
+
+    NatRule:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        enabled:
+          type: boolean
+        type:
+          type: string
+          enum: [dnat, snat, masquerade]
+        protocol:
+          type: string
+        external_port:
+          type: integer
+        internal_ip:
+          type: string
+          format: ipv4
+        internal_port:
+          type: integer
+
+    NatRuleCreate:
+      type: object
+      required: [name, type, protocol, external_port, internal_ip, internal_port]
+      properties:
+        name:
+          type: string
+        enabled:
+          type: boolean
+          default: true
+        type:
+          type: string
+          enum: [dnat, snat, masquerade]
+        protocol:
+          type: string
+          enum: [tcp, udp, both]
+        external_port:
+          type: integer
+          minimum: 1
+          maximum: 65535
+        internal_ip:
+          type: string
+          format: ipv4
+        internal_port:
+          type: integer
+          minimum: 1
+          maximum: 65535
+
+    TrafficLogResponse:
+      type: object
+      properties:
+        total:
+          type: integer
+        logs:
+          type: array
+          items:
+            $ref: '#/components/schemas/TrafficLog'
+
+    TrafficLog:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+        src:
+          type: string
+        src_port:
+          type: integer
+        dst:
+          type: string
+        dst_port:
+          type: integer
+        protocol:
+          type: string
+        bytes:
+          type: integer
+        packets:
+          type: integer
+        action:
+          type: string
+          enum: [accept, drop, reject]
+        app:
+          type: string
+        geo:
+          type: string
+        threat:
+          type: string
+
+    TrafficStats:
+      type: object
+      properties:
+        total_bytes:
+          type: integer
+        total_connections:
+          type: integer
+        accepted:
+          type: integer
+        dropped:
+          type: integer
+        threats_blocked:
+          type: integer
+
+    DnsConfig:
+      type: object
+      properties:
+        upstream:
+          type: array
+          items:
+            type: string
+        dot_enabled:
+          type: boolean
+        doh_enabled:
+          type: boolean
+        cache_size:
+          type: integer
+
+    DnsBlocklist:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        url:
+          type: string
+          format: uri
+        entries:
+          type: integer
+        enabled:
+          type: boolean
+        updated_at:
+          type: string
+          format: date-time
+
+    DnsBlocklistCreate:
+      type: object
+      required: [name, url]
+      properties:
+        name:
+          type: string
+        url:
+          type: string
+          format: uri
+        enabled:
+          type: boolean
+          default: true
+
+    DnsStats:
+      type: object
+      properties:
+        total_queries:
+          type: integer
+        blocked:
+          type: integer
+        cached:
+          type: integer
+        avg_latency:
+          type: number
+
+    IdsConfig:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+        mode:
+          type: string
+          enum: [detect, prevent]
+
+    IdsAlert:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+        type:
+          type: string
+        src:
+          type: string
+        dst:
+          type: string
+        severity:
+          type: string
+          enum: [low, medium, high, critical]
+        blocked:
+          type: boolean
+        signature:
+          type: string
+
+    VpnServerConfig:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+        listen_port:
+          type: integer
+        address:
+          type: string
+        dns:
+          type: array
+          items:
+            type: string
+        public_key:
+          type: string
+
+    VpnPeer:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        public_key:
+          type: string
+        allowed_ips:
+          type: array
+          items:
+            type: string
+        enabled:
+          type: boolean
+        last_handshake:
+          type: integer
+        rx_bytes:
+          type: integer
+        tx_bytes:
+          type: integer
+
+    VpnPeerCreate:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+        public_key:
+          type: string
+        allowed_ips:
+          type: array
+          items:
+            type: string
+        enabled:
+          type: boolean
+          default: true
+
+    VpnProfile:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        type:
+          type: string
+          enum: [wireguard, openvpn]
+        server:
+          type: string
+        connected:
+          type: boolean
+
+    VpnProfileCreate:
+      type: object
+      required: [name, type, server]
+      properties:
+        name:
+          type: string
+        type:
+          type: string
+          enum: [wireguard, openvpn]
+        server:
+          type: string
+        config:
+          type: string
+
+    QosConfig:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+        download_limit:
+          type: integer
+        upload_limit:
+          type: integer
+
+    DdnsConfig:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+        provider:
+          type: string
+        hostname:
+          type: string
+        username:
+          type: string
+        update_interval:
+          type: integer
+
+    DdnsStatus:
+      type: object
+      properties:
+        current_ip:
+          type: string
+        last_update:
+          type: string
+          format: date-time
+        last_status:
+          type: string
+          enum: [success, failed, no_change]
+
+    FirmwareInfo:
+      type: object
+      properties:
+        version:
+          type: string
+        build_date:
+          type: string
+          format: date-time
+        kernel:
+          type: string
+        architecture:
+          type: string
+
+    FirmwareUpdate:
+      type: object
+      properties:
+        version:
+          type: string
+        release_date:
+          type: string
+          format: date-time
+        changelog:
+          type: string
+        size:
+          type: integer
+
+    Backup:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        size:
+          type: integer
+        encrypted:
+          type: boolean
+
+    FleetDevice:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        model:
+          type: string
+        firmware:
+          type: string
+        online:
+          type: boolean
+        last_seen:
+          type: string
+          format: date-time
+
+    FleetDeviceCreate:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+        api_key:
+          type: string
+
+    UserProfile:
+      type: object
+      properties:
+        id:
+          type: string
+        email:
+          type: string
+          format: email
+        name:
+          type: string
+        company:
+          type: string
+        plan:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+
+    UserProfileUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        company:
+          type: string
+
+    UserSession:
+      type: object
+      properties:
+        id:
+          type: string
+        device:
+          type: string
+        ip:
+          type: string
+        location:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        last_active:
+          type: string
+          format: date-time
+        current:
+          type: boolean
+
+    BillingPlan:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        price:
+          type: number
+        period:
+          type: string
+          enum: [monthly, annual]
+        features:
+          type: array
+          items:
+            type: string
+
+    BillingUsage:
+      type: object
+      properties:
+        devices:
+          type: integer
+        devices_limit:
+          type: integer
+        vpn_peers:
+          type: integer
+        vpn_peers_limit:
+          type: integer
+        dns_queries:
+          type: integer
+        threats_blocked:
+          type: integer
+
+    Invoice:
+      type: object
+      properties:
+        id:
+          type: string
+        date:
+          type: string
+          format: date
+        amount:
+          type: number
+        status:
+          type: string
+          enum: [paid, pending, failed]
+        description:
+          type: string

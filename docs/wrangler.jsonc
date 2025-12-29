@@ -1,0 +1,16 @@
+{
+  "name": "ngfw-docs",
+  "main": "dist/_worker.js/index.js",
+  "compatibility_date": "2025-12-29",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "routes": [
+    { "pattern": "docs.ngfw.sh", "custom_domain": true }
+  ],
+  "assets": {
+    "binding": "ASSETS",
+    "directory": "./dist"
+  },
+  "observability": {
+    "enabled": true
+  }
+}
