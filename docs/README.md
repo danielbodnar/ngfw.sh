@@ -1,49 +1,113 @@
-# Starlight Starter Kit: Basics
+# NGFW.sh Documentation
 
-[![Built with Starlight](https://astro.badg.es/v2/built-with-starlight/tiny.svg)](https://starlight.astro.build)
+Technical documentation for NGFW.sh, built with [Astro](https://astro.build) and [Starlight](https://starlight.astro.build).
+
+**Live site**: [docs.ngfw.sh](https://docs.ngfw.sh)
+
+## Development
+
+```bash
+# Install dependencies
+bun install
+
+# Start dev server at localhost:4321
+bun run dev
+
+# Build for production
+bun run build
+
+# Preview production build
+bun run preview
+```
+
+## Deployment
+
+The documentation is deployed to Cloudflare Workers:
+
+```bash
+bun run deploy
+```
+
+This builds the site and deploys to `docs.ngfw.sh`.
+
+## Project Structure
 
 ```
-bun create astro@latest -- --template starlight
-```
-
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
-
-## 🚀 Project Structure
-
-Inside of your Astro + Starlight project, you'll see the following folders and files:
-
-```
-.
-├── public/
+docs/
 ├── src/
-│   ├── assets/
+│   ├── assets/          # Images and logos
 │   ├── content/
-│   │   └── docs/
-│   └── content.config.ts
-├── astro.config.mjs
-├── package.json
-└── tsconfig.json
+│   │   └── docs/        # Documentation pages (MDX/MD)
+│   │       ├── getting-started/
+│   │       ├── configuration/
+│   │       ├── security/
+│   │       ├── services/
+│   │       ├── api/
+│   │       └── fleet/
+│   └── styles/          # Custom CSS
+├── public/              # Static assets
+├── astro.config.mjs     # Astro configuration
+└── wrangler.jsonc       # Cloudflare Workers config
 ```
 
-Starlight looks for `.md` or `.mdx` files in the `src/content/docs/` directory. Each file is exposed as a route based on its file name.
+## Writing Documentation
 
-Images can be added to `src/assets/` and embedded in Markdown with a relative link.
+### Creating a New Page
 
-Static assets, like favicons, can be placed in the `public/` directory.
+Add a new `.md` or `.mdx` file in `src/content/docs/`:
 
-## 🧞 Commands
+```markdown
+---
+title: Page Title
+description: Brief description for SEO
+---
 
-All commands are run from the root of the project, from a terminal:
+Your content here...
+```
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `bun install`             | Installs dependencies                            |
-| `bun dev`             | Starts local dev server at `localhost:4321`      |
-| `bun build`           | Build your production site to `./dist/`          |
-| `bun preview`         | Preview your build locally, before deploying     |
-| `bun astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `bun astro -- --help` | Get help using the Astro CLI                     |
+### Using Components
 
-## 👀 Want to learn more?
+Starlight provides built-in components:
 
-Check out [Starlight’s docs](https://starlight.astro.build/), read [the Astro documentation](https://docs.astro.build), or jump into the [Astro Discord server](https://astro.build/chat).
+```mdx
+import { Card, CardGrid, Tabs, TabItem } from '@astrojs/starlight/components';
+
+<CardGrid>
+  <Card title="Feature" icon="star">
+    Description of the feature.
+  </Card>
+</CardGrid>
+
+<Tabs>
+  <TabItem label="npm">npm install</TabItem>
+  <TabItem label="bun">bun install</TabItem>
+</Tabs>
+```
+
+### Sidebar Configuration
+
+Update the sidebar in `astro.config.mjs`:
+
+```javascript
+sidebar: [
+  {
+    label: 'Section Name',
+    items: [
+      { label: 'Page Title', slug: 'section/page-slug' },
+    ],
+  },
+],
+```
+
+## Configuration
+
+### Astro Config (`astro.config.mjs`)
+
+- Site URL: `https://docs.ngfw.sh`
+- Theme customization in Starlight options
+- Cloudflare adapter for Workers deployment
+
+### Wrangler Config (`wrangler.jsonc`)
+
+- Worker name: `ngfw-docs`
+- Custom domain: `docs.ngfw.sh`

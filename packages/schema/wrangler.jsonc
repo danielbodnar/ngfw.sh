@@ -1,8 +1,11 @@
 {
 	"compatibility_date": "2025-10-08",
 	"main": "src/index.ts",
-	"name": "ngfw-api",
+	"name": "ngfw-specs",
 	"upload_source_maps": true,
+	"routes": [
+		{ "pattern": "specs.ngfw.sh", "custom_domain": true }
+	],
 	"observability": {
 		"enabled": true
 	},

@@ -1,40 +1,59 @@
 ---
-title: Welcome to Starlight
-description: Get started building your docs site with Starlight.
-template: splash # Remove or comment out this line to display the site sidebar on this page.
+title: NGFW.sh Documentation
+description: Next-generation firewall management for modern networks
+template: splash
 hero:
-  tagline: Congrats on setting up a new Starlight project!
+  tagline: Enterprise-grade security for home and small business networks
   image:
-    file: ../../assets/houston.webp
+    file: ../../assets/logo.svg
   actions:
-    - text: Example Guide
-      link: /guides/example/
+    - text: Get Started
+      link: /getting-started/introduction/
       icon: right-arrow
-    - text: Read the Starlight docs
-      link: https://starlight.astro.build
+    - text: API Reference
+      link: /api/overview/
       icon: external
       variant: minimal
 ---
 
 import { Card, CardGrid } from '@astrojs/starlight/components';
 
-## Next steps
+## Features
 
 <CardGrid stagger>
-	<Card title="Update content" icon="pencil">
-		Edit `src/content/docs/index.mdx` to see this page change.
-	</Card>
-	<Card title="Change page layout" icon="document">
-		Delete `template: splash` in `src/content/docs/index.mdx` to display a
-		sidebar on this page.
-	</Card>
-	<Card title="Add new content" icon="add-document">
-		Add Markdown or MDX files to `src/content/docs` to create new pages.
-	</Card>
-	<Card title="Configure your site" icon="setting">
-		Edit your `sidebar` and other config in `astro.config.mjs`.
-	</Card>
-	<Card title="Read the docs" icon="open-book">
-		Learn more in [the Starlight Docs](https://starlight.astro.build/).
-	</Card>
+  <Card title="Advanced Firewall" icon="shield">
+    Zone-based firewall with deep packet inspection, application awareness, and traffic shaping.
+  </Card>
+  <Card title="DNS Filtering" icon="filter">
+    Block ads, trackers, and malware at the DNS level with customizable blocklists.
+  </Card>
+  <Card title="VPN Server" icon="lock">
+    Built-in WireGuard VPN with QR code provisioning for easy mobile setup.
+  </Card>
+  <Card title="Threat Protection" icon="warning">
+    IDS/IPS powered by Suricata with real-time threat detection and blocking.
+  </Card>
+  <Card title="Traffic Analytics" icon="graph">
+    Real-time traffic monitoring with geo-location, application detection, and threat intelligence.
+  </Card>
+  <Card title="Fleet Management" icon="network">
+    Manage multiple devices from a single dashboard with configuration templates.
+  </Card>
+</CardGrid>
+
+## Quick Links
+
+<CardGrid>
+  <Card title="Installation" icon="document">
+    [Install the agent](/getting-started/installation) on your router in minutes.
+  </Card>
+  <Card title="Configuration" icon="setting">
+    [Configure your network](/configuration/wan) with an intuitive interface.
+  </Card>
+  <Card title="Security" icon="shield">
+    [Set up firewall rules](/security/firewall) to protect your network.
+  </Card>
+  <Card title="API Docs" icon="rocket">
+    [Explore the API](/api/overview) for programmatic access.
+  </Card>
 </CardGrid>

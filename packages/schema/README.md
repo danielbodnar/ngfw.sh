@@ -1,72 +1,182 @@
-# OpenAPI Template
+# NGFW.sh API Schema
 
-[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/cloudflare/templates/tree/main/chanfana-openapi-template)
+OpenAPI 3.1 API server for NGFW.sh, built with [Hono](https://hono.dev) and [Chanfana](https://chanfana.com).
 
-![OpenAPI Template Preview](https://imagedelivery.net/wSMYJvS3Xw-n339CbDyDIA/91076b39-1f5b-46f6-7f14-536a6f183000/public)
+**Live API docs**: [specs.ngfw.sh](https://specs.ngfw.sh)
 
-<!-- dash-content-start -->
+## Features
 
-This is a Cloudflare Worker with OpenAPI 3.1 Auto Generation and Validation using [chanfana](https://github.com/cloudflare/chanfana) and [Hono](https://github.com/honojs/hono).
+- OpenAPI 3.1 auto-generation from code
+- Request/response validation with Zod
+- Swagger UI and ReDoc documentation
+- Cloudflare D1 database integration
+- Integration tests with Vitest
 
-This is an example project made to be used as a quick start into building OpenAPI compliant Workers that generates the
-`openapi.json` schema automatically from code and validates the incoming request to the defined parameters or request body.
-
-This template includes various endpoints, a D1 database, and integration tests using [Vitest](https://vitest.dev/) as examples. In endpoints, you will find [chanfana D1 AutoEndpoints](https://chanfana.com/endpoints/auto/d1) and a [normal endpoint](https://chanfana.com/endpoints/defining-endpoints) to serve as examples for your projects.
-
-Besides being able to see the OpenAPI schema (openapi.json) in the browser, you can also extract the schema locally no hassle by running this command `npm run schema`.
-
-<!-- dash-content-end -->
-
-> [!IMPORTANT]
-> When using C3 to create this project, select "no" when it asks if you want to deploy. You need to follow this project's [setup steps](https://github.com/cloudflare/templates/tree/main/openapi-template#setup-steps) before deploying.
-
-## Getting Started
-
-Outside of this repo, you can start a new project with this template using [C3](https://developers.cloudflare.com/pages/get-started/c3/) (the `create-cloudflare` CLI):
+## Development
 
 ```bash
-npm create cloudflare@latest -- --template=cloudflare/templates/openapi-template
+# Install dependencies
+bun install
+
+# Apply database migrations (local)
+bun run seedLocalDb
+
+# Start dev server at localhost:8787
+bun run dev
+
+# Run tests
+bun run test
+
+# Generate OpenAPI schema
+bun run schema
 ```
 
-A live public deployment of this template is available at [https://openapi-template.templates.workers.dev](https://openapi-template.templates.workers.dev)
+## Deployment
 
-## Setup Steps
+### Prerequisites
 
-1. Install the project dependencies with a package manager of your choice:
+1. Create D1 database:
    ```bash
-   npm install
+   wrangler d1 create ngfw-db
    ```
-2. Create a [D1 database](https://developers.cloudflare.com/d1/get-started/) with the name "openapi-template-db":
+   Update `database_id` in `wrangler.jsonc`.
+
+2. Create KV namespaces:
    ```bash
-   npx wrangler d1 create openapi-template-db
+   wrangler kv:namespace create DEVICES
+   wrangler kv:namespace create CONFIGS
+   wrangler kv:namespace create SESSIONS
+   wrangler kv:namespace create CACHE
    ```
-   ...and update the `database_id` field in `wrangler.json` with the new database ID.
-3. Run the following db migration to initialize the database (notice the `migrations` directory in this project):
+   Update the KV IDs in `wrangler.jsonc`.
+
+3. Create R2 buckets:
    ```bash
-   npx wrangler d1 migrations apply DB --remote
+   wrangler r2 bucket create ngfw-firmware
+   wrangler r2 bucket create ngfw-backups
+   wrangler r2 bucket create ngfw-reports
    ```
-4. Deploy the project!
-   ```bash
-   npx wrangler deploy
-   ```
-5. Monitor your worker
-   ```bash
-   npx wrangler tail
-   ```
+
+### Deploy
+
+```bash
+# Apply migrations to remote database
+bun run predeploy
+
+# Deploy to Cloudflare Workers
+bun run deploy
+```
+
+This deploys to `specs.ngfw.sh`.
+
+## Project Structure
+
+```
+packages/schema/
+├── src/
+│   ├── endpoints/       # API endpoint handlers
+│   │   └── tasks/       # Example CRUD endpoints
+│   ├── index.ts         # Main router and OpenAPI config
+│   └── types.ts         # Shared TypeScript types
+├── migrations/          # D1 database migrations
+├── tests/               # Integration tests
+├── openapi.yaml         # Static OpenAPI spec (reference)
+└── wrangler.jsonc       # Cloudflare Workers config
+```
+
+## API Endpoints
+
+The API serves interactive documentation at:
+
+| Path | Description |
+|------|-------------|
+| `/` | Swagger UI |
+| `/redoc` | ReDoc documentation |
+| `/openapi.json` | OpenAPI schema |
+
+### Example Endpoints (from template)
+
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | `/tasks` | List all tasks |
+| POST | `/tasks` | Create a task |
+| GET | `/tasks/:id` | Get a task |
+| PUT | `/tasks/:id` | Update a task |
+| DELETE | `/tasks/:id` | Delete a task |
+
+## Creating New Endpoints
+
+### Basic Endpoint
+
+```typescript
+import { OpenAPIRoute } from 'chanfana';
+import { z } from 'zod';
+
+export class MyEndpoint extends OpenAPIRoute {
+  schema = {
+    tags: ['MyTag'],
+    summary: 'My endpoint',
+    request: {
+      params: z.object({
+        id: z.string(),
+      }),
+    },
+    responses: {
+      200: {
+        description: 'Success',
+        content: {
+          'application/json': {
+            schema: z.object({
+              result: z.string(),
+            }),
+          },
+        },
+      },
+    },
+  };
+
+  async handle(c) {
+    const { id } = c.req.param();
+    return c.json({ result: id });
+  }
+}
+```
+
+### Register in Router
+
+```typescript
+// src/index.ts
+openapi.get('/my-endpoint/:id', MyEndpoint);
+```
+
+## Configuration
+
+### Wrangler Config (`wrangler.jsonc`)
+
+- Worker name: `ngfw-specs`
+- Custom domain: `specs.ngfw.sh`
+- D1 database: `ngfw-db`
+- KV namespaces: DEVICES, CONFIGS, SESSIONS, CACHE
+- R2 buckets: FIRMWARE, BACKUPS, REPORTS
+
+### Environment Variables
+
+Set in `wrangler.jsonc` or Cloudflare dashboard:
+
+| Variable | Description |
+|----------|-------------|
+| `WORKOS_CLIENT_ID` | WorkOS AuthKit client ID |
+| `WORKOS_API_KEY` | WorkOS API key (secret) |
 
 ## Testing
 
-This template includes integration tests using [Vitest](https://vitest.dev/). To run the tests locally:
-
 ```bash
-npm run test
+# Run all tests
+bun run test
+
+# Run specific test file
+bun run test tests/integration/tasks.test.ts
+
+# Watch mode
+bunx vitest --config tests/vitest.config.mts
 ```
-
-Test files are located in the `tests/` directory, with examples demonstrating how to test your endpoints and database interactions.
-
-## Project structure
-
-1. Your main router is defined in `src/index.ts`.
-2. Each endpoint has its own file in `src/endpoints/`.
-3. Integration tests are located in the `tests/` directory.
-4. For more information read the [chanfana documentation](https://chanfana.com/), [Hono documentation](https://hono.dev/docs), and [Vitest documentation](https://vitest.dev/guide/).
