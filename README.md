@@ -6,6 +6,34 @@ Cloud-managed next-generation firewall and router administration platform.
 
 NGFW.sh replaces embedded router web interfaces with an edge-hosted management console. The platform runs on Cloudflare Workers and communicates with on-premises router hardware through an RPC agent.
 
+## Screenshots
+
+> 🎥 **Video Walkthrough**: See the portal in action - [walkthrough.webm](screenshots/walkthrough.webm)
+
+### Login & Authentication
+<p align="center">
+  <img src="screenshots/01-login.png" alt="Login Page" width="400"/>
+  <img src="screenshots/02-signup.png" alt="Signup Page" width="400"/>
+</p>
+
+### Dashboard
+![Dashboard](screenshots/03-dashboard.png)
+
+### Network Configuration
+<p align="center">
+  <img src="screenshots/04-wan.png" alt="WAN Configuration" width="45%"/>
+  <img src="screenshots/08-wifi.png" alt="WiFi Configuration" width="45%"/>
+</p>
+
+### Security
+<p align="center">
+  <img src="screenshots/05-firewall.png" alt="Firewall Rules" width="45%"/>
+  <img src="screenshots/06-dns-filtering.png" alt="DNS Filtering" width="45%"/>
+</p>
+
+### Billing & Plans
+![Billing & Plans](screenshots/07-billing.png)
+
 ## Architecture
 
 ```
