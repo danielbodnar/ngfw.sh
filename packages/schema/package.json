@@ -2,6 +2,7 @@
 	"name": "@ngfw/schema",
 	"description": "NGFW.sh API schema and server using Hono + Chanfana + D1",
 	"dependencies": {
+		"@clerk/backend": "^2.29.2",
 		"chanfana": "2.8.3",
 		"hono": "4.11.1",
 		"zod": "3.25.67"
