@@ -1,9 +1,19 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Activity, Shield, Wifi, Globe, Server, Database, Settings, Monitor, FileText, ChevronDown, ChevronRight, Search, Bell, User, Power, HardDrive, Network, Radio, Lock, Eye, EyeOff, Filter, Download, Upload, RefreshCw, Plus, Trash2, Edit, Copy, Check, X, AlertTriangle, Zap, Clock, TrendingUp, TrendingDown, BarChart3, PieChart, Layers, Route, ShieldAlert, ShieldCheck, ShieldOff, Cpu, Thermometer, MemoryStick, ArrowUpDown, ExternalLink, Terminal, Key, Users, Map, List, Grid, Play, Pause, Square, ChevronLeft, Home, Menu, Maximize2, Minimize2, CreditCard, LogOut, Mail, Building, Crown, Sparkles, Router, CircuitBoard } from 'lucide-react';
+import {
+  SignedIn,
+  SignedOut,
+  SignIn,
+  SignUp,
+  UserButton,
+  useUser,
+  useClerk,
+  Waitlist
+} from '@clerk/clerk-react';
 
 // Types
 type View = 'dashboard' | 'wan' | 'lan' | 'wifi' | 'dhcp' | 'routing' | 'firewall' | 'nat' | 'traffic' | 'dns-filter' | 'ips' | 'vpn-server' | 'vpn-client' | 'qos' | 'ddns' | 'grafana' | 'loki' | 'reports' | 'firmware' | 'backup' | 'logs' | 'hardware' | 'devices' | 'profile' | 'billing';
-type AuthView = 'login' | 'signup' | 'app';
+type AuthView = 'login' | 'signup' | 'waitlist';
 
 interface NavItem { id: View; label: string; icon: React.ReactNode; }
 interface NavGroup { label: string; items: NavItem[]; }
@@ -379,173 +389,144 @@ const Toggle = ({ enabled, onChange, label }: { enabled: boolean; onChange: (v: 
 );
 
 // Auth Pages
-const LoginPage = ({ onLogin, onSignup }: { onLogin: () => void; onSignup: () => void }) => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  
-  const handleWorkOSLogin = () => {
-    const clientId = 'client_01KA05Y23RP9FKCAE0HS19D6RK';
-    const redirectUri = encodeURIComponent(window.location.origin);
-    window.location.href = `https://api.workos.com/sso/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code&provider=authkit`;
-  };
-
-  return (
-    <div className="min-h-screen bg-zinc-950 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        <div className="text-center mb-8">
-          <div className="flex items-center justify-center gap-2 mb-4">
-            <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-cyan-500 rounded-xl flex items-center justify-center">
-              <Router className="w-7 h-7 text-white" />
-            </div>
+// Auth page wrapper with branding
+const AuthPage = ({ children, title, subtitle }: { children: React.ReactNode; title: string; subtitle: string }) => (
+  <div className="min-h-screen bg-zinc-950 flex items-center justify-center p-4">
+    <div className="w-full max-w-md">
+      <div className="text-center mb-8">
+        <div className="flex items-center justify-center gap-2 mb-4">
+          <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-cyan-500 rounded-xl flex items-center justify-center">
+            <Router className="w-7 h-7 text-white" />
           </div>
-          <h1 className="text-2xl font-bold text-white">NGFW.sh</h1>
-          <p className="text-zinc-500 mt-1">Next-generation firewall management</p>
         </div>
-
-        <Card>
-          <div className="space-y-4">
-            <button
-              onClick={handleWorkOSLogin}
-              className="w-full bg-white hover:bg-zinc-100 text-zinc-900 font-medium py-3 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors"
-            >
-              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12s5.37 12 12 12 12-5.37 12-12S18.63 0 12 0zm5.15 8.4h-4.3v1.6h4.2c-.2 2.2-2 3.8-4.2 3.8-2.4 0-4.3-1.9-4.3-4.3s1.9-4.3 4.3-4.3c1.1 0 2.1.4 2.9 1.1l1.2-1.2C15.7 4.1 14 3.4 12 3.4 8.3 3.4 5.3 6.4 5.3 10s3 6.6 6.7 6.6c3.9 0 6.5-2.7 6.5-6.5 0-.6 0-1-.1-1.4l-1.25-.3z"/></svg>
-              Continue with Google
-            </button>
-            
-            <button
-              onClick={handleWorkOSLogin}
-              className="w-full bg-zinc-800 hover:bg-zinc-700 text-white font-medium py-3 px-4 rounded-lg flex items-center justify-center gap-2 border border-zinc-700 transition-colors"
-            >
-              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
-              Continue with GitHub
-            </button>
-            
-            <button
-              onClick={handleWorkOSLogin}
-              className="w-full bg-[#0052CC] hover:bg-[#0047B3] text-white font-medium py-3 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors"
-            >
-              <Building className="w-5 h-5" />
-              Continue with SSO
-            </button>
-
-            <div className="relative my-6">
-              <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-zinc-800"></div></div>
-              <div className="relative flex justify-center text-xs"><span className="bg-zinc-900 px-2 text-zinc-500">or continue with email</span></div>
-            </div>
-
-            <Input label="Email" type="email" placeholder="you@company.com" value={email} onChange={e => setEmail(e.target.value)} />
-            <Input label="Password" type="password" placeholder="••••••••" value={password} onChange={e => setPassword(e.target.value)} />
-
-            <Button variant="primary" className="w-full" size="lg" onClick={onLogin}>Sign In</Button>
-
-            <p className="text-center text-sm text-zinc-500">
-              Don't have an account? <button onClick={onSignup} className="text-emerald-500 hover:text-emerald-400">Sign up</button>
-            </p>
-          </div>
-        </Card>
-
-        <p className="text-center text-xs text-zinc-600 mt-6">
-          By continuing, you agree to NGFW.sh's <a href="#" className="text-zinc-500 hover:text-zinc-400">Terms of Service</a> and <a href="#" className="text-zinc-500 hover:text-zinc-400">Privacy Policy</a>
-        </p>
+        <h1 className="text-2xl font-bold text-white">{title}</h1>
+        <p className="text-zinc-500 mt-1">{subtitle}</p>
       </div>
-    </div>
-  );
-};
-
-const SignupPage = ({ onLogin, onSignup }: { onLogin: () => void; onSignup: () => void }) => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [name, setName] = useState('');
-
-  const handleWorkOSSignup = () => {
-    const clientId = 'client_01KA05Y23RP9FKCAE0HS19D6RK';
-    const redirectUri = encodeURIComponent(window.location.origin);
-    window.location.href = `https://api.workos.com/sso/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code&provider=authkit&screen_hint=sign-up`;
-  };
-
-  return (
-    <div className="min-h-screen bg-zinc-950 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        <div className="text-center mb-8">
-          <div className="flex items-center justify-center gap-2 mb-4">
-            <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-cyan-500 rounded-xl flex items-center justify-center">
-              <Router className="w-7 h-7 text-white" />
-            </div>
-          </div>
-          <h1 className="text-2xl font-bold text-white">Create your account</h1>
-          <p className="text-zinc-500 mt-1">Start securing your network in minutes</p>
-        </div>
-
-        <Card>
-          <div className="space-y-4">
-            <button
-              onClick={handleWorkOSSignup}
-              className="w-full bg-white hover:bg-zinc-100 text-zinc-900 font-medium py-3 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors"
-            >
-              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12s5.37 12 12 12 12-5.37 12-12S18.63 0 12 0zm5.15 8.4h-4.3v1.6h4.2c-.2 2.2-2 3.8-4.2 3.8-2.4 0-4.3-1.9-4.3-4.3s1.9-4.3 4.3-4.3c1.1 0 2.1.4 2.9 1.1l1.2-1.2C15.7 4.1 14 3.4 12 3.4 8.3 3.4 5.3 6.4 5.3 10s3 6.6 6.7 6.6c3.9 0 6.5-2.7 6.5-6.5 0-.6 0-1-.1-1.4l-1.25-.3z"/></svg>
-              Sign up with Google
-            </button>
-            
-            <button
-              onClick={handleWorkOSSignup}
-              className="w-full bg-zinc-800 hover:bg-zinc-700 text-white font-medium py-3 px-4 rounded-lg flex items-center justify-center gap-2 border border-zinc-700 transition-colors"
-            >
-              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
-              Sign up with GitHub
-            </button>
-
-            <div className="relative my-6">
-              <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-zinc-800"></div></div>
-              <div className="relative flex justify-center text-xs"><span className="bg-zinc-900 px-2 text-zinc-500">or sign up with email</span></div>
-            </div>
-
-            <Input label="Full Name" placeholder="John Doe" value={name} onChange={e => setName(e.target.value)} />
-            <Input label="Email" type="email" placeholder="you@company.com" value={email} onChange={e => setEmail(e.target.value)} />
-            <Input label="Password" type="password" placeholder="••••••••" value={password} onChange={e => setPassword(e.target.value)} />
-
-            <Button variant="primary" className="w-full" size="lg" onClick={onSignup}>Create Account</Button>
-
-            <p className="text-center text-sm text-zinc-500">
-              Already have an account? <button onClick={onLogin} className="text-emerald-500 hover:text-emerald-400">Sign in</button>
-            </p>
-          </div>
-        </Card>
+      <div className="flex justify-center">
+        {children}
       </div>
+      <p className="text-center text-xs text-zinc-600 mt-6">
+        By continuing, you agree to NGFW.sh's <a href="#" className="text-zinc-500 hover:text-zinc-400">Terms of Service</a> and <a href="#" className="text-zinc-500 hover:text-zinc-400">Privacy Policy</a>
+      </p>
     </div>
-  );
-};
+  </div>
+);
+
+const LoginPage = ({ onSignup, onWaitlist }: { onSignup: () => void; onWaitlist: () => void }) => (
+  <AuthPage title="NGFW.sh" subtitle="Next-generation firewall management">
+    <SignIn
+      appearance={{
+        elements: {
+          rootBox: 'w-full',
+          card: 'bg-zinc-900 border border-zinc-800 shadow-xl',
+          headerTitle: 'text-white',
+          headerSubtitle: 'text-zinc-400',
+          socialButtonsBlockButton: 'bg-zinc-800 border-zinc-700 text-white hover:bg-zinc-700',
+          formFieldLabel: 'text-zinc-300',
+          formFieldInput: 'bg-zinc-800 border-zinc-700 text-white',
+          footerActionLink: 'text-emerald-500 hover:text-emerald-400',
+          formButtonPrimary: 'bg-emerald-600 hover:bg-emerald-700',
+        }
+      }}
+      routing="hash"
+      signUpUrl="#/sign-up"
+    />
+  </AuthPage>
+);
+
+const SignupPage = ({ onLogin }: { onLogin: () => void }) => (
+  <AuthPage title="Create your account" subtitle="Start securing your network in minutes">
+    <SignUp
+      appearance={{
+        elements: {
+          rootBox: 'w-full',
+          card: 'bg-zinc-900 border border-zinc-800 shadow-xl',
+          headerTitle: 'text-white',
+          headerSubtitle: 'text-zinc-400',
+          socialButtonsBlockButton: 'bg-zinc-800 border-zinc-700 text-white hover:bg-zinc-700',
+          formFieldLabel: 'text-zinc-300',
+          formFieldInput: 'bg-zinc-800 border-zinc-700 text-white',
+          footerActionLink: 'text-emerald-500 hover:text-emerald-400',
+          formButtonPrimary: 'bg-emerald-600 hover:bg-emerald-700',
+        }
+      }}
+      routing="hash"
+      signInUrl="#/sign-in"
+    />
+  </AuthPage>
+);
+
+const WaitlistPage = () => (
+  <AuthPage title="Join the Waitlist" subtitle="Be the first to know when we launch">
+    <Waitlist
+      appearance={{
+        elements: {
+          rootBox: 'w-full',
+          card: 'bg-zinc-900 border border-zinc-800 shadow-xl',
+          headerTitle: 'text-white',
+          headerSubtitle: 'text-zinc-400',
+          formFieldLabel: 'text-zinc-300',
+          formFieldInput: 'bg-zinc-800 border-zinc-700 text-white',
+          formButtonPrimary: 'bg-emerald-600 hover:bg-emerald-700',
+        }
+      }}
+    />
+  </AuthPage>
+);
 
 // Profile Page
 const ProfilePage = () => {
-  const user = { name: 'Daniel Chen', email: 'daniel@example.com', company: 'Acme Corp', plan: 'Home+', avatar: null, createdAt: '2024-01-15', devices: 3 };
-  
+  const { user, isLoaded } = useUser();
+  const { signOut } = useClerk();
+
+  if (!isLoaded) {
+    return <div className="flex items-center justify-center h-64"><p className="text-zinc-500">Loading...</p></div>;
+  }
+
+  if (!user) {
+    return <div className="flex items-center justify-center h-64"><p className="text-zinc-500">Please sign in</p></div>;
+  }
+
+  const fullName = user.fullName || user.firstName || 'User';
+  const email = user.primaryEmailAddress?.emailAddress || '';
+  const initials = fullName.split(' ').map(n => n[0]).join('').toUpperCase();
+  const createdAt = user.createdAt ? new Date(user.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : '';
+  const hasMfa = user.twoFactorEnabled;
+
   return (
     <div className="space-y-6 max-w-4xl">
       <div className="flex items-start gap-6">
-        <div className="w-24 h-24 bg-gradient-to-br from-emerald-500 to-cyan-500 rounded-2xl flex items-center justify-center text-white text-3xl font-bold">
-          {user.name.split(' ').map(n => n[0]).join('')}
-        </div>
+        {user.imageUrl ? (
+          <img src={user.imageUrl} alt={fullName} className="w-24 h-24 rounded-2xl object-cover" />
+        ) : (
+          <div className="w-24 h-24 bg-gradient-to-br from-emerald-500 to-cyan-500 rounded-2xl flex items-center justify-center text-white text-3xl font-bold">
+            {initials}
+          </div>
+        )}
         <div className="flex-1">
-          <h2 className="text-2xl font-bold text-white">{user.name}</h2>
-          <p className="text-zinc-400">{user.email}</p>
+          <h2 className="text-2xl font-bold text-white">{fullName}</h2>
+          <p className="text-zinc-400">{email}</p>
           <div className="flex items-center gap-3 mt-2">
-            <Badge variant="purple"><Crown className="w-3 h-3 inline mr-1" />{user.plan}</Badge>
-            <span className="text-xs text-zinc-500">Member since {user.createdAt}</span>
+            <Badge variant="purple"><Crown className="w-3 h-3 inline mr-1" />Free</Badge>
+            <span className="text-xs text-zinc-500">Member since {createdAt}</span>
           </div>
         </div>
-        <Button><Edit className="w-4 h-4" />Edit Profile</Button>
+        <UserButton
+          appearance={{
+            elements: {
+              avatarBox: 'w-10 h-10',
+            }
+          }}
+        />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card title="Personal Information">
           <div className="space-y-4">
-            <Input label="Full Name" defaultValue={user.name} />
-            <Input label="Email Address" type="email" defaultValue={user.email} />
-            <Input label="Company (optional)" defaultValue={user.company} />
-            <Input label="Phone (optional)" placeholder="+1 (555) 000-0000" />
-            <div className="flex justify-end pt-4 border-t border-zinc-800">
-              <Button variant="primary">Save Changes</Button>
-            </div>
+            <Input label="Full Name" defaultValue={fullName} disabled />
+            <Input label="Email Address" type="email" defaultValue={email} disabled />
+            <Input label="Phone" defaultValue={user.primaryPhoneNumber?.phoneNumber || ''} disabled placeholder="Not set" />
+            <p className="text-xs text-zinc-500">To update your profile, click the user icon above to open Clerk's profile manager.</p>
           </div>
         </Card>
 
@@ -554,23 +535,23 @@ const ProfilePage = () => {
             <div className="flex items-center justify-between py-3 border-b border-zinc-800">
               <div>
                 <p className="text-sm text-zinc-200">Password</p>
-                <p className="text-xs text-zinc-500">Last changed 30 days ago</p>
+                <p className="text-xs text-zinc-500">Managed by Clerk</p>
               </div>
-              <Button size="sm">Change</Button>
+              <UserButton />
             </div>
             <div className="flex items-center justify-between py-3 border-b border-zinc-800">
               <div>
                 <p className="text-sm text-zinc-200">Two-Factor Authentication</p>
-                <p className="text-xs text-zinc-500">Add an extra layer of security</p>
+                <p className="text-xs text-zinc-500">{hasMfa ? 'Enabled for your account' : 'Add an extra layer of security'}</p>
               </div>
-              <Badge variant="warning">Not Enabled</Badge>
+              {hasMfa ? <Badge variant="success">Enabled</Badge> : <Badge variant="warning">Not Enabled</Badge>}
             </div>
             <div className="flex items-center justify-between py-3">
               <div>
                 <p className="text-sm text-zinc-200">Active Sessions</p>
-                <p className="text-xs text-zinc-500">3 devices currently signed in</p>
+                <p className="text-xs text-zinc-500">Manage your active sessions</p>
               </div>
-              <Button size="sm" variant="ghost">Manage</Button>
+              <UserButton />
             </div>
           </div>
         </Card>
@@ -1569,21 +1550,32 @@ const navGroups: NavGroup[] = [
   ]},
 ];
 
+// Auth page wrapper for unauthenticated users
+const AuthPage = ({ children }: { children: React.ReactNode }) => (
+  <div className="min-h-screen bg-zinc-950 flex items-center justify-center p-4">
+    <div className="w-full max-w-md">
+      <div className="text-center mb-8">
+        <div className="w-16 h-16 bg-gradient-to-br from-emerald-500 to-cyan-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+          <Router className="w-10 h-10 text-white" />
+        </div>
+        <h1 className="text-2xl font-bold text-white">NGFW.sh</h1>
+        <p className="text-zinc-500 mt-2">Cloud-managed next-gen firewall</p>
+      </div>
+      {children}
+    </div>
+  </div>
+);
+
 // Main App
 export default function App() {
-  const [authView, setAuthView] = useState<AuthView>('login');
   const [view, setView] = useState<View>('dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [expandedGroups, setExpandedGroups] = useState<string[]>(navGroups.map(g => g.label));
+  const { signOut } = useClerk();
 
   const toggleGroup = (label: string) => setExpandedGroups(prev => prev.includes(label) ? prev.filter(l => l !== label) : [...prev, label]);
 
-  const handleLogin = () => setAuthView('app');
-  const handleSignup = () => setAuthView('app');
-  const handleLogout = () => setAuthView('login');
-
-  if (authView === 'login') return <LoginPage onLogin={handleLogin} onSignup={() => setAuthView('signup')} />;
-  if (authView === 'signup') return <SignupPage onLogin={() => setAuthView('login')} onSignup={handleSignup} />;
+  const handleLogout = () => signOut();
 
   const pages: Record<View, React.ReactNode> = {
     dashboard: <Dashboard />,
@@ -1616,61 +1608,93 @@ export default function App() {
   const currentLabel = navGroups.flatMap(g => g.items).find(i => i.id === view)?.label || 'Dashboard';
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-100 flex">
-      <aside className={cn('bg-zinc-900 border-r border-zinc-800 flex flex-col transition-all duration-200', sidebarOpen ? 'w-56' : 'w-0 overflow-hidden')}>
-        <div className="p-4 border-b border-zinc-800 flex items-center gap-2">
-          <div className="w-8 h-8 bg-gradient-to-br from-emerald-500 to-cyan-500 rounded-lg flex items-center justify-center">
-            <Router className="w-5 h-5 text-white" />
-          </div>
-          <span className="font-bold text-zinc-100">NGFW.sh</span>
-        </div>
-        <nav className="flex-1 overflow-y-auto py-2">
-          {navGroups.map(group => (
-            <div key={group.label}>
-              <button onClick={() => toggleGroup(group.label)} className="w-full flex items-center justify-between px-4 py-2 text-xs font-medium text-zinc-500 uppercase tracking-wider hover:text-zinc-300">
-                {group.label}
-                {expandedGroups.includes(group.label) ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
-              </button>
-              {expandedGroups.includes(group.label) && (
-                <div className="space-y-0.5">
-                  {group.items.map(item => (
-                    <button key={item.id} onClick={() => setView(item.id)} className={cn('w-full flex items-center gap-2 px-4 py-1.5 text-sm transition-colors', view === item.id ? 'bg-zinc-800 text-zinc-100' : 'text-zinc-400 hover:bg-zinc-800/50 hover:text-zinc-200')}>
-                      {item.icon}
-                      {item.label}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-          ))}
-        </nav>
-        <div className="p-3 border-t border-zinc-800">
-          <div className="flex items-center gap-2 text-xs text-zinc-500 mb-2">
-            <span className="w-2 h-2 rounded-full bg-emerald-500" />
-            Connected to home-router
-          </div>
-          <button onClick={handleLogout} className="w-full flex items-center gap-2 px-2 py-1.5 text-xs text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 rounded transition-colors">
-            <LogOut className="w-3 h-3" />Sign Out
-          </button>
-        </div>
-      </aside>
+    <>
+      {/* Unauthenticated: Show SignIn */}
+      <SignedOut>
+        <AuthPage>
+          <SignIn
+            appearance={{
+              baseTheme: undefined,
+              elements: {
+                rootBox: 'w-full',
+                card: 'bg-zinc-900 border border-zinc-800 shadow-2xl',
+                headerTitle: 'text-white',
+                headerSubtitle: 'text-zinc-400',
+                formFieldLabel: 'text-zinc-300',
+                formFieldInput: 'bg-zinc-800 border-zinc-700 text-white',
+                formButtonPrimary: 'bg-emerald-600 hover:bg-emerald-500',
+                footerActionLink: 'text-emerald-400 hover:text-emerald-300',
+                identityPreviewEditButton: 'text-emerald-400',
+              },
+            }}
+            routing="hash"
+          />
+        </AuthPage>
+      </SignedOut>
 
-      <div className="flex-1 flex flex-col min-w-0">
-        <header className="h-12 bg-zinc-900 border-b border-zinc-800 flex items-center justify-between px-4">
-          <div className="flex items-center gap-3">
-            <button onClick={() => setSidebarOpen(!sidebarOpen)} className="text-zinc-400 hover:text-zinc-200"><Menu className="w-5 h-5" /></button>
-            <h1 className="text-sm font-medium text-zinc-200">{currentLabel}</h1>
+      {/* Authenticated: Show Dashboard */}
+      <SignedIn>
+        <div className="min-h-screen bg-zinc-950 text-zinc-100 flex">
+          <aside className={cn('bg-zinc-900 border-r border-zinc-800 flex flex-col transition-all duration-200', sidebarOpen ? 'w-56' : 'w-0 overflow-hidden')}>
+            <div className="p-4 border-b border-zinc-800 flex items-center gap-2">
+              <div className="w-8 h-8 bg-gradient-to-br from-emerald-500 to-cyan-500 rounded-lg flex items-center justify-center">
+                <Router className="w-5 h-5 text-white" />
+              </div>
+              <span className="font-bold text-zinc-100">NGFW.sh</span>
+            </div>
+            <nav className="flex-1 overflow-y-auto py-2">
+              {navGroups.map(group => (
+                <div key={group.label}>
+                  <button onClick={() => toggleGroup(group.label)} className="w-full flex items-center justify-between px-4 py-2 text-xs font-medium text-zinc-500 uppercase tracking-wider hover:text-zinc-300">
+                    {group.label}
+                    {expandedGroups.includes(group.label) ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
+                  </button>
+                  {expandedGroups.includes(group.label) && (
+                    <div className="space-y-0.5">
+                      {group.items.map(item => (
+                        <button key={item.id} onClick={() => setView(item.id)} className={cn('w-full flex items-center gap-2 px-4 py-1.5 text-sm transition-colors', view === item.id ? 'bg-zinc-800 text-zinc-100' : 'text-zinc-400 hover:bg-zinc-800/50 hover:text-zinc-200')}>
+                          {item.icon}
+                          {item.label}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </nav>
+            <div className="p-3 border-t border-zinc-800">
+              <div className="flex items-center gap-2 text-xs text-zinc-500 mb-2">
+                <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                Connected to home-router
+              </div>
+              <button onClick={handleLogout} className="w-full flex items-center gap-2 px-2 py-1.5 text-xs text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 rounded transition-colors">
+                <LogOut className="w-3 h-3" />Sign Out
+              </button>
+            </div>
+          </aside>
+
+          <div className="flex-1 flex flex-col min-w-0">
+            <header className="h-12 bg-zinc-900 border-b border-zinc-800 flex items-center justify-between px-4">
+              <div className="flex items-center gap-3">
+                <button onClick={() => setSidebarOpen(!sidebarOpen)} className="text-zinc-400 hover:text-zinc-200"><Menu className="w-5 h-5" /></button>
+                <h1 className="text-sm font-medium text-zinc-200">{currentLabel}</h1>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-1 text-xs text-zinc-500"><span className="w-2 h-2 rounded-full bg-emerald-500" />System OK</div>
+                <button className="text-zinc-400 hover:text-zinc-200 relative"><Bell className="w-4 h-4" /><span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full" /></button>
+                <UserButton
+                  appearance={{
+                    elements: {
+                      avatarBox: 'w-6 h-6',
+                    },
+                  }}
+                />
+              </div>
+            </header>
+            <main className="flex-1 overflow-auto p-6">{pages[view]}</main>
           </div>
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-1 text-xs text-zinc-500"><span className="w-2 h-2 rounded-full bg-emerald-500" />System OK</div>
-            <button className="text-zinc-400 hover:text-zinc-200 relative"><Bell className="w-4 h-4" /><span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full" /></button>
-            <button onClick={() => setView('profile')} className="flex items-center gap-2 text-zinc-400 hover:text-zinc-200">
-              <div className="w-6 h-6 bg-gradient-to-br from-emerald-500 to-cyan-500 rounded-full flex items-center justify-center text-white text-xs font-bold">D</div>
-            </button>
-          </div>
-        </header>
-        <main className="flex-1 overflow-auto p-6">{pages[view]}</main>
-      </div>
-    </div>
+        </div>
+      </SignedIn>
+    </>
   );
 }
