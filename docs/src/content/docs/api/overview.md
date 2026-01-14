@@ -20,12 +20,13 @@ curl -H "Authorization: Bearer YOUR_JWT_TOKEN" \
   https://api.ngfw.sh/api/system/status
 ```
 
-Tokens are JWTs issued by WorkOS AuthKit with the following claims:
+Tokens are JWTs issued by Clerk.com with the following claims:
 
-- `sub` - User ID
-- `org_id` - Organization ID (for business plans)
-- `plan` - Subscription plan identifier
+- `sub` - User ID (Clerk user_id)
+- `azp` - Authorized party (client application)
 - `exp` - Expiration timestamp
+- `iat` - Issued at timestamp
+- `iss` - Issuer (Clerk instance URL)
 
 ## OpenAPI Specification
 
