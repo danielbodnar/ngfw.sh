@@ -79,7 +79,7 @@ interface NavItem { id: View; label: string; icon: React.ReactNode; }
 
 ### Authentication
 
-WorkOS AuthKit integration with client ID `client_01KA05Y23RP9FKCAE0HS19D6RK`. Auth endpoints redirect to `https://api.workos.com/sso/authorize`.
+Clerk.com integration with instance `tough-unicorn-25`. Publishable key: `pk_test_dG91Z2gtdW5pY29ybi0yNS5jbGVyay5hY2NvdW50cy5kZXYk`. JWKS endpoint: `https://tough-unicorn-25.clerk.accounts.dev/.well-known/jwks.json`. Supports email/password, phone authentication, MFA, and passkeys.
 
 ## Commands Reference
 

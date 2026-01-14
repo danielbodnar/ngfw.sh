@@ -3,14 +3,15 @@ title: Authentication
 description: How to authenticate with the NGFW.sh API
 ---
 
-NGFW.sh uses WorkOS AuthKit for authentication, providing secure SSO with multiple providers.
+NGFW.sh uses Clerk.com for authentication, providing secure authentication with multiple methods including email/password, phone, OAuth, MFA, and passkeys.
 
-## Supported Providers
+## Supported Authentication Methods
 
-- Google
-- GitHub
-- SAML SSO (Business plans)
 - Email/Password
+- Phone Number (SMS)
+- OAuth (Google, GitHub)
+- Multi-factor Authentication (MFA)
+- Passkeys (WebAuthn)
 
 ## Obtaining a Token
 
@@ -26,14 +27,17 @@ NGFW.sh uses WorkOS AuthKit for authentication, providing secure SSO with multip
 For applications that need to authenticate users:
 
 ```javascript
-// Redirect to WorkOS AuthKit
-const authUrl = new URL('https://api.workos.com/sso/authorize');
-authUrl.searchParams.set('client_id', 'client_01KA05Y23RP9FKCAE0HS19D6RK');
-authUrl.searchParams.set('redirect_uri', 'https://your-app.com/callback');
-authUrl.searchParams.set('response_type', 'code');
-authUrl.searchParams.set('provider', 'authkit');
+// Using Clerk's JavaScript SDK
+import Clerk from '@clerk/clerk-js';
 
-window.location.href = authUrl.toString();
+const clerk = new Clerk('pk_test_dG91Z2gtdW5pY29ybi0yNS5jbGVyay5hY2NvdW50cy5kZXYk');
+await clerk.load();
+
+// Sign in with redirect
+await clerk.client.signIn.create({
+  identifier: 'user@example.com',
+  password: 'password'
+});
 ```
 
 ## Using the Token

@@ -165,8 +165,8 @@ Set in `wrangler.jsonc` or Cloudflare dashboard:
 
 | Variable | Description |
 |----------|-------------|
-| `WORKOS_CLIENT_ID` | WorkOS AuthKit client ID |
-| `WORKOS_API_KEY` | WorkOS API key (secret) |
+| `CLERK_PUBLISHABLE_KEY` | Clerk.com publishable key |
+| `CLERK_SECRET_KEY` | Clerk.com secret key |
 
 ## Testing
 
