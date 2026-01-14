@@ -4,16 +4,13 @@ import {
   SignedIn,
   SignedOut,
   SignIn,
-  SignUp,
   UserButton,
   useUser,
-  useClerk,
-  Waitlist
+  useClerk
 } from '@clerk/clerk-react';
 
 // Types
 type View = 'dashboard' | 'wan' | 'lan' | 'wifi' | 'dhcp' | 'routing' | 'firewall' | 'nat' | 'traffic' | 'dns-filter' | 'ips' | 'vpn-server' | 'vpn-client' | 'qos' | 'ddns' | 'grafana' | 'loki' | 'reports' | 'firmware' | 'backup' | 'logs' | 'hardware' | 'devices' | 'profile' | 'billing';
-type AuthView = 'login' | 'signup' | 'waitlist';
 
 interface NavItem { id: View; label: string; icon: React.ReactNode; }
 interface NavGroup { label: string; items: NavItem[]; }
@@ -388,96 +385,9 @@ const Toggle = ({ enabled, onChange, label }: { enabled: boolean; onChange: (v: 
   </button>
 );
 
-// Auth Pages
-// Auth page wrapper with branding
-const AuthPage = ({ children, title, subtitle }: { children: React.ReactNode; title: string; subtitle: string }) => (
-  <div className="min-h-screen bg-zinc-950 flex items-center justify-center p-4">
-    <div className="w-full max-w-md">
-      <div className="text-center mb-8">
-        <div className="flex items-center justify-center gap-2 mb-4">
-          <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-cyan-500 rounded-xl flex items-center justify-center">
-            <Router className="w-7 h-7 text-white" />
-          </div>
-        </div>
-        <h1 className="text-2xl font-bold text-white">{title}</h1>
-        <p className="text-zinc-500 mt-1">{subtitle}</p>
-      </div>
-      <div className="flex justify-center">
-        {children}
-      </div>
-      <p className="text-center text-xs text-zinc-600 mt-6">
-        By continuing, you agree to NGFW.sh's <a href="#" className="text-zinc-500 hover:text-zinc-400">Terms of Service</a> and <a href="#" className="text-zinc-500 hover:text-zinc-400">Privacy Policy</a>
-      </p>
-    </div>
-  </div>
-);
-
-const LoginPage = ({ onSignup, onWaitlist }: { onSignup: () => void; onWaitlist: () => void }) => (
-  <AuthPage title="NGFW.sh" subtitle="Next-generation firewall management">
-    <SignIn
-      appearance={{
-        elements: {
-          rootBox: 'w-full',
-          card: 'bg-zinc-900 border border-zinc-800 shadow-xl',
-          headerTitle: 'text-white',
-          headerSubtitle: 'text-zinc-400',
-          socialButtonsBlockButton: 'bg-zinc-800 border-zinc-700 text-white hover:bg-zinc-700',
-          formFieldLabel: 'text-zinc-300',
-          formFieldInput: 'bg-zinc-800 border-zinc-700 text-white',
-          footerActionLink: 'text-emerald-500 hover:text-emerald-400',
-          formButtonPrimary: 'bg-emerald-600 hover:bg-emerald-700',
-        }
-      }}
-      routing="hash"
-      signUpUrl="#/sign-up"
-    />
-  </AuthPage>
-);
-
-const SignupPage = ({ onLogin }: { onLogin: () => void }) => (
-  <AuthPage title="Create your account" subtitle="Start securing your network in minutes">
-    <SignUp
-      appearance={{
-        elements: {
-          rootBox: 'w-full',
-          card: 'bg-zinc-900 border border-zinc-800 shadow-xl',
-          headerTitle: 'text-white',
-          headerSubtitle: 'text-zinc-400',
-          socialButtonsBlockButton: 'bg-zinc-800 border-zinc-700 text-white hover:bg-zinc-700',
-          formFieldLabel: 'text-zinc-300',
-          formFieldInput: 'bg-zinc-800 border-zinc-700 text-white',
-          footerActionLink: 'text-emerald-500 hover:text-emerald-400',
-          formButtonPrimary: 'bg-emerald-600 hover:bg-emerald-700',
-        }
-      }}
-      routing="hash"
-      signInUrl="#/sign-in"
-    />
-  </AuthPage>
-);
-
-const WaitlistPage = () => (
-  <AuthPage title="Join the Waitlist" subtitle="Be the first to know when we launch">
-    <Waitlist
-      appearance={{
-        elements: {
-          rootBox: 'w-full',
-          card: 'bg-zinc-900 border border-zinc-800 shadow-xl',
-          headerTitle: 'text-white',
-          headerSubtitle: 'text-zinc-400',
-          formFieldLabel: 'text-zinc-300',
-          formFieldInput: 'bg-zinc-800 border-zinc-700 text-white',
-          formButtonPrimary: 'bg-emerald-600 hover:bg-emerald-700',
-        }
-      }}
-    />
-  </AuthPage>
-);
-
 // Profile Page
 const ProfilePage = () => {
   const { user, isLoaded } = useUser();
-  const { signOut } = useClerk();
 
   if (!isLoaded) {
     return <div className="flex items-center justify-center h-64"><p className="text-zinc-500">Loading...</p></div>;
@@ -1551,7 +1461,8 @@ const navGroups: NavGroup[] = [
 ];
 
 // Auth page wrapper for unauthenticated users
-const AuthPage = ({ children }: { children: React.ReactNode }) => (
+function AuthPage({ children }: { children: React.ReactNode }) {
+  return (
   <div className="min-h-screen bg-zinc-950 flex items-center justify-center p-4">
     <div className="w-full max-w-md">
       <div className="text-center mb-8">
@@ -1564,7 +1475,8 @@ const AuthPage = ({ children }: { children: React.ReactNode }) => (
       {children}
     </div>
   </div>
-);
+  );
+}
 
 // Main App
 export default function App() {
