@@ -15,4 +15,4 @@ enabled = true
 head_sampling_rate = 1
 
 # Note: VITE_CLERK_PUBLISHABLE_KEY is set at build time via .dev.vars
-# For production, set via: VITE_CLERK_PUBLISHABLE_KEY=pk_test_... bun run build
+# For production, set via: VITE_CLERK_PUBLISHABLE_KEY=pk_live_... bun run build
