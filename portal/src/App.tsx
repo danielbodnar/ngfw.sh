@@ -402,7 +402,6 @@ const ProfilePage = () => {
   const initials = fullName
     .trim()
     .split(/\s+/)
-    .filter(part => part.length > 0)
     .map(part => part[0])
     .join('')
     .toUpperCase();
