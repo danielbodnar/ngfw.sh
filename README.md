@@ -1,6 +1,6 @@
 # NGFW.sh
 
-Cloud-managed next-generation firewall and router administration platform.
+Cloud-managed next-generation firewall and router platform built on Cloudflare's Edge network. Provides enterprise-grade network security, parental controls, and centralized device management through an intuitive web interface accessible from anywhere. Ideal for families seeking professional-level protection without complexity.
 
 ## Overview
 
