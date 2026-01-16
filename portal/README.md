@@ -12,7 +12,7 @@ Web dashboard for NGFW.sh firewall management, built with React and Vite.
 - Traffic logs with filtering and search
 - DNS filtering with blocklist management
 - VPN server peer management
-- User authentication via WorkOS AuthKit
+- User authentication via Clerk.com (email/password, phone, OAuth, MFA, passkeys)
 - Billing and subscription management
 
 ## Development

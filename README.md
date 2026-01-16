@@ -11,6 +11,9 @@ NGFW.sh replaces embedded router web interfaces with an edge-hosted management c
 > 🎥 **Video Walkthrough**: See the portal in action - [walkthrough.webm](screenshots/walkthrough.webm)
 
 ### Login & Authentication
+
+The platform uses [Clerk.com](https://clerk.com) for authentication, providing secure email/password, OAuth (Google, GitHub), phone authentication, MFA, and passkey support.
+
 <p align="center">
   <img src="screenshots/01-login.png" alt="Login Page" width="400"/>
   <img src="screenshots/02-signup.png" alt="Signup Page" width="400"/>
