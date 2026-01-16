@@ -1,14 +1,23 @@
 {
-	"compatibility_date": "2025-10-08",
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"compatibility_date": "2025-01-10",
 	"main": "src/index.ts",
 	"name": "ngfw-specs",
 	"upload_source_maps": true,
+	"workers_dev": true,
 	"routes": [
 		{ "pattern": "specs.ngfw.sh", "custom_domain": true }
 	],
 	"observability": {
-		"enabled": true
+		"enabled": true,
+		"head_sampling_rate": 1,
+		"logs": {
+			"enabled": true,
+			"head_sampling_rate": 1
+		}
 	},
+	// Clerk secret must be added via: bunx wrangler@latest secret put CLERK_SECRET_KEY
+	// Get your secret key from: https://dashboard.clerk.com/ > API Keys
 	"d1_databases": [
 		{
 			"binding": "DB",

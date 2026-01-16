@@ -14,22 +14,38 @@ Runs on the router hardware. Executes configuration changes and reports status t
 
 ## Authentication
 
-### WorkOS AuthKit integration
+### Clerk.com Integration
 
-| Parameter     | Value                                    |
-| ------------- | ---------------------------------------- |
-| Client ID     | `client_01KA05Y23RP9FKCAE0HS19D6RK`      |
-| Auth endpoint | `https://api.workos.com/sso/authorize`   |
-| Providers     | Google, GitHub, SAML SSO, Email/Password |
+| Parameter        | Value                                                                     |
+| ---------------- | ------------------------------------------------------------------------- |
+| Instance         | `tough-unicorn-25`                                                        |
+| Publishable Key  | `pk_test_dG91Z2gtdW5pY29ybi0yNS5jbGVyay5hY2NvdW50cy5kZXYk`                 |
+| JWKS Endpoint    | `https://tough-unicorn-25.clerk.accounts.dev/.well-known/jwks.json`       |
+| Auth Methods     | Email/Password, Phone Number                                              |
+| Dashboard        | https://dashboard.clerk.com                                               |
 
-### API authentication
+### Enabled Features
 
-All API requests include an `Authorization: Bearer <token>` header. Tokens are JWTs issued by WorkOS with the following claims:
+- Email + Password authentication
+- Phone number authentication
+- Waitlist mode
+- Multi-factor authentication (MFA)
+- Clerk Sessions
+- B2C Billing
+- Passkeys
+- User API Keys
 
-- `sub`: User ID
-- `org_id`: Organization ID (for business plans)
-- `plan`: Subscription plan identifier
+### API Authentication
+
+All API requests include an `Authorization: Bearer <token>` header. Tokens are JWTs issued by Clerk with the following claims:
+
+- `sub`: User ID (Clerk user_id)
+- `azp`: Authorized party (client application)
 - `exp`: Expiration timestamp
+- `iat`: Issued at timestamp
+- `iss`: Issuer (Clerk instance URL)
+
+JWT verification uses Clerk's JWKS endpoint to validate tokens.
 
 ### Router agent authentication
 

@@ -76,7 +76,7 @@ ngfw.sh/
 | Database | Cloudflare D1 (SQLite) |
 | Key-Value Store | Cloudflare KV |
 | Object Storage | Cloudflare R2 |
-| Authentication | WorkOS AuthKit |
+| Authentication | Clerk.com (Email, Password, Phone, MFA, Passkeys) |
 
 ## Quick Start
 
