@@ -19,7 +19,7 @@ Runs on the router hardware. Executes configuration changes and reports status t
 | Parameter        | Value                                                                     |
 | ---------------- | ------------------------------------------------------------------------- |
 | Instance         | `tough-unicorn-25`                                                        |
-| Publishable Key  | `pk_test_YOUR_CLERK_PUBLISHABLE_KEY`                                      |
+| Publishable Key  | `pk_test_dG91Z2gtdW5pY29ybi0yNS5jbGVyay5hY2NvdW50cy5kZXYk`                 |
 | JWKS Endpoint    | `https://tough-unicorn-25.clerk.accounts.dev/.well-known/jwks.json`       |
 | Auth Methods     | Email/Password, Phone Number                                              |
 | Dashboard        | https://dashboard.clerk.com                                               |

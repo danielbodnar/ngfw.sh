@@ -399,12 +399,7 @@ const ProfilePage = () => {
 
   const fullName = user.fullName || user.firstName || 'User';
   const email = user.primaryEmailAddress?.emailAddress || '';
-  const initials = fullName
-    .trim()
-    .split(/\s+/)
-    .map(part => part[0])
-    .join('')
-    .toUpperCase();
+  const initials = fullName.split(' ').map(n => n[0]).join('').toUpperCase();
   const createdAt = user.createdAt ? new Date(user.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : '';
   const hasMfa = user.twoFactorEnabled;
 

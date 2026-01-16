@@ -78,7 +78,7 @@
 | Parameter | Value |
 |-----------|-------|
 | Instance Name | tough-unicorn-25 |
-| Publishable Key | `pk_test_YOUR_KEY_HERE` |
+| Publishable Key | `pk_test_dG91Z2gtdW5pY29ybi0yNS5jbGVyay5hY2NvdW50cy5kZXYk` |
 | JWKS Endpoint | `https://tough-unicorn-25.clerk.accounts.dev/.well-known/jwks.json` |
 | Dashboard | https://dashboard.clerk.com |
 
