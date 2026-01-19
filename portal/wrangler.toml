@@ -1,6 +1,10 @@
 name = "ngfw-portal"
-compatibility_date = "2025-01-10"
+compatibility_date = "2026-01-10"
 workers_dev = true
+
+
+[vars]
+VITE_CLERK_PUBLISHABLE_KEY = "pk_test_dG91Z2gtdW5pY29ybi0yNS5jbGVyay5hY2NvdW50cy5kZXYk"
 
 [assets]
 directory = "./dist"
