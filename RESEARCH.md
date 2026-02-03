@@ -25,17 +25,17 @@
 
 NGFW.sh occupies a unique niche that none of the above fully addresses:
 
-1. **Zero hardware lock-in.** Unlike Firewalla, Ubiquiti, or Meraki Go, NGFW.sh manages *existing* routers. The customer doesn't buy a $500+ appliance.
+1. **Hardware + cloud-managed SaaS.** Users choose from a curated list of supported devices at sign-up (or add devices later via the portal). Unlike competitors that sell proprietary appliances at inflated margins, NGFW.sh supports commodity hardware — keeping the upfront cost low while delivering enterprise-grade management through the cloud.
 
-2. **No self-hosting.** ZenArmor and pfSense require the user to run OPNsense/pfSense on their own hardware. NGFW.sh's management plane is fully hosted on Cloudflare's edge — zero maintenance.
+2. **No self-hosting the management plane.** ZenArmor and pfSense require the user to run OPNsense/pfSense management locally. NGFW.sh's entire management console is hosted on Cloudflare's edge — zero server maintenance for the customer.
 
-3. **Real-time WebSocket control.** Most competitors use polling or require local access. NGFW.sh provides real-time RPC to the router agent from anywhere.
+3. **Real-time WebSocket control.** Most competitors use polling or require local access. NGFW.sh provides real-time RPC to the router agent from anywhere via persistent WebSocket connections through Durable Objects.
 
 4. **Edge-hosted globally.** Running on Cloudflare Workers means sub-50ms latency to the dashboard from virtually anywhere. No central server bottleneck.
 
-5. **Full NGFW feature set in SaaS form.** IDS/IPS, DNS filtering, VPN management, QoS, traffic analytics, fleet management — features that typically require enterprise hardware or self-hosted software.
+5. **Full NGFW feature set in SaaS form.** IDS/IPS, DNS filtering, VPN management, QoS, traffic analytics, fleet management — features that typically require expensive enterprise hardware or complex self-hosted software stacks.
 
-The tradeoff: customers pay a recurring fee instead of a large upfront hardware cost. A Firewalla Gold Plus is $599 one-time; at $25/mo NGFW.sh breaks even at 24 months but delivers ongoing updates, cloud management, and no hardware to maintain.
+The model: customers purchase affordable supported hardware and pay a monthly subscription for the cloud management platform. This is comparable to the Meraki model (hardware + license) but at a fraction of the cost and without vendor lock-in on the hardware side.
 
 ## Pricing Tiers
 
