@@ -48,6 +48,9 @@ http = "1.4.0"
 # Console error panic hook for better error messages in wasm
 console_error_panic_hook = "0.1"
 
+# getrandom needs js feature for wasm32-unknown-unknown target
+getrandom = { version = "0.2", features = ["js"] }
+
 [profile.release]
 opt-level = "s"
 lto = true
