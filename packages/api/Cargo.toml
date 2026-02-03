@@ -1,0 +1,53 @@
+[package]
+name = "ngfw-api"
+version = "0.1.0"
+edition = "2021"
+authors = ["NGFW.sh Team"]
+description = "NGFW.sh API Server - Cloudflare Workers Rust Implementation"
+license = "MIT"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+# Cloudflare Workers Rust SDK
+worker = { version = "0.7", features = ["http", "d1"] }
+
+# WASM bindgen (re-exported by worker but needed for some macros)
+wasm-bindgen = "0.2"
+wasm-bindgen-futures = "0.4"
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# Async utilities
+futures = "0.3"
+
+# UUID generation
+uuid = { version = "1.0", features = ["v4", "js"] }
+
+# Time handling
+chrono = { version = "0.4", default-features = false, features = ["clock", "std", "wasmbind"] }
+
+# Base64 encoding/decoding
+base64 = "0.22"
+
+# JWT handling
+jsonwebtoken = { version = "9.0", default-features = false }
+
+# HTTP types
+http = "1.0"
+
+# Console error panic hook for better error messages in wasm
+console_error_panic_hook = "0.1"
+
+[profile.release]
+opt-level = "s"
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true
+
+[package.metadata.wasm-pack.profile.release]
+wasm-opt = ["-Os"]

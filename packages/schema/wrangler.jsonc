@@ -1,6 +1,6 @@
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
-	"compatibility_date": "2025-01-10",
+	"compatibility_date": "2026-02-03",
 	"main": "src/index.ts",
 	"name": "ngfw-specs",
 	"upload_source_maps": true,

@@ -2,14 +2,19 @@
   "name": "ngfw.sh",
   "private": true,
   "scripts": {
-    "setup": "bun install && bun run --cwd portal install && bun run --cwd packages/schema install && bun run --cwd docs install",
-    "build": "bun run build:portal && bun run build:schema && bun run build:docs",
-    "build:portal": "bun run --cwd portal build",
+    "setup": "bun install && bun install --cwd packages/www && bun install --cwd packages/portal && bun install --cwd packages/schema && bun install --cwd docs",
+    "build": "bun run build:www && bun run build:portal && bun run build:schema && bun run build:docs",
+    "build:all": "bun run build:www && bun run build:portal && bun run build:schema && bun run build:api && bun run build:docs",
+    "build:www": "bun run --cwd packages/www build",
+    "build:portal": "bun run --cwd packages/portal build",
     "build:schema": "wrangler deploy --cwd packages/schema --dry-run --outdir dist",
+    "build:api": "echo 'Rust API build skipped - see packages/api/README.md for status'",
     "build:docs": "bun run --cwd docs build",
-    "dev": "echo 'Run dev servers individually: bun run dev:portal, dev:schema, or dev:docs'",
-    "dev:portal": "bun run --cwd portal dev",
+    "dev": "echo 'Run dev servers individually: bun run dev:www, dev:portal, dev:schema, dev:api, or dev:docs'",
+    "dev:www": "bun run --cwd packages/www dev",
+    "dev:portal": "bun run --cwd packages/portal dev",
     "dev:schema": "bun run --cwd packages/schema dev",
+    "dev:api": "wrangler dev --cwd packages/api",
     "dev:docs": "bun run --cwd docs dev",
     "lint": "oxlint --config .oxlintrc.json .",
     "lint:fix": "oxlint --config .oxlintrc.json --fix .",
@@ -20,17 +25,20 @@
     "db:migrate": "bun run db:migrate:local",
     "db:migrate:local": "wrangler d1 migrations apply DB --local --config packages/schema/wrangler.jsonc",
     "db:migrate:remote": "wrangler d1 migrations apply DB --remote --config packages/schema/wrangler.jsonc",
-    "deploy": "bun run deploy:portal && bun run deploy:schema && bun run deploy:docs",
-    "deploy:portal": "bun run --cwd portal deploy",
+    "deploy": "bun run deploy:www && bun run deploy:portal && bun run deploy:schema && bun run deploy:docs",
+    "deploy:all": "bun run deploy:www && bun run deploy:portal && bun run deploy:schema && bun run deploy:api && bun run deploy:docs",
+    "deploy:www": "bun run --cwd packages/www deploy",
+    "deploy:portal": "bun run --cwd packages/portal deploy",
     "deploy:schema": "bun run --cwd packages/schema deploy",
+    "deploy:api": "wrangler deploy --cwd packages/api",
     "deploy:docs": "bun run --cwd docs deploy"
   },
   "dependencies": {
     "@openauthjs/openauth": "^0.4.3"
   },
   "devDependencies": {
-    "oxfmt": "^0.21.0",
-    "oxlint": "^1.36.0",
-    "wrangler": "^4.54.0"
+    "oxfmt": "^0.28.0",
+    "oxlint": "^1.43.0",
+    "wrangler": "^4.62.0"
   }
 }

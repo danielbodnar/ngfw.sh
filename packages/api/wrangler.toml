@@ -1,0 +1,88 @@
+name = "ngfw-api"
+main = "build/worker/shim.mjs"
+compatibility_date = "2026-02-03"
+compatibility_flags = ["rpc"]
+
+[build]
+command = "cargo install -q worker-build && worker-build --release"
+
+# Routes
+routes = [
+  { pattern = "api.ngfw.sh", custom_domain = true }
+]
+
+# Observability
+[observability]
+enabled = true
+head_sampling_rate = 1
+
+[observability.logs]
+enabled = true
+head_sampling_rate = 1
+
+# KV Namespaces
+[[kv_namespaces]]
+binding = "DEVICES"
+id = "8fbab7a7ee644d99aac357a7524bceaf"
+
+[[kv_namespaces]]
+binding = "CONFIGS"
+id = "13850006fe184213a5ed3e1790602569"
+
+[[kv_namespaces]]
+binding = "SESSIONS"
+id = "87267b40ebc5441a95c57e2478fa35ff"
+
+[[kv_namespaces]]
+binding = "CACHE"
+id = "3d26fee7802e4b4aa72b5fe56348c3f5"
+
+# D1 Database
+[[d1_databases]]
+binding = "DB"
+database_name = "ngfw-db"
+database_id = "49752c13-9ae5-416d-9e69-bc34cc603c8d"
+
+# R2 Buckets
+[[r2_buckets]]
+binding = "FIRMWARE"
+bucket_name = "ngfw-firmware"
+
+[[r2_buckets]]
+binding = "BACKUPS"
+bucket_name = "ngfw-backups"
+
+[[r2_buckets]]
+binding = "REPORTS"
+bucket_name = "ngfw-reports"
+
+# Durable Objects
+[[durable_objects.bindings]]
+name = "AGENT_CONNECTIONS"
+class_name = "AgentConnection"
+
+[[migrations]]
+tag = "v1"
+new_classes = ["AgentConnection"]
+
+# Environment Variables
+# Clerk secret must be added via: bunx wrangler secret put CLERK_SECRET_KEY
+# Get your secret key from: https://dashboard.clerk.com/ > API Keys
+[vars]
+CLERK_PUBLISHABLE_KEY = "pk_test_dG91Z2gtdW5pY29ybi0yNS5jbGVyay5hY2NvdW50cy5kZXYk"
+CLERK_JWKS_URL = "https://tough-unicorn-25.clerk.accounts.dev/.well-known/jwks.json"
+API_VERSION = "v1"
+
+# Development settings
+[env.dev]
+name = "ngfw-api-dev"
+
+[env.dev.vars]
+ENVIRONMENT = "development"
+
+# Production settings
+[env.production]
+name = "ngfw-api"
+
+[env.production.vars]
+ENVIRONMENT = "production"

@@ -1,5 +1,5 @@
 name = "ngfw-portal"
-compatibility_date = "2026-01-10"
+compatibility_date = "2026-02-03"
 workers_dev = true
 
 # Custom domains for the portal

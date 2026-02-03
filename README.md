@@ -62,8 +62,9 @@ The platform uses [Clerk.com](https://clerk.com) for authentication, providing s
 
 ```
 ngfw.sh/
-├── portal/           # React web dashboard (ngfw.sh)
 ├── packages/
+│   ├── www/          # Marketing website
+│   ├── portal/       # React web dashboard (ngfw.sh)
 │   └── schema/       # API server with OpenAPI spec (specs.ngfw.sh)
 ├── docs/             # Astro Starlight documentation (docs.ngfw.sh)
 └── AGENTS.md         # API specification
@@ -92,30 +93,27 @@ ngfw.sh/
 ### Development
 
 ```bash
-# Install dependencies
-bun install
+# Install all dependencies
+bun run setup
 
-# Start the portal dev server
-cd portal && bun run dev
-
-# Start the API server
-cd packages/schema && bun run dev
-
-# Start the docs server
-cd docs && bun run dev
+# Start individual dev servers
+bun run dev:www      # Marketing website
+bun run dev:portal   # React dashboard
+bun run dev:schema   # API server
+bun run dev:docs     # Documentation
 ```
 
 ### Deployment
 
 ```bash
-# Deploy the portal to ngfw.sh
-cd portal && bun run deploy
+# Deploy everything
+bun run deploy
 
-# Deploy the API to specs.ngfw.sh
-cd packages/schema && bun run deploy
-
-# Deploy the docs to docs.ngfw.sh
-cd docs && bun run deploy
+# Or deploy individually
+bun run deploy:www
+bun run deploy:portal
+bun run deploy:schema
+bun run deploy:docs
 ```
 
 ## Features
