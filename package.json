@@ -1,4 +1,30 @@
 {
+  "name": "ngfw.sh",
+  "private": true,
+  "scripts": {
+    "setup": "bun install && bun run --cwd portal install && bun run --cwd packages/schema install && bun run --cwd docs install",
+    "build": "bun run build:portal && bun run build:schema && bun run build:docs",
+    "build:portal": "bun run --cwd portal build",
+    "build:schema": "wrangler deploy --cwd packages/schema --dry-run --outdir dist",
+    "build:docs": "bun run --cwd docs build",
+    "dev": "echo 'Run dev servers individually: bun run dev:portal, dev:schema, or dev:docs'",
+    "dev:portal": "bun run --cwd portal dev",
+    "dev:schema": "bun run --cwd packages/schema dev",
+    "dev:docs": "bun run --cwd docs dev",
+    "lint": "oxlint --config .oxlintrc.json .",
+    "lint:fix": "oxlint --config .oxlintrc.json --fix .",
+    "format": "oxfmt --write .",
+    "format:check": "oxfmt --check .",
+    "test": "bun run test:schema",
+    "test:schema": "bun run --cwd packages/schema test",
+    "db:migrate": "bun run db:migrate:local",
+    "db:migrate:local": "wrangler d1 migrations apply DB --local --config packages/schema/wrangler.jsonc",
+    "db:migrate:remote": "wrangler d1 migrations apply DB --remote --config packages/schema/wrangler.jsonc",
+    "deploy": "bun run deploy:portal && bun run deploy:schema && bun run deploy:docs",
+    "deploy:portal": "bun run --cwd portal deploy",
+    "deploy:schema": "bun run --cwd packages/schema deploy",
+    "deploy:docs": "bun run --cwd docs deploy"
+  },
   "dependencies": {
     "@openauthjs/openauth": "^0.4.3"
   },
