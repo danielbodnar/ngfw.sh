@@ -1,5 +1,7 @@
 //! User and billing models
 
+#![allow(dead_code)]
+
 use serde::{Deserialize, Serialize};
 
 /// User profile

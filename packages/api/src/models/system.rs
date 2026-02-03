@@ -1,5 +1,7 @@
 //! System-related models
 
+#![allow(dead_code)]
+
 use serde::{Deserialize, Serialize};
 
 /// System status response

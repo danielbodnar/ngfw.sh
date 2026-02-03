@@ -1,5 +1,7 @@
 //! Error types and handling for the NGFW.sh API
 
+#![allow(dead_code)]
+
 use serde::{Deserialize, Serialize};
 use worker::*;
 

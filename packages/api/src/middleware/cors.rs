@@ -1,5 +1,7 @@
 //! CORS middleware
 
+#![allow(dead_code)]
+
 use worker::*;
 
 /// CORS headers for API responses

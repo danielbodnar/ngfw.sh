@@ -1,5 +1,7 @@
 //! Security-related models (Firewall, NAT, DNS, IDS/IPS)
 
+#![allow(dead_code)]
+
 use serde::{Deserialize, Serialize};
 
 /// Firewall zone

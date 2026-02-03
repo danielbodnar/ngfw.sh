@@ -1,5 +1,7 @@
 //! RPC message models for router agent communication
 
+#![allow(dead_code)]
+
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 

@@ -1,5 +1,7 @@
 //! Service models (VPN, QoS, DDNS)
 
+#![allow(dead_code)]
+
 use serde::{Deserialize, Serialize};
 
 /// VPN server configuration

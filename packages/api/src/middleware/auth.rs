@@ -1,7 +1,9 @@
 //! Authentication middleware for Clerk JWT validation
 
+#![allow(dead_code)]
+
 use crate::models::{ApiError, ApiResult};
-use base64::{engine::general_purpose::URL_SAFE_NO_PAD, Engine};
+use base64::{Engine, engine::general_purpose::URL_SAFE_NO_PAD};
 use serde::{Deserialize, Serialize};
 use worker::*;
 
@@ -161,11 +163,7 @@ pub async fn authenticate_device(api_key: &str, env: &Env) -> ApiResult<DeviceAu
 }
 
 /// Check if user has access to a specific device
-pub async fn check_device_access(
-    auth: &AuthContext,
-    device_id: &str,
-    env: &Env,
-) -> ApiResult<()> {
+pub async fn check_device_access(auth: &AuthContext, device_id: &str, env: &Env) -> ApiResult<()> {
     let kv = env
         .kv("DEVICES")
         .map_err(|_| ApiError::internal("Failed to access device store"))?;
@@ -189,8 +187,8 @@ pub async fn check_device_access(
         .map_err(|_| ApiError::internal("Invalid device record"))?;
 
     // Check if user owns the device or is in the same organization
-    let has_access = device.owner_id == auth.user_id
-        || (auth.org_id.is_some() && auth.org_id == device.org_id);
+    let has_access =
+        device.owner_id == auth.user_id || (auth.org_id.is_some() && auth.org_id == device.org_id);
 
     if !has_access {
         return Err(ApiError::forbidden("Access denied to this device"));

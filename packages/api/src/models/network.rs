@@ -1,5 +1,7 @@
 //! Network configuration models
 
+#![allow(dead_code)]
+
 use serde::{Deserialize, Serialize};
 
 /// WAN connection types
@@ -125,11 +127,11 @@ pub struct WifiRadio {
 #[serde(rename_all = "lowercase")]
 pub enum WifiBand {
     #[serde(rename = "2.4ghz")]
-    Band2_4Ghz,
+    Band2_4,
     #[serde(rename = "5ghz")]
-    Band5Ghz,
+    Band5,
     #[serde(rename = "6ghz")]
-    Band6Ghz,
+    Band6,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

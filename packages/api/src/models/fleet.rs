@@ -1,5 +1,7 @@
 //! Fleet management models
 
+#![allow(dead_code)]
+
 use serde::{Deserialize, Serialize};
 
 /// Managed device

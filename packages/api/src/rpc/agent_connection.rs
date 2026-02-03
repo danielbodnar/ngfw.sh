@@ -7,6 +7,8 @@
 //! - Status updates and metrics collection
 //! - Command execution requests
 
+#![allow(dead_code)]
+
 use crate::models::rpc::*;
 use serde::{Deserialize, Serialize};
 use std::cell::RefCell;
@@ -113,15 +115,15 @@ impl AgentConnection {
             }
         }
 
-        let websocket = self.websocket.borrow();
-        let ws = match websocket.as_ref() {
-            Some(ws) => ws,
-            None => {
+        // Check websocket exists before await (drop borrow before async)
+        {
+            let websocket = self.websocket.borrow();
+            if websocket.is_none() {
                 return Response::error("Device not connected", 503);
             }
-        };
+        }
 
-        // Parse command
+        // Parse command (await point - no RefCell borrows held)
         let cmd: serde_json::Value = req.json().await?;
         let command_type = cmd
             .get("type")
@@ -157,9 +159,15 @@ impl AgentConnection {
             );
         }
 
-        // Send to device
-        let msg_str = serde_json::to_string(&message)?;
-        ws.send_with_str(&msg_str)?;
+        // Send to device (re-acquire borrow after all await points before this)
+        {
+            let websocket = self.websocket.borrow();
+            let ws = websocket
+                .as_ref()
+                .ok_or_else(|| worker::Error::from("WebSocket disconnected"))?;
+            let msg_str = serde_json::to_string(&message)?;
+            ws.send_with_str(&msg_str)?;
+        }
 
         self.save_state().await?;
 
@@ -464,7 +472,12 @@ impl AgentConnection {
 
     /// Load state from Durable Object storage
     async fn load_state(&self) -> Result<()> {
-        if let Some(state) = self.state.storage().get::<AgentState>("agent_state").await? {
+        if let Some(state) = self
+            .state
+            .storage()
+            .get::<AgentState>("agent_state")
+            .await?
+        {
             *self.agent_state.borrow_mut() = state;
         }
         Ok(())

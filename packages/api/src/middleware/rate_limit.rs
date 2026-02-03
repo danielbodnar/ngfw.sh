@@ -1,4 +1,8 @@
 //! Rate limiting middleware
+//!
+//! This module is scaffolded for future implementation.
+
+#![allow(dead_code)]
 
 use crate::models::{ApiError, ApiResult};
 use worker::*;
@@ -37,11 +41,7 @@ pub fn get_rate_limit(path: &str) -> RateLimitConfig {
 
 /// Check rate limit for a request
 /// Returns Ok if within limits, Err with rate limit error if exceeded
-pub async fn check_rate_limit(
-    user_id: &str,
-    path: &str,
-    env: &Env,
-) -> ApiResult<()> {
+pub async fn check_rate_limit(user_id: &str, path: &str, env: &Env) -> ApiResult<()> {
     let config = get_rate_limit(path);
     let kv = env
         .kv("CACHE")
@@ -98,9 +98,7 @@ fn get_path_pattern(path: &str) -> String {
 }
 
 fn is_uuid(s: &str) -> bool {
-    s.len() == 36
-        && s.chars()
-            .all(|c| c.is_ascii_hexdigit() || c == '-')
+    s.len() == 36 && s.chars().all(|c| c.is_ascii_hexdigit() || c == '-')
 }
 
 fn is_numeric(s: &str) -> bool {

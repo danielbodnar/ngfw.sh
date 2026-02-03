@@ -36,10 +36,10 @@ pub async fn websocket_handler(req: Request, ctx: RouteContext<()>) -> Result<Re
 
 fn extract_api_key(req: &Request) -> Result<String> {
     // Try Authorization header first
-    if let Ok(Some(auth_header)) = req.headers().get("Authorization") {
-        if auth_header.starts_with("Bearer ") {
-            return Ok(auth_header[7..].to_string());
-        }
+    if let Ok(Some(auth_header)) = req.headers().get("Authorization")
+        && let Some(token) = auth_header.strip_prefix("Bearer ")
+    {
+        return Ok(token.to_string());
     }
 
     // Try X-API-Key header
@@ -48,10 +48,10 @@ fn extract_api_key(req: &Request) -> Result<String> {
     }
 
     // Try query parameter
-    if let Ok(url) = req.url() {
-        if let Some(key) = url.query_pairs().find(|(k, _)| k == "api_key") {
-            return Ok(key.1.to_string());
-        }
+    if let Ok(url) = req.url()
+        && let Some(key) = url.query_pairs().find(|(k, _)| k == "api_key")
+    {
+        return Ok(key.1.to_string());
     }
 
     Err(Error::from("Missing API key"))
