@@ -529,12 +529,11 @@ export default function App() {
         <div className="max-w-5xl mx-auto mt-16 px-4">
           <div className="gradient-border rounded-2xl glow overflow-hidden">
             <div className="bg-zinc-900 p-2">
-              <div className="bg-zinc-950 rounded-lg aspect-video flex items-center justify-center">
-                <div className="text-center">
-                  <Activity className="w-16 h-16 text-zinc-700 mx-auto mb-4" />
-                  <p className="text-zinc-600">Dashboard Preview</p>
-                </div>
-              </div>
+              <img 
+                src="/dashboard-preview.png" 
+                alt="NGFW.sh Dashboard showing network traffic, firewall rules, and system health" 
+                className="rounded-lg w-full"
+              />
             </div>
           </div>
         </div>
