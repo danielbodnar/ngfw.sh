@@ -1,7 +1,6 @@
 name = "ngfw-api"
 main = "build/worker/shim.mjs"
 compatibility_date = "2026-02-03"
-compatibility_flags = ["rpc"]
 
 [build]
 command = "cargo install -q worker-build && worker-build --release"
