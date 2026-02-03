@@ -22,25 +22,25 @@
 		{
 			"binding": "DB",
 			"database_name": "ngfw-db",
-			"database_id": "TODO_CREATE_D1_DATABASE"
+			"database_id": "49752c13-9ae5-416d-9e69-bc34cc603c8d"
 		}
 	],
 	"kv_namespaces": [
 		{
 			"binding": "DEVICES",
-			"id": "TODO_CREATE_KV_NAMESPACE"
+			"id": "8fbab7a7ee644d99aac357a7524bceaf"
 		},
 		{
 			"binding": "CONFIGS",
-			"id": "TODO_CREATE_KV_NAMESPACE"
+			"id": "13850006fe184213a5ed3e1790602569"
 		},
 		{
 			"binding": "SESSIONS",
-			"id": "TODO_CREATE_KV_NAMESPACE"
+			"id": "87267b40ebc5441a95c57e2478fa35ff"
 		},
 		{
 			"binding": "CACHE",
-			"id": "TODO_CREATE_KV_NAMESPACE"
+			"id": "3d26fee7802e4b4aa72b5fe56348c3f5"
 		}
 	],
 	"r2_buckets": [
