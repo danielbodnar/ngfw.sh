@@ -190,3 +190,17 @@ impl<T: Serialize> IntoApiResponse for ApiResult<T> {
         }
     }
 }
+
+/// Convert worker::Error to ApiError
+impl From<worker::Error> for ApiError {
+    fn from(err: worker::Error) -> Self {
+        ApiError::internal(err.to_string())
+    }
+}
+
+/// Convert serde_json::Error to ApiError
+impl From<serde_json::Error> for ApiError {
+    fn from(err: serde_json::Error) -> Self {
+        ApiError::bad_request(format!("JSON error: {}", err))
+    }
+}

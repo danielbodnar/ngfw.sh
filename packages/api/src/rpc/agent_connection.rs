@@ -9,6 +9,7 @@
 
 use crate::models::rpc::*;
 use serde::{Deserialize, Serialize};
+use std::cell::RefCell;
 use std::collections::HashMap;
 use worker::*;
 
@@ -31,26 +32,26 @@ struct PendingCommand {
 }
 
 /// Durable Object for managing agent connections
+/// Uses RefCell for interior mutability since fetch takes &self in workers-rs 0.7+
 #[durable_object]
 pub struct AgentConnection {
     state: State,
     env: Env,
-    websocket: Option<WebSocket>,
-    agent_state: AgentState,
+    websocket: RefCell<Option<WebSocket>>,
+    agent_state: RefCell<AgentState>,
 }
 
-#[durable_object]
 impl DurableObject for AgentConnection {
     fn new(state: State, env: Env) -> Self {
         Self {
             state,
             env,
-            websocket: None,
-            agent_state: AgentState::default(),
+            websocket: RefCell::new(None),
+            agent_state: RefCell::new(AgentState::default()),
         }
     }
 
-    async fn fetch(&mut self, req: Request) -> Result<Response> {
+    async fn fetch(&self, req: Request) -> Result<Response> {
         let url = req.url()?;
         let path = url.path();
 
@@ -66,7 +67,7 @@ impl DurableObject for AgentConnection {
 
 impl AgentConnection {
     /// Handle WebSocket upgrade and connection
-    async fn handle_websocket(&mut self, req: Request) -> Result<Response> {
+    async fn handle_websocket(&self, req: Request) -> Result<Response> {
         // Load state from storage
         self.load_state().await?;
 
@@ -76,8 +77,9 @@ impl AgentConnection {
 
         if let (Some(device_id), Some(owner_id)) = (params.get("device_id"), params.get("owner_id"))
         {
-            self.agent_state.device_id = Some(device_id.to_string());
-            self.agent_state.owner_id = Some(owner_id.to_string());
+            let mut agent_state = self.agent_state.borrow_mut();
+            agent_state.device_id = Some(device_id.to_string());
+            agent_state.owner_id = Some(owner_id.to_string());
         }
 
         // Create WebSocket pair
@@ -89,7 +91,7 @@ impl AgentConnection {
         server.accept()?;
 
         // Store the server socket
-        self.websocket = Some(server.clone());
+        *self.websocket.borrow_mut() = Some(server.clone());
 
         // Set up event handlers using hibernation API
         self.state.accept_web_socket(&server);
@@ -101,22 +103,21 @@ impl AgentConnection {
     }
 
     /// Handle incoming command from API
-    async fn handle_command(&mut self, mut req: Request) -> Result<Response> {
+    async fn handle_command(&self, mut req: Request) -> Result<Response> {
         self.load_state().await?;
 
-        if !self.agent_state.authenticated {
-            return Response::error("Device not connected", 503);
+        {
+            let agent_state = self.agent_state.borrow();
+            if !agent_state.authenticated {
+                return Response::error("Device not connected", 503);
+            }
         }
 
-        let websocket = match &self.websocket {
+        let websocket = self.websocket.borrow();
+        let ws = match websocket.as_ref() {
             Some(ws) => ws,
             None => {
-                // Try to get WebSocket from hibernation
-                let sockets = self.state.get_web_sockets();
-                if sockets.is_empty() {
-                    return Response::error("Device not connected", 503);
-                }
-                &sockets[0]
+                return Response::error("Device not connected", 503);
             }
         };
 
@@ -140,22 +141,25 @@ impl AgentConnection {
             _ => MessageType::Exec,
         };
 
-        let message = RpcMessage::new(msg_type, payload.unwrap_or(serde_json::json!({})));
+        let message = RpcMessage::new(msg_type, payload.clone().unwrap_or(serde_json::json!({})));
         let msg_id = message.id.clone();
 
         // Store pending command
-        self.agent_state.pending_commands.insert(
-            msg_id.clone(),
-            PendingCommand {
-                command_type: command_type.to_string(),
-                payload,
-                created_at: chrono::Utc::now().timestamp(),
-            },
-        );
+        {
+            let mut agent_state = self.agent_state.borrow_mut();
+            agent_state.pending_commands.insert(
+                msg_id.clone(),
+                PendingCommand {
+                    command_type: command_type.to_string(),
+                    payload,
+                    created_at: chrono::Utc::now().timestamp(),
+                },
+            );
+        }
 
         // Send to device
         let msg_str = serde_json::to_string(&message)?;
-        websocket.send_with_str(&msg_str)?;
+        ws.send_with_str(&msg_str)?;
 
         self.save_state().await?;
 
@@ -166,38 +170,41 @@ impl AgentConnection {
     }
 
     /// Return current device status
-    async fn handle_status_request(&mut self) -> Result<Response> {
+    async fn handle_status_request(&self) -> Result<Response> {
         self.load_state().await?;
 
+        let agent_state = self.agent_state.borrow();
         let status = serde_json::json!({
-            "device_id": self.agent_state.device_id,
-            "authenticated": self.agent_state.authenticated,
-            "last_seen": self.agent_state.last_seen,
-            "status": self.agent_state.last_status,
+            "device_id": agent_state.device_id,
+            "authenticated": agent_state.authenticated,
+            "last_seen": agent_state.last_seen,
+            "status": agent_state.last_status,
         });
 
         Response::from_json(&status)
     }
 
     /// Disconnect the WebSocket
-    async fn handle_disconnect(&mut self) -> Result<Response> {
-        if let Some(ws) = &self.websocket {
-            ws.close(Some(1000), Some("Disconnected by server"))?;
+    async fn handle_disconnect(&self) -> Result<Response> {
+        {
+            let websocket = self.websocket.borrow();
+            if let Some(ws) = websocket.as_ref() {
+                ws.close(Some(1000), Some("Disconnected by server"))?;
+            }
         }
 
-        for ws in self.state.get_web_sockets() {
-            ws.close(Some(1000), Some("Disconnected by server"))?;
+        {
+            let mut agent_state = self.agent_state.borrow_mut();
+            agent_state.authenticated = false;
         }
-
-        self.agent_state.authenticated = false;
-        self.websocket = None;
+        *self.websocket.borrow_mut() = None;
         self.save_state().await?;
 
         Response::ok("Disconnected")
     }
 
     /// Process incoming WebSocket message
-    async fn process_message(&mut self, msg: &str) -> Result<()> {
+    async fn process_message(&self, msg: &str) -> Result<()> {
         let message: RpcMessage = serde_json::from_str(msg)?;
 
         match message.msg_type {
@@ -224,7 +231,8 @@ impl AgentConnection {
             }
             MessageType::Pong => {
                 // Update last seen
-                self.agent_state.last_seen = Some(chrono::Utc::now().timestamp());
+                let mut agent_state = self.agent_state.borrow_mut();
+                agent_state.last_seen = Some(chrono::Utc::now().timestamp());
             }
             _ => {
                 console_log!("Unknown message type: {:?}", message.msg_type);
@@ -236,20 +244,24 @@ impl AgentConnection {
     }
 
     /// Handle authentication message from agent
-    async fn handle_auth_message(&mut self, message: &RpcMessage) -> Result<()> {
+    async fn handle_auth_message(&self, message: &RpcMessage) -> Result<()> {
         let auth: AuthRequest = serde_json::from_value(message.payload.clone())?;
 
-        // Verify device ID matches
-        let is_valid = self
-            .agent_state
-            .device_id
-            .as_ref()
-            .map(|id| id == &auth.device_id)
-            .unwrap_or(false);
+        let is_valid = {
+            let agent_state = self.agent_state.borrow();
+            agent_state
+                .device_id
+                .as_ref()
+                .map(|id| id == &auth.device_id)
+                .unwrap_or(false)
+        };
 
         let response = if is_valid {
-            self.agent_state.authenticated = true;
-            self.agent_state.last_seen = Some(chrono::Utc::now().timestamp());
+            {
+                let mut agent_state = self.agent_state.borrow_mut();
+                agent_state.authenticated = true;
+                agent_state.last_seen = Some(chrono::Utc::now().timestamp());
+            }
 
             RpcMessage::new(
                 MessageType::AuthOk,
@@ -279,14 +291,18 @@ impl AgentConnection {
     }
 
     /// Handle status update from agent
-    async fn handle_status_message(&mut self, message: &RpcMessage) -> Result<()> {
+    async fn handle_status_message(&self, message: &RpcMessage) -> Result<()> {
         let status: StatusPayload = serde_json::from_value(message.payload.clone())?;
 
-        self.agent_state.last_status = Some(status.clone());
-        self.agent_state.last_seen = Some(chrono::Utc::now().timestamp());
+        let device_id = {
+            let mut agent_state = self.agent_state.borrow_mut();
+            agent_state.last_status = Some(status.clone());
+            agent_state.last_seen = Some(chrono::Utc::now().timestamp());
+            agent_state.device_id.clone()
+        };
 
         // Store status in KV for quick access
-        if let Some(device_id) = &self.agent_state.device_id {
+        if let Some(device_id) = device_id {
             let kv = self.env.kv("CONFIGS")?;
             let status_json = serde_json::to_string(&status)?;
             kv.put(&format!("status:{}", device_id), &status_json)?
@@ -307,9 +323,12 @@ impl AgentConnection {
     }
 
     /// Handle config acknowledgment/failure
-    async fn handle_config_response(&mut self, message: &RpcMessage) -> Result<()> {
+    async fn handle_config_response(&self, message: &RpcMessage) -> Result<()> {
         // Remove from pending commands
-        self.agent_state.pending_commands.remove(&message.id);
+        {
+            let mut agent_state = self.agent_state.borrow_mut();
+            agent_state.pending_commands.remove(&message.id);
+        }
 
         // Log the result
         if message.msg_type == MessageType::ConfigFail {
@@ -320,14 +339,18 @@ impl AgentConnection {
     }
 
     /// Handle command execution result
-    async fn handle_exec_result(&mut self, message: &RpcMessage) -> Result<()> {
+    async fn handle_exec_result(&self, message: &RpcMessage) -> Result<()> {
         let result: ExecResult = serde_json::from_value(message.payload.clone())?;
 
-        // Remove from pending commands
-        self.agent_state.pending_commands.remove(&result.command_id);
+        let device_id = {
+            let mut agent_state = self.agent_state.borrow_mut();
+            // Remove from pending commands
+            agent_state.pending_commands.remove(&result.command_id);
+            agent_state.device_id.clone()
+        };
 
         // Store result in KV for retrieval
-        if let Some(device_id) = &self.agent_state.device_id {
+        if let Some(device_id) = device_id {
             let kv = self.env.kv("CACHE")?;
             let result_json = serde_json::to_string(&result)?;
             kv.put(
@@ -343,7 +366,7 @@ impl AgentConnection {
     }
 
     /// Handle log message from agent
-    async fn handle_log_message(&mut self, message: &RpcMessage) -> Result<()> {
+    async fn handle_log_message(&self, message: &RpcMessage) -> Result<()> {
         let log: LogMessage = serde_json::from_value(message.payload.clone())?;
 
         // In production, forward to logging service (e.g., Loki)
@@ -358,11 +381,13 @@ impl AgentConnection {
     }
 
     /// Handle security alert from agent
-    async fn handle_alert_message(&mut self, message: &RpcMessage) -> Result<()> {
+    async fn handle_alert_message(&self, message: &RpcMessage) -> Result<()> {
         let alert: AlertMessage = serde_json::from_value(message.payload.clone())?;
 
+        let device_id = self.agent_state.borrow().device_id.clone();
+
         // Store alert in KV
-        if let Some(device_id) = &self.agent_state.device_id {
+        if let Some(device_id) = device_id {
             let kv = self.env.kv("CACHE")?;
             let alert_id = uuid::Uuid::new_v4().to_string();
             let alert_json = serde_json::to_string(&alert)?;
@@ -379,11 +404,13 @@ impl AgentConnection {
     }
 
     /// Handle metrics update from agent
-    async fn handle_metrics_message(&mut self, message: &RpcMessage) -> Result<()> {
+    async fn handle_metrics_message(&self, message: &RpcMessage) -> Result<()> {
         let metrics: MetricsPayload = serde_json::from_value(message.payload.clone())?;
 
+        let device_id = self.agent_state.borrow().device_id.clone();
+
         // Store metrics for time-series analysis
-        if let Some(device_id) = &self.agent_state.device_id {
+        if let Some(device_id) = device_id {
             let kv = self.env.kv("CACHE")?;
             let metrics_json = serde_json::to_string(&metrics)?;
 
@@ -395,7 +422,10 @@ impl AgentConnection {
                 .await?;
         }
 
-        self.agent_state.last_seen = Some(chrono::Utc::now().timestamp());
+        {
+            let mut agent_state = self.agent_state.borrow_mut();
+            agent_state.last_seen = Some(chrono::Utc::now().timestamp());
+        }
         Ok(())
     }
 
@@ -403,13 +433,9 @@ impl AgentConnection {
     fn send_message(&self, message: &RpcMessage) -> Result<()> {
         let msg_str = serde_json::to_string(message)?;
 
-        if let Some(ws) = &self.websocket {
+        let websocket = self.websocket.borrow();
+        if let Some(ws) = websocket.as_ref() {
             ws.send_with_str(&msg_str)?;
-        } else {
-            // Try hibernated sockets
-            for ws in self.state.get_web_sockets() {
-                ws.send_with_str(&msg_str)?;
-            }
         }
 
         Ok(())
@@ -417,7 +443,9 @@ impl AgentConnection {
 
     /// Update device online status in KV
     async fn update_device_online_status(&self, online: bool) -> Result<()> {
-        if let Some(device_id) = &self.agent_state.device_id {
+        let device_id = self.agent_state.borrow().device_id.clone();
+
+        if let Some(device_id) = device_id {
             let kv = self.env.kv("DEVICES")?;
             let status = serde_json::json!({
                 "online": online,
@@ -435,18 +463,19 @@ impl AgentConnection {
     }
 
     /// Load state from Durable Object storage
-    async fn load_state(&mut self) -> Result<()> {
+    async fn load_state(&self) -> Result<()> {
         if let Some(state) = self.state.storage().get::<AgentState>("agent_state").await? {
-            self.agent_state = state;
+            *self.agent_state.borrow_mut() = state;
         }
         Ok(())
     }
 
     /// Save state to Durable Object storage
     async fn save_state(&self) -> Result<()> {
+        let agent_state = self.agent_state.borrow().clone();
         self.state
             .storage()
-            .put("agent_state", &self.agent_state)
+            .put("agent_state", &agent_state)
             .await?;
         Ok(())
     }
@@ -455,8 +484,12 @@ impl AgentConnection {
 /// WebSocket event handlers for hibernation API
 impl AgentConnection {
     /// Called when a WebSocket message is received
-    async fn websocket_message(&mut self, ws: WebSocket, message: WebSocketIncomingMessage) -> Result<()> {
-        self.websocket = Some(ws);
+    pub async fn websocket_message(
+        &self,
+        ws: WebSocket,
+        message: WebSocketIncomingMessage,
+    ) -> Result<()> {
+        *self.websocket.borrow_mut() = Some(ws);
 
         match message {
             WebSocketIncomingMessage::String(msg) => {
@@ -474,19 +507,31 @@ impl AgentConnection {
     }
 
     /// Called when a WebSocket is closed
-    async fn websocket_close(&mut self, _ws: WebSocket, _code: u16, _reason: String, _was_clean: bool) -> Result<()> {
+    pub async fn websocket_close(
+        &self,
+        _ws: WebSocket,
+        _code: u16,
+        _reason: String,
+        _was_clean: bool,
+    ) -> Result<()> {
         self.load_state().await?;
-        self.agent_state.authenticated = false;
+        {
+            let mut agent_state = self.agent_state.borrow_mut();
+            agent_state.authenticated = false;
+        }
         self.update_device_online_status(false).await?;
         self.save_state().await?;
         Ok(())
     }
 
     /// Called when a WebSocket error occurs
-    async fn websocket_error(&mut self, _ws: WebSocket, error: Error) -> Result<()> {
+    pub async fn websocket_error(&self, _ws: WebSocket, error: Error) -> Result<()> {
         console_log!("WebSocket error: {:?}", error);
         self.load_state().await?;
-        self.agent_state.authenticated = false;
+        {
+            let mut agent_state = self.agent_state.borrow_mut();
+            agent_state.authenticated = false;
+        }
         self.update_device_online_status(false).await?;
         self.save_state().await?;
         Ok(())

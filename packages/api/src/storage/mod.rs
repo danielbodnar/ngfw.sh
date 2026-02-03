@@ -354,25 +354,25 @@ pub async fn get_vlans(device_id: &str, env: &Env) -> ApiResult<Vec<serde_json::
 }
 
 pub async fn create_vlan(device_id: &str, vlan: &network::VlanConfig, env: &Env) -> ApiResult<serde_json::Value> {
-    let mut vlans: Vec<network::VlanConfig> = get_vlans(device_id, env).await.unwrap_or_default();
-    vlans.push(vlan.clone());
+    let mut vlans: Vec<serde_json::Value> = get_vlans(device_id, env).await.unwrap_or_default();
+    vlans.push(serde_json::to_value(vlan).map_err(|_| ApiError::internal("Failed to serialize VLAN"))?);
     update_config(device_id, "vlans", &vlans, env).await?;
     Ok(serde_json::json!({ "id": vlan.id, "status": "created" }))
 }
 
 pub async fn update_vlan(device_id: &str, vlan_id: &str, vlan: &network::VlanConfig, env: &Env) -> ApiResult<serde_json::Value> {
-    let mut vlans: Vec<network::VlanConfig> = get_vlans(device_id, env).await?;
+    let mut vlans: Vec<serde_json::Value> = get_vlans(device_id, env).await?;
     let id: u32 = vlan_id.parse().map_err(|_| ApiError::bad_request("Invalid VLAN ID"))?;
-    if let Some(v) = vlans.iter_mut().find(|v| v.id == id) {
-        *v = vlan.clone();
+    if let Some(v) = vlans.iter_mut().find(|v| v.get("id").and_then(|x| x.as_u64()) == Some(id as u64)) {
+        *v = serde_json::to_value(vlan).map_err(|_| ApiError::internal("Failed to serialize VLAN"))?;
     }
     update_config(device_id, "vlans", &vlans, env).await
 }
 
 pub async fn delete_vlan(device_id: &str, vlan_id: &str, env: &Env) -> ApiResult<serde_json::Value> {
-    let mut vlans: Vec<network::VlanConfig> = get_vlans(device_id, env).await?;
+    let mut vlans: Vec<serde_json::Value> = get_vlans(device_id, env).await?;
     let id: u32 = vlan_id.parse().map_err(|_| ApiError::bad_request("Invalid VLAN ID"))?;
-    vlans.retain(|v| v.id != id);
+    vlans.retain(|v| v.get("id").and_then(|x| x.as_u64()) != Some(id as u64));
     update_config(device_id, "vlans", &vlans, env).await?;
     Ok(serde_json::json!({ "status": "deleted" }))
 }
@@ -384,9 +384,9 @@ pub async fn get_wifi_radios(device_id: &str, env: &Env) -> ApiResult<Vec<serde_
 }
 
 pub async fn update_wifi_radio(device_id: &str, _radio_id: &str, radio: &network::WifiRadio, env: &Env) -> ApiResult<serde_json::Value> {
-    let mut radios: Vec<network::WifiRadio> = get_wifi_radios(device_id, env).await?;
-    if let Some(r) = radios.iter_mut().find(|r| r.id == radio.id) {
-        *r = radio.clone();
+    let mut radios: Vec<serde_json::Value> = get_wifi_radios(device_id, env).await?;
+    if let Some(r) = radios.iter_mut().find(|r| r.get("id").and_then(|x| x.as_str()) == Some(&radio.id)) {
+        *r = serde_json::to_value(radio).map_err(|_| ApiError::internal("Failed to serialize radio"))?;
     }
     update_config(device_id, "wifi_radios", &radios, env).await
 }
@@ -395,26 +395,26 @@ pub async fn get_wifi_networks(device_id: &str, env: &Env) -> ApiResult<Vec<serd
     get_config(device_id, "wifi_networks", env).await
 }
 
-pub async fn create_wifi_network(device_id: &str, network: &network::WifiNetwork, env: &Env) -> ApiResult<serde_json::Value> {
-    let mut networks: Vec<network::WifiNetwork> = get_wifi_networks(device_id, env).await.unwrap_or_default();
-    networks.push(network.clone());
+pub async fn create_wifi_network(device_id: &str, network_config: &network::WifiNetwork, env: &Env) -> ApiResult<serde_json::Value> {
+    let mut networks: Vec<serde_json::Value> = get_wifi_networks(device_id, env).await.unwrap_or_default();
+    networks.push(serde_json::to_value(network_config).map_err(|_| ApiError::internal("Failed to serialize network"))?);
     update_config(device_id, "wifi_networks", &networks, env).await?;
-    Ok(serde_json::json!({ "id": network.id, "status": "created" }))
+    Ok(serde_json::json!({ "id": network_config.id, "status": "created" }))
 }
 
-pub async fn update_wifi_network(device_id: &str, network_id: &str, network: &network::WifiNetwork, env: &Env) -> ApiResult<serde_json::Value> {
-    let mut networks: Vec<network::WifiNetwork> = get_wifi_networks(device_id, env).await?;
+pub async fn update_wifi_network(device_id: &str, network_id: &str, network_config: &network::WifiNetwork, env: &Env) -> ApiResult<serde_json::Value> {
+    let mut networks: Vec<serde_json::Value> = get_wifi_networks(device_id, env).await?;
     let id: u32 = network_id.parse().map_err(|_| ApiError::bad_request("Invalid network ID"))?;
-    if let Some(n) = networks.iter_mut().find(|n| n.id == id) {
-        *n = network.clone();
+    if let Some(n) = networks.iter_mut().find(|n| n.get("id").and_then(|x| x.as_u64()) == Some(id as u64)) {
+        *n = serde_json::to_value(network_config).map_err(|_| ApiError::internal("Failed to serialize network"))?;
     }
     update_config(device_id, "wifi_networks", &networks, env).await
 }
 
 pub async fn delete_wifi_network(device_id: &str, network_id: &str, env: &Env) -> ApiResult<serde_json::Value> {
-    let mut networks: Vec<network::WifiNetwork> = get_wifi_networks(device_id, env).await?;
+    let mut networks: Vec<serde_json::Value> = get_wifi_networks(device_id, env).await?;
     let id: u32 = network_id.parse().map_err(|_| ApiError::bad_request("Invalid network ID"))?;
-    networks.retain(|n| n.id != id);
+    networks.retain(|n| n.get("id").and_then(|x| x.as_u64()) != Some(id as u64));
     update_config(device_id, "wifi_networks", &networks, env).await?;
     Ok(serde_json::json!({ "status": "deleted" }))
 }
@@ -462,15 +462,15 @@ pub async fn get_dhcp_reservations(device_id: &str, env: &Env) -> ApiResult<Vec<
 }
 
 pub async fn create_dhcp_reservation(device_id: &str, reservation: &network::DhcpReservation, env: &Env) -> ApiResult<serde_json::Value> {
-    let mut reservations: Vec<network::DhcpReservation> = get_dhcp_reservations(device_id, env).await.unwrap_or_default();
-    reservations.push(reservation.clone());
+    let mut reservations: Vec<serde_json::Value> = get_dhcp_reservations(device_id, env).await.unwrap_or_default();
+    reservations.push(serde_json::to_value(reservation).map_err(|_| ApiError::internal("Failed to serialize reservation"))?);
     update_config(device_id, "dhcp_reservations", &reservations, env).await?;
     Ok(serde_json::json!({ "mac": reservation.mac, "status": "created" }))
 }
 
 pub async fn delete_dhcp_reservation(device_id: &str, mac: &str, env: &Env) -> ApiResult<serde_json::Value> {
-    let mut reservations: Vec<network::DhcpReservation> = get_dhcp_reservations(device_id, env).await?;
-    reservations.retain(|r| r.mac != mac);
+    let mut reservations: Vec<serde_json::Value> = get_dhcp_reservations(device_id, env).await?;
+    reservations.retain(|r| r.get("mac").and_then(|x| x.as_str()) != Some(mac));
     update_config(device_id, "dhcp_reservations", &reservations, env).await?;
     Ok(serde_json::json!({ "status": "deleted" }))
 }
@@ -537,9 +537,9 @@ pub async fn get_firewall_zones(device_id: &str, env: &Env) -> ApiResult<Vec<ser
 }
 
 pub async fn update_firewall_zone(device_id: &str, zone_id: &str, zone: &security::ZoneConfig, env: &Env) -> ApiResult<serde_json::Value> {
-    let mut zones: Vec<security::ZoneConfig> = get_firewall_zones(device_id, env).await?;
-    if let Some(z) = zones.iter_mut().find(|z| z.id == zone_id) {
-        *z = zone.clone();
+    let mut zones: Vec<serde_json::Value> = get_firewall_zones(device_id, env).await?;
+    if let Some(z) = zones.iter_mut().find(|z| z.get("id").and_then(|x| x.as_str()) == Some(zone_id)) {
+        *z = serde_json::to_value(zone).map_err(|_| ApiError::internal("Failed to serialize zone"))?;
     }
     update_config(device_id, "firewall_zones", &zones, env).await
 }
@@ -549,7 +549,11 @@ pub async fn get_zone_policies(device_id: &str, env: &Env) -> ApiResult<Vec<serd
 }
 
 pub async fn update_zone_policies(device_id: &str, policies: &[security::ZonePolicy], env: &Env) -> ApiResult<serde_json::Value> {
-    update_config(device_id, "zone_policies", policies, env).await
+    let policies_vec: Vec<serde_json::Value> = policies
+        .iter()
+        .filter_map(|p| serde_json::to_value(p).ok())
+        .collect();
+    update_config(device_id, "zone_policies", &policies_vec, env).await
 }
 
 // NAT - similar pattern
