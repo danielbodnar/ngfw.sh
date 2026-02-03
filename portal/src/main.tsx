@@ -19,14 +19,12 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     {IS_DEMO ? (
       <App />
     ) : (
-      <ClerkProvider publishableKey={PUBLISHABLE_KEY} afterSignOutUrl="/">
-        <App />
-      </ClerkProvider>
-    )}
-    {IS_DEMO ? (
-      <App />
-    ) : (
-      <ClerkProvider publishableKey={PUBLISHABLE_KEY} afterSignOutUrl="/">
+      <ClerkProvider 
+        publishableKey={PUBLISHABLE_KEY} 
+        afterSignOutUrl="/"
+        signInForceRedirectUrl="/"
+        signUpForceRedirectUrl="/"
+      >
         <App />
       </ClerkProvider>
     )}

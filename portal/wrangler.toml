@@ -2,6 +2,11 @@ name = "ngfw-portal"
 compatibility_date = "2026-01-10"
 workers_dev = true
 
+# Custom domains for the portal
+routes = [
+	{ pattern = "app.ngfw.sh", custom_domain = true },
+	{ pattern = "dash.ngfw.sh", custom_domain = true }
+]
 
 [vars]
 VITE_CLERK_PUBLISHABLE_KEY = "pk_test_dG91Z2gtdW5pY29ybi0yNS5jbGVyay5hY2NvdW50cy5kZXYk"

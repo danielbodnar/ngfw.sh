@@ -6,7 +6,8 @@ import {
   SignIn,
   UserButton,
   useUser,
-  useClerk
+  useClerk,
+  useAuth
 } from '@clerk/clerk-react';
 
 // Types
@@ -1484,6 +1485,21 @@ export default function App() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [expandedGroups, setExpandedGroups] = useState<string[]>(navGroups.map(g => g.label));
   const { signOut } = useClerk();
+  const { isLoaded } = useAuth();
+
+  // Show loading while Clerk initializes
+  if (!isLoaded) {
+    return (
+      <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 bg-gradient-to-br from-emerald-500 to-cyan-500 rounded-2xl flex items-center justify-center mx-auto mb-4 animate-pulse">
+            <Router className="w-10 h-10 text-white" />
+          </div>
+          <p className="text-zinc-500">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   const toggleGroup = (label: string) => setExpandedGroups(prev => prev.includes(label) ? prev.filter(l => l !== label) : [...prev, label]);
 
@@ -1540,6 +1556,8 @@ export default function App() {
               },
             }}
             routing="hash"
+            forceRedirectUrl="/"
+            signUpForceRedirectUrl="/"
           />
         </AuthPage>
       </SignedOut>

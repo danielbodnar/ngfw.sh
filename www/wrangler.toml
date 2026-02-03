@@ -1,0 +1,22 @@
+name = "ngfw-www"
+account_id = "5dae265f74e6077ad674a3d855bf9853"
+compatibility_date = "2026-01-10"
+workers_dev = true
+
+# Custom domains for the landing page
+routes = [
+	{ pattern = "ngfw.sh", custom_domain = true },
+	{ pattern = "www.ngfw.sh", custom_domain = true }
+]
+
+[assets]
+directory = "./dist"
+not_found_handling = "single-page-application"
+
+[observability]
+enabled = true
+head_sampling_rate = 1
+
+[observability.logs]
+enabled = true
+head_sampling_rate = 1
