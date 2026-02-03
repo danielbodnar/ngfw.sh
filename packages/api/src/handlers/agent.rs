@@ -1,7 +1,6 @@
 //! Router agent WebSocket handler
 
 use crate::middleware::authenticate_device;
-use crate::models::ApiError;
 use worker::*;
 
 /// GET /agent/ws - WebSocket endpoint for router agents

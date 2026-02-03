@@ -32,7 +32,7 @@ impl CorsHeaders {
 
     /// Apply CORS headers to a response
     pub fn apply(&self, response: Response) -> Result<Response> {
-        let mut headers = response.headers().clone();
+        let headers = response.headers().clone();
         headers.set("Access-Control-Allow-Origin", &self.allow_origin)?;
         headers.set("Access-Control-Allow-Methods", &self.allow_methods)?;
         headers.set("Access-Control-Allow-Headers", &self.allow_headers)?;
@@ -43,7 +43,7 @@ impl CorsHeaders {
 
     /// Create a preflight response for OPTIONS requests
     pub fn preflight_response(&self) -> Result<Response> {
-        let mut headers = Headers::new();
+        let headers = Headers::new();
         headers.set("Access-Control-Allow-Origin", &self.allow_origin)?;
         headers.set("Access-Control-Allow-Methods", &self.allow_methods)?;
         headers.set("Access-Control-Allow-Headers", &self.allow_headers)?;

@@ -1,7 +1,6 @@
 //! System management handlers
 
 use crate::middleware::{authenticate, check_device_access};
-use crate::models::system::*;
 use crate::models::{ApiError, ApiResult, IntoApiResponse};
 use crate::storage;
 use worker::*;
@@ -170,7 +169,7 @@ pub async fn download_backup(req: Request, ctx: RouteContext<()>) -> Result<Resp
 
     match backup_data {
         Ok(data) => {
-            let mut headers = Headers::new();
+            let headers = Headers::new();
             headers.set("Content-Type", "application/json")?;
             headers.set("Content-Disposition", &format!("attachment; filename=\"backup-{}.json\"", backup_id))?;
             Ok(Response::from_bytes(data)?.with_headers(headers))

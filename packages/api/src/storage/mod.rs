@@ -560,7 +560,7 @@ pub async fn update_zone_policies(device_id: &str, policies: &[security::ZonePol
 pub async fn get_nat_rules(device_id: &str, env: &Env) -> ApiResult<Vec<serde_json::Value>> { get_config(device_id, "nat_rules", env).await }
 pub async fn create_nat_rule(device_id: &str, rule: &security::NatRule, env: &Env) -> ApiResult<serde_json::Value> { update_config(device_id, "nat_rules", rule, env).await }
 pub async fn update_nat_rule(device_id: &str, _rule_id: &str, rule: &security::NatRule, env: &Env) -> ApiResult<serde_json::Value> { update_config(device_id, "nat_rules", rule, env).await }
-pub async fn delete_nat_rule(device_id: &str, _rule_id: &str, env: &Env) -> ApiResult<serde_json::Value> { Ok(serde_json::json!({"status": "deleted"})) }
+pub async fn delete_nat_rule(_device_id: &str, _rule_id: &str, _env: &Env) -> ApiResult<serde_json::Value> { Ok(serde_json::json!({"status": "deleted"})) }
 pub async fn get_upnp_leases(device_id: &str, env: &Env) -> ApiResult<Vec<serde_json::Value>> { get_config(device_id, "upnp_leases", env).await }
 pub async fn revoke_upnp_lease(device_id: &str, lease_id: &str, env: &Env) -> ApiResult<serde_json::Value> { send_command(device_id, "REVOKE_UPNP", Some(serde_json::json!({"id": lease_id})), env).await }
 
@@ -575,11 +575,11 @@ pub async fn get_dns_config(device_id: &str, env: &Env) -> ApiResult<serde_json:
 pub async fn update_dns_config(device_id: &str, config: &security::DnsConfig, env: &Env) -> ApiResult<serde_json::Value> { update_config(device_id, "dns", config, env).await }
 pub async fn get_dns_blocklists(device_id: &str, env: &Env) -> ApiResult<Vec<serde_json::Value>> { get_config(device_id, "dns_blocklists", env).await }
 pub async fn add_dns_blocklist(device_id: &str, blocklist: &security::DnsBlocklist, env: &Env) -> ApiResult<serde_json::Value> { update_config(device_id, "dns_blocklists", blocklist, env).await }
-pub async fn remove_dns_blocklist(device_id: &str, _id: &str, env: &Env) -> ApiResult<serde_json::Value> { Ok(serde_json::json!({"status": "removed"})) }
+pub async fn remove_dns_blocklist(_device_id: &str, _id: &str, _env: &Env) -> ApiResult<serde_json::Value> { Ok(serde_json::json!({"status": "removed"})) }
 pub async fn force_blocklist_update(device_id: &str, id: &str, env: &Env) -> ApiResult<serde_json::Value> { send_command(device_id, "UPDATE_BLOCKLIST", Some(serde_json::json!({"id": id})), env).await }
 pub async fn get_dns_allowlist(device_id: &str, env: &Env) -> ApiResult<Vec<serde_json::Value>> { get_config(device_id, "dns_allowlist", env).await }
 pub async fn add_to_dns_allowlist(device_id: &str, entry: &security::DnsAllowlistEntry, env: &Env) -> ApiResult<serde_json::Value> { update_config(device_id, "dns_allowlist", entry, env).await }
-pub async fn remove_from_dns_allowlist(device_id: &str, _domain: &str, env: &Env) -> ApiResult<serde_json::Value> { Ok(serde_json::json!({"status": "removed"})) }
+pub async fn remove_from_dns_allowlist(_device_id: &str, _domain: &str, _env: &Env) -> ApiResult<serde_json::Value> { Ok(serde_json::json!({"status": "removed"})) }
 pub async fn get_dns_queries(_device_id: &str, _query: Option<&str>, _env: &Env) -> ApiResult<Vec<serde_json::Value>> { Ok(vec![]) }
 pub async fn get_dns_stats(_device_id: &str, _env: &Env) -> ApiResult<serde_json::Value> { Ok(serde_json::json!({})) }
 
@@ -590,7 +590,7 @@ pub async fn get_ids_categories(device_id: &str, env: &Env) -> ApiResult<Vec<ser
 pub async fn update_ids_category(device_id: &str, _id: &str, category: &security::IdsCategory, env: &Env) -> ApiResult<serde_json::Value> { update_config(device_id, "ids_categories", category, env).await }
 pub async fn get_ids_rules(device_id: &str, env: &Env) -> ApiResult<Vec<serde_json::Value>> { get_config(device_id, "ids_rules", env).await }
 pub async fn create_ids_rule(device_id: &str, rule: &security::IdsRule, env: &Env) -> ApiResult<serde_json::Value> { update_config(device_id, "ids_rules", rule, env).await }
-pub async fn delete_ids_rule(device_id: &str, _id: &str, env: &Env) -> ApiResult<serde_json::Value> { Ok(serde_json::json!({"status": "deleted"})) }
+pub async fn delete_ids_rule(_device_id: &str, _id: &str, _env: &Env) -> ApiResult<serde_json::Value> { Ok(serde_json::json!({"status": "deleted"})) }
 pub async fn get_ids_alerts(_device_id: &str, _query: Option<&str>, _env: &Env) -> ApiResult<Vec<serde_json::Value>> { Ok(vec![]) }
 
 // VPN Server
@@ -599,7 +599,7 @@ pub async fn update_vpn_server_config(device_id: &str, config: &services::VpnSer
 pub async fn get_vpn_peers(device_id: &str, env: &Env) -> ApiResult<Vec<serde_json::Value>> { get_config(device_id, "vpn_peers", env).await }
 pub async fn create_vpn_peer(device_id: &str, peer: &services::VpnPeerRequest, env: &Env) -> ApiResult<serde_json::Value> { update_config(device_id, "vpn_peers", peer, env).await }
 pub async fn update_vpn_peer(device_id: &str, _id: &str, peer: &services::VpnPeerRequest, env: &Env) -> ApiResult<serde_json::Value> { update_config(device_id, "vpn_peers", peer, env).await }
-pub async fn delete_vpn_peer(device_id: &str, _id: &str, env: &Env) -> ApiResult<serde_json::Value> { Ok(serde_json::json!({"status": "deleted"})) }
+pub async fn delete_vpn_peer(_device_id: &str, _id: &str, _env: &Env) -> ApiResult<serde_json::Value> { Ok(serde_json::json!({"status": "deleted"})) }
 pub async fn get_vpn_peer_qr(_device_id: &str, _id: &str, _env: &Env) -> ApiResult<serde_json::Value> { Ok(serde_json::json!({})) }
 pub async fn get_vpn_server_status(device_id: &str, env: &Env) -> ApiResult<serde_json::Value> { get_device_status(device_id, env).await }
 
@@ -607,7 +607,7 @@ pub async fn get_vpn_server_status(device_id: &str, env: &Env) -> ApiResult<serd
 pub async fn get_vpn_client_profiles(device_id: &str, env: &Env) -> ApiResult<Vec<serde_json::Value>> { get_config(device_id, "vpn_profiles", env).await }
 pub async fn create_vpn_client_profile(device_id: &str, profile: &services::VpnClientProfile, env: &Env) -> ApiResult<serde_json::Value> { update_config(device_id, "vpn_profiles", profile, env).await }
 pub async fn update_vpn_client_profile(device_id: &str, _id: &str, profile: &services::VpnClientProfile, env: &Env) -> ApiResult<serde_json::Value> { update_config(device_id, "vpn_profiles", profile, env).await }
-pub async fn delete_vpn_client_profile(device_id: &str, _id: &str, env: &Env) -> ApiResult<serde_json::Value> { Ok(serde_json::json!({"status": "deleted"})) }
+pub async fn delete_vpn_client_profile(_device_id: &str, _id: &str, _env: &Env) -> ApiResult<serde_json::Value> { Ok(serde_json::json!({"status": "deleted"})) }
 pub async fn connect_vpn_client(device_id: &str, id: &str, env: &Env) -> ApiResult<serde_json::Value> { send_command(device_id, "VPN_CONNECT", Some(serde_json::json!({"profile_id": id})), env).await }
 pub async fn disconnect_vpn_client(device_id: &str, id: &str, env: &Env) -> ApiResult<serde_json::Value> { send_command(device_id, "VPN_DISCONNECT", Some(serde_json::json!({"profile_id": id})), env).await }
 pub async fn get_vpn_client_status(_device_id: &str, _env: &Env) -> ApiResult<serde_json::Value> { Ok(serde_json::json!({"connected": false})) }
@@ -618,10 +618,10 @@ pub async fn update_qos_config(device_id: &str, config: &services::QosConfig, en
 pub async fn get_traffic_classes(device_id: &str, env: &Env) -> ApiResult<Vec<serde_json::Value>> { get_config(device_id, "traffic_classes", env).await }
 pub async fn create_traffic_class(device_id: &str, class: &services::TrafficClass, env: &Env) -> ApiResult<serde_json::Value> { update_config(device_id, "traffic_classes", class, env).await }
 pub async fn update_traffic_class(device_id: &str, _id: &str, class: &services::TrafficClass, env: &Env) -> ApiResult<serde_json::Value> { update_config(device_id, "traffic_classes", class, env).await }
-pub async fn delete_traffic_class(device_id: &str, _id: &str, env: &Env) -> ApiResult<serde_json::Value> { Ok(serde_json::json!({"status": "deleted"})) }
+pub async fn delete_traffic_class(_device_id: &str, _id: &str, _env: &Env) -> ApiResult<serde_json::Value> { Ok(serde_json::json!({"status": "deleted"})) }
 pub async fn get_device_bandwidth_limits(device_id: &str, env: &Env) -> ApiResult<Vec<serde_json::Value>> { get_config(device_id, "device_limits", env).await }
 pub async fn set_device_bandwidth_limit(device_id: &str, _mac: &str, limit: &services::DeviceLimit, env: &Env) -> ApiResult<serde_json::Value> { update_config(device_id, "device_limits", limit, env).await }
-pub async fn remove_device_bandwidth_limit(device_id: &str, _mac: &str, env: &Env) -> ApiResult<serde_json::Value> { Ok(serde_json::json!({"status": "removed"})) }
+pub async fn remove_device_bandwidth_limit(_device_id: &str, _mac: &str, _env: &Env) -> ApiResult<serde_json::Value> { Ok(serde_json::json!({"status": "removed"})) }
 
 // DDNS
 pub async fn get_ddns_config(device_id: &str, env: &Env) -> ApiResult<serde_json::Value> { get_config(device_id, "ddns", env).await }

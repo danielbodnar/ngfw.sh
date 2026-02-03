@@ -19,7 +19,7 @@ pub use rpc::agent_connection::AgentConnection;
 
 /// Main entry point for the Cloudflare Worker
 #[event(fetch)]
-async fn main(req: Request, env: Env, ctx: Context) -> Result<Response> {
+async fn main(req: Request, env: Env, _ctx: Context) -> Result<Response> {
     console_error_panic_hook::set_once();
 
     let router = build_router();

@@ -2,7 +2,7 @@
 
 use crate::middleware::authenticate;
 use crate::models::user::*;
-use crate::models::{ApiError, IntoApiResponse};
+use crate::models::IntoApiResponse;
 use crate::storage;
 use worker::*;
 
@@ -135,7 +135,7 @@ pub async fn download_invoice(req: Request, ctx: RouteContext<()>) -> Result<Res
 
     match pdf {
         Ok(data) => {
-            let mut headers = Headers::new();
+            let headers = Headers::new();
             headers.set("Content-Type", "application/pdf")?;
             headers.set("Content-Disposition", &format!("attachment; filename=\"invoice-{}.pdf\"", invoice_id))?;
             Ok(Response::from_bytes(data)?.with_headers(headers))

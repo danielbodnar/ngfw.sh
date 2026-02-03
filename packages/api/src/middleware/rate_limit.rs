@@ -116,7 +116,7 @@ pub struct RateLimitHeaders {
 
 impl RateLimitHeaders {
     pub fn apply(&self, response: Response) -> Result<Response> {
-        let mut headers = response.headers().clone();
+        let headers = response.headers().clone();
         headers.set("X-RateLimit-Limit", &self.limit.to_string())?;
         headers.set("X-RateLimit-Remaining", &self.remaining.to_string())?;
         headers.set("X-RateLimit-Reset", &self.reset.to_string())?;

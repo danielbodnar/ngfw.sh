@@ -2,7 +2,7 @@
 
 use crate::middleware::{authenticate, check_device_access};
 use crate::models::network::*;
-use crate::models::{ApiError, ApiResult, IntoApiResponse};
+use crate::models::IntoApiResponse;
 use crate::storage;
 use worker::*;
 
