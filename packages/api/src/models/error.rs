@@ -109,12 +109,8 @@ impl ApiError {
     /// Convert to a Worker Response
     pub fn into_response(self) -> Result<Response> {
         let status = self.error.code.status_code();
-        let body = serde_json::to_string(&self).unwrap_or_else(|_| {
-            r#"{"error":{"code":"INTERNAL_ERROR","message":"Failed to serialize error"}}"#
-                .to_string()
-        });
 
-        Response::from_json(&self).map(|r| r.with_status(status))
+        Ok(Response::from_json(&self)?.with_status(status))
     }
 }
 

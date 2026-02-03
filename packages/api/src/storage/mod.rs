@@ -656,9 +656,9 @@ pub async fn get_invoice_pdf(_user_id: &str, _id: &str, _env: &Env) -> ApiResult
 // Fleet
 pub async fn get_user_devices(user_id: &str, env: &Env) -> ApiResult<Vec<serde_json::Value>> {
     let kv = env.kv("DEVICES").map_err(|_| ApiError::internal("Failed to access devices"))?;
-    let list = kv.list().prefix(&format!("owner:{}:", user_id)).execute().await.map_err(|_| ApiError::internal("Failed to list devices"))?;
+    let list = kv.list().prefix(format!("owner:{}:", user_id)).execute().await.map_err(|_| ApiError::internal("Failed to list devices"))?;
     let mut devices = Vec::new();
-    for key in list.keys() {
+    for key in list.keys {
         if let Some(data) = kv.get(&key.name).text().await.ok().flatten() {
             if let Ok(device) = serde_json::from_str::<serde_json::Value>(&data) {
                 devices.push(device);

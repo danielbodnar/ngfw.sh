@@ -9,7 +9,7 @@ use worker::*;
 pub fn build_router() -> Router<'static, ()> {
     Router::new()
         // Health check (no auth required)
-        .get("/health", |_, _| async move {
+        .get("/health", |_, _| {
             Response::ok("OK")
         })
 
@@ -190,7 +190,7 @@ pub fn build_router() -> Router<'static, ()> {
         .get_async("/agent/ws", agent::websocket_handler)
 
         // Handle OPTIONS for CORS preflight
-        .options("/*path", |req, _ctx| async move {
+        .options("/*path", |req, _ctx| {
             cors::handle_preflight(&req).unwrap_or_else(|| Response::empty())
         })
 

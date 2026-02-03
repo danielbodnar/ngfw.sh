@@ -49,7 +49,7 @@ impl CorsHeaders {
         headers.set("Access-Control-Allow-Headers", &self.allow_headers)?;
         headers.set("Access-Control-Max-Age", &self.max_age.to_string())?;
 
-        Response::empty()?.with_headers(headers).map(|r| r.with_status(204))
+        Ok(Response::empty()?.with_headers(headers).with_status(204))
     }
 }
 
