@@ -4,13 +4,19 @@ Technical specification for the NGFW.sh API server and router agent.
 
 ## System components
 
-### API server
+### Schema API (packages/schema — specs.ngfw.sh)
 
-Runs on Cloudflare Workers. Handles authentication, configuration storage, and WebSocket connections to router agents.
+TypeScript Hono + Chanfana server on Cloudflare Workers. Handles OpenAPI spec generation, CRUD operations, D1 queries, and user-facing REST endpoints. Uses Zod for validation.
+
+### Rust API (packages/api — api.ngfw.sh)
+
+Rust workers-rs server on Cloudflare Workers. Handles WebSocket connections from router agents via Durable Objects (`AgentConnection`), JWT verification, real-time RPC, and high-performance request handling. Compiles to WASM.
+
+Both API servers share the same D1 database (`ngfw-db`), KV namespaces (DEVICES, CONFIGS, SESSIONS, CACHE), and R2 buckets (FIRMWARE, BACKUPS, REPORTS).
 
 ### Router agent
 
-Runs on the router hardware. Executes configuration changes and reports status to the API server.
+Runs on the router hardware. Executes configuration changes and reports status via WebSocket to the Rust API server at `wss://api.ngfw.sh/agent/ws`.
 
 ## Authentication
 

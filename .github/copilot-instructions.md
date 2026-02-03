@@ -2,15 +2,17 @@
 
 ## Architecture Overview
 
-NGFW.sh is a cloud-managed firewall platform with three main components:
+NGFW.sh is a cloud-managed firewall platform with five deployable components:
 
 ```
-portal/          → React SPA (Vite + Tailwind) - Management UI
-packages/schema/ → Hono + Chanfana API (Cloudflare Workers + D1)
-docs/            → Starlight (Astro) documentation site
+packages/portal/ → React SPA (Vite + Tailwind) - Management UI (app.ngfw.sh)
+packages/www/    → React marketing site (ngfw.sh)
+packages/schema/ → Hono + Chanfana API (Cloudflare Workers + D1) (specs.ngfw.sh)
+packages/api/    → Rust workers-rs API (WebSocket, Durable Objects) (api.ngfw.sh)
+docs/            → Starlight (Astro) documentation site (docs.ngfw.sh)
 ```
 
-All components deploy to Cloudflare Workers. The API uses WebSocket/HTTPS to communicate with on-premises router agents running nftables, dnsmasq, hostapd, and WireGuard.
+All components deploy to Cloudflare Workers. The Rust API handles WebSocket connections from on-premises router agents running nftables, dnsmasq, hostapd, and WireGuard.
 
 ## Package Manager & Runtime
 
@@ -83,14 +85,23 @@ Clerk.com integration with instance `tough-unicorn-25`. Publishable key: `pk_tes
 
 ## Commands Reference
 
-| Location | Command | Purpose |
-|----------|---------|---------|
-| portal/ | `bun dev` | Start Vite dev server |
-| portal/ | `bun run deploy` | Deploy to Cloudflare Workers |
-| packages/schema/ | `bun dev` | Start API dev server |
-| packages/schema/ | `bun test` | Run integration tests |
-| packages/schema/ | `bun run schema` | Extract openapi.json |
-| docs/ | `bun dev` | Start docs at localhost:4321 |
+Run from the repository root:
+
+| Command | Purpose |
+|---------|---------|
+| `bun run setup` | Install all dependencies |
+| `bun run dev:portal` | Portal dev server (Vite) |
+| `bun run dev:schema` | Schema API dev server (Wrangler) |
+| `bun run dev:api` | Rust API dev server (Wrangler) |
+| `bun run dev:www` | Marketing site dev server |
+| `bun run dev:docs` | Docs dev server (Astro) |
+| `bun run test` | Run schema integration tests |
+| `bun run lint` | oxlint |
+| `bun run format` | oxfmt |
+| `bun run deploy` | Deploy www, portal, schema, docs |
+| `bun run deploy:all` | Deploy all including Rust API |
+| `bun run db:migrate:local` | Apply D1 migrations locally |
+| `bun run db:migrate:remote` | Apply D1 migrations to production |
 
 ## API Contract Reference
 

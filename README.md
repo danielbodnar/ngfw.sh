@@ -40,22 +40,22 @@ The platform uses [Clerk.com](https://clerk.com) for authentication, providing s
 ## Architecture
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                   Cloudflare Workers Edge                    │
-│  ┌─────────────────┬─────────────────┬───────────────────┐  │
-│  │   Web Portal    │   API Server    │   Config Store    │  │
-│  │   (React/Vite)  │ (Hono/Chanfana) │    (D1/KV/R2)     │  │
-│  └─────────────────┴─────────────────┴───────────────────┘  │
-└─────────────────────────────────────────────────────────────┘
-                              │
-                              │ WebSocket / HTTPS
-                              ▼
-┌─────────────────────────────────────────────────────────────┐
-│                   Router (On-Premises)                       │
-│  ┌─────────────────────────────────────────────────────────┐│
-│  │   RPC Agent  ←→  nftables / dnsmasq / hostapd / WireGuard││
-│  └─────────────────────────────────────────────────────────┘│
-└─────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────┐
+│                    Cloudflare Workers Edge                        │
+│  ┌──────────────┬───────────────┬─────────────┬───────────────┐  │
+│  │  Web Portal  │  Schema API   │  Rust API   │ Config Store  │  │
+│  │ (React/Vite) │(Hono/Chanfana)│(workers-rs) │  (D1/KV/R2)  │  │
+│  └──────────────┴───────────────┴─────────────┴───────────────┘  │
+└──────────────────────────────────────────────────────────────────┘
+                                    │
+                                    │ WebSocket / HTTPS
+                                    ▼
+┌──────────────────────────────────────────────────────────────────┐
+│                    Router (On-Premises)                           │
+│  ┌──────────────────────────────────────────────────────────┐    │
+│  │  RPC Agent  ←→  nftables / dnsmasq / hostapd / WireGuard│    │
+│  └──────────────────────────────────────────────────────────┘    │
+└──────────────────────────────────────────────────────────────────┘
 ```
 
 ## Project Structure
@@ -63,9 +63,10 @@ The platform uses [Clerk.com](https://clerk.com) for authentication, providing s
 ```
 ngfw.sh/
 ├── packages/
-│   ├── www/          # Marketing website
-│   ├── portal/       # React web dashboard (ngfw.sh)
-│   └── schema/       # API server with OpenAPI spec (specs.ngfw.sh)
+│   ├── api/          # Rust API server with WebSocket RPC (api.ngfw.sh)
+│   ├── portal/       # React web dashboard (app.ngfw.sh)
+│   ├── schema/       # TypeScript API with OpenAPI spec (specs.ngfw.sh)
+│   └── www/          # Marketing website (ngfw.sh)
 ├── docs/             # Astro Starlight documentation (docs.ngfw.sh)
 └── AGENTS.md         # API specification
 ```
@@ -75,7 +76,8 @@ ngfw.sh/
 | Component | Technology |
 |-----------|------------|
 | Web Portal | React 19, Vite 7, Tailwind CSS 4 |
-| API Server | Hono, Chanfana (OpenAPI), Cloudflare Workers |
+| Schema API | Hono, Chanfana (OpenAPI), Cloudflare Workers |
+| Rust API | workers-rs, Durable Objects, WebSocket |
 | Documentation | Astro 5, Starlight |
 | Database | Cloudflare D1 (SQLite) |
 | Key-Value Store | Cloudflare KV |
