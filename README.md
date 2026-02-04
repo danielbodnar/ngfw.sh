@@ -16,9 +16,9 @@ The challenge is being extremely selective about what we can and can't do. We're
 
 ### 3. Beautiful dashboards, logs, and insights for $25-199/mo
 
-The motivation started with a real problem: trying to teach a friend options trading while his browser was being assaulted by ads. The fix was signing him up for [NextDNS](https://nextdns.io) and configuring it on his router. His one request: the flat logs don't let him extract actionable information at a glance — no way to group, report, search, or visualize what's happening on his network. No graphs. No charts.
+Existing DNS filtering and network monitoring tools give you flat logs — raw query data with no way to group, report, search, or visualize what's actually happening on your network. No graphs, no charts, no actionable intelligence. Enterprise firewalls solve this but cost $10K+/year and require dedicated IT staff.
 
-That's the gap. DNS filtering services give you raw query logs. Enterprise firewalls give you dashboards but cost $10K+/year. NGFW.sh gives you real-time, beautiful, actionable network intelligence — threat detection, ad blocking analytics, traffic patterns, device fingerprinting — all from a cloud dashboard that works from anywhere, on any device, with sub-50ms latency globally.
+NGFW.sh closes that gap: real-time, beautiful, actionable network intelligence — threat detection, ad blocking analytics, traffic patterns, device fingerprinting — all from a cloud dashboard that works from anywhere, on any device, with sub-50ms latency globally. The kind of visibility that used to require a Meraki MX or Palo Alto deployment, available to anyone for $25/mo.
 
 ## How It Works
 
