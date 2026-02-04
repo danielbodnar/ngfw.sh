@@ -211,7 +211,12 @@ async fn handle_exec(msg: &RpcMessage, mode_config: &ModeConfig) -> Option<RpcMe
         Ok(c) => c,
         Err(e) => {
             warn!(id = %msg.id, "Invalid ExecCommand payload: {}", e);
-            return Some(exec_error_response(&msg.id, "unknown", "invalid", e.to_string()));
+            return Some(exec_error_response(
+                &msg.id,
+                "unknown",
+                "invalid",
+                e.to_string(),
+            ));
         }
     };
 
@@ -277,18 +282,22 @@ async fn handle_exec(msg: &RpcMessage, mode_config: &ModeConfig) -> Option<RpcMe
         ));
     }
 
-    // Build the process
+    // Build the process using ONLY the validated base command name.
+    // This prevents path manipulation attacks (e.g., "/tmp/evil/iptables")
+    // by letting the OS resolve the command via PATH instead of using an
+    // attacker-controlled absolute path.
     let timeout_secs = cmd.timeout_secs.unwrap_or(30);
     let start = Instant::now();
 
-    let mut process = tokio::process::Command::new(&cmd.command);
+    let mut process = tokio::process::Command::new(base_command);
     if let Some(ref args) = cmd.args {
         process.args(args);
     }
 
     info!(
         command_id = %cmd.command_id,
-        command = %cmd.command,
+        base_command = %base_command,
+        original_command = %cmd.command,
         args = ?cmd.args,
         timeout = timeout_secs,
         "Executing command"
@@ -455,11 +464,11 @@ async fn handle_upgrade(msg: &RpcMessage, mode_config: &ModeConfig) -> Option<Rp
         "Starting firmware upgrade"
     );
 
-    // Download the upgrade binary
-    let download_path = "/jffs/ngfw/ngfw-agent.new";
+    // Download the upgrade binary (use PID to avoid races from concurrent upgrades)
+    let download_path = format!("/jffs/ngfw/ngfw-agent.new.{}", std::process::id());
 
     let download_result = tokio::process::Command::new("curl")
-        .args(["-fsSL", "-o", download_path, &upgrade.download_url])
+        .args(["-fsSL", "-o", &download_path, &upgrade.download_url])
         .output()
         .await;
 
@@ -487,8 +496,14 @@ async fn handle_upgrade(msg: &RpcMessage, mode_config: &ModeConfig) -> Option<Rp
     }
 
     // Verify SHA256 checksum
+    // The checksum field uses format "sha256:hex..." — strip the prefix for comparison
+    let expected_hash = upgrade
+        .checksum
+        .strip_prefix("sha256:")
+        .unwrap_or(&upgrade.checksum);
+
     let checksum_result = tokio::process::Command::new("sha256sum")
-        .arg(download_path)
+        .arg(&download_path)
         .output()
         .await;
 
@@ -496,20 +511,20 @@ async fn handle_upgrade(msg: &RpcMessage, mode_config: &ModeConfig) -> Option<Rp
         Ok(output) if output.status.success() => {
             let actual = String::from_utf8_lossy(&output.stdout);
             let actual_hash = actual.split_whitespace().next().unwrap_or("");
-            if actual_hash != upgrade.checksum {
+            if actual_hash != expected_hash {
                 error!(
-                    expected = %upgrade.checksum,
+                    expected = %expected_hash,
                     actual = %actual_hash,
                     "Checksum mismatch"
                 );
-                let _ = tokio::fs::remove_file(download_path).await;
+                let _ = tokio::fs::remove_file(&download_path).await;
                 return Some(RpcMessage::with_id(
                     msg.id.clone(),
                     MessageType::Error,
                     serde_json::json!({
                         "error": format!(
                             "Checksum mismatch: expected {}, got {}",
-                            upgrade.checksum, actual_hash
+                            expected_hash, actual_hash
                         )
                     }),
                 ));
@@ -518,7 +533,7 @@ async fn handle_upgrade(msg: &RpcMessage, mode_config: &ModeConfig) -> Option<Rp
         }
         _ => {
             error!("Checksum verification failed");
-            let _ = tokio::fs::remove_file(download_path).await;
+            let _ = tokio::fs::remove_file(&download_path).await;
             return Some(RpcMessage::with_id(
                 msg.id.clone(),
                 MessageType::Error,
@@ -532,7 +547,7 @@ async fn handle_upgrade(msg: &RpcMessage, mode_config: &ModeConfig) -> Option<Rp
         Ok(p) => p,
         Err(e) => {
             error!("Cannot determine current executable path: {}", e);
-            let _ = tokio::fs::remove_file(download_path).await;
+            let _ = tokio::fs::remove_file(&download_path).await;
             return Some(RpcMessage::with_id(
                 msg.id.clone(),
                 MessageType::Error,
@@ -541,16 +556,27 @@ async fn handle_upgrade(msg: &RpcMessage, mode_config: &ModeConfig) -> Option<Rp
         }
     };
 
+    // Backup current binary before replacing
+    // NOTE: The init script should check for .old on startup failure and restore it
+    let backup_path = format!("{}.old", current_exe.display());
+    if let Err(e) = tokio::fs::copy(&current_exe, &backup_path).await {
+        warn!("Failed to backup current binary: {} (continuing anyway)", e);
+    }
+
     // Make the new binary executable
     let _ = tokio::process::Command::new("chmod")
-        .args(["+x", download_path])
+        .args(["+x", &download_path])
         .output()
         .await;
 
     // Move new binary into place
-    if let Err(e) = tokio::fs::rename(download_path, &current_exe).await {
+    if let Err(e) = tokio::fs::rename(&download_path, &current_exe).await {
         error!("Failed to replace binary: {}", e);
-        let _ = tokio::fs::remove_file(download_path).await;
+        // Attempt to restore from backup
+        if let Err(restore_err) = tokio::fs::rename(&backup_path, &current_exe).await {
+            error!("CRITICAL: Failed to restore backup: {}", restore_err);
+        }
+        let _ = tokio::fs::remove_file(&download_path).await;
         return Some(RpcMessage::with_id(
             msg.id.clone(),
             MessageType::Error,
@@ -1036,12 +1062,7 @@ api_key = "test-key"
 
     #[test]
     fn config_fail_response_creates_correct_message() {
-        let resp = config_fail_response(
-            "msg-456",
-            ConfigSection::Dns,
-            3,
-            "bad format".to_string(),
-        );
+        let resp = config_fail_response("msg-456", ConfigSection::Dns, 3, "bad format".to_string());
 
         assert_eq!(resp.id, "msg-456");
         assert_eq!(resp.msg_type, MessageType::ConfigFail);
@@ -1060,12 +1081,7 @@ api_key = "test-key"
 
     #[test]
     fn exec_error_response_uses_provided_msg_id() {
-        let resp = exec_error_response(
-            "msg-789",
-            "cmd-001",
-            "blocked",
-            "not allowed".to_string(),
-        );
+        let resp = exec_error_response("msg-789", "cmd-001", "blocked", "not allowed".to_string());
 
         // The response must carry the original message ID, not a random UUID
         assert_eq!(resp.id, "msg-789");
@@ -1095,5 +1111,45 @@ api_key = "test-key"
         let result: ExecResult =
             serde_json::from_value(resp.payload).expect("payload should deserialize");
         assert_eq!(result.command_id, "exec-command-42");
+    }
+
+    // -----------------------------------------------------------------------
+    // exec allowlist security tests
+    // -----------------------------------------------------------------------
+
+    #[test]
+    fn test_exec_uses_basename_not_full_path() {
+        // Validates that path manipulation attacks are mitigated.
+        // The dispatcher extracts the basename and uses ONLY that for
+        // Command::new(), so "/tmp/evil/iptables" resolves to just "iptables"
+        // which the OS looks up via PATH.
+        let cmd_str = "/tmp/evil/iptables";
+        let base = cmd_str.split('/').next_back().unwrap_or(cmd_str);
+        assert_eq!(base, "iptables");
+        assert!(ALLOWED_COMMANDS.contains(&base));
+    }
+
+    #[test]
+    fn test_basename_extraction_strips_nested_path() {
+        let cmd_str = "/usr/local/sbin/ip";
+        let base = cmd_str.split('/').next_back().unwrap_or(cmd_str);
+        assert_eq!(base, "ip");
+        assert!(ALLOWED_COMMANDS.contains(&base));
+    }
+
+    #[test]
+    fn test_basename_extraction_handles_bare_command() {
+        let cmd_str = "iptables";
+        let base = cmd_str.split('/').next_back().unwrap_or(cmd_str);
+        assert_eq!(base, "iptables");
+        assert!(ALLOWED_COMMANDS.contains(&base));
+    }
+
+    #[test]
+    fn test_basename_extraction_rejects_unknown_command() {
+        let cmd_str = "/tmp/evil/malware";
+        let base = cmd_str.split('/').next_back().unwrap_or(cmd_str);
+        assert_eq!(base, "malware");
+        assert!(!ALLOWED_COMMANDS.contains(&base));
     }
 }

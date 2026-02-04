@@ -1,0 +1,3 @@
+[submodule "packages/awrtconf"]
+	path = packages/awrtconf
+	url = https://github.com/danielbodnar/awrtconf

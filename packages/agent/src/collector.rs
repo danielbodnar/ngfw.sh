@@ -430,7 +430,11 @@ mod tests {
     fn chrono_timestamp_reasonable() {
         let ts = chrono_timestamp();
         // Must be after 2023-11-14 (~1700000000)
-        assert!(ts > 1_700_000_000, "timestamp {} should be > 1700000000", ts);
+        assert!(
+            ts > 1_700_000_000,
+            "timestamp {} should be > 1700000000",
+            ts
+        );
     }
 
     #[test]
