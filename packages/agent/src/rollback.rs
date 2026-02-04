@@ -146,3 +146,57 @@ async fn load_version_map() -> VersionMap {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use ngfw_protocol::ConfigSection;
+
+    #[test]
+    fn section_name_returns_lowercase() {
+        assert_eq!(section_name(&ConfigSection::Firewall), "firewall");
+        assert_eq!(section_name(&ConfigSection::Dns), "dns");
+        assert_eq!(section_name(&ConfigSection::System), "system");
+    }
+
+    #[test]
+    fn backup_path_uses_section_name() {
+        let path = backup_path(&ConfigSection::Firewall);
+        assert!(
+            path.ends_with("rollback/firewall.json"),
+            "expected path ending with rollback/firewall.json, got: {}",
+            path.display()
+        );
+    }
+
+    #[test]
+    fn versions_path_is_correct() {
+        let path = versions_path();
+        assert!(
+            path.ends_with("rollback/versions.json"),
+            "expected path ending with rollback/versions.json, got: {}",
+            path.display()
+        );
+    }
+
+    #[test]
+    fn version_map_default_is_empty() {
+        assert!(VersionMap::default().versions.is_empty());
+    }
+
+    #[test]
+    fn version_map_serialization_roundtrip() {
+        let mut map = VersionMap::default();
+        map.versions.insert("firewall".to_string(), 42);
+        map.versions.insert("dns".to_string(), 7);
+        map.versions.insert("system".to_string(), 100);
+
+        let json = serde_json::to_string(&map).expect("serialize");
+        let restored: VersionMap = serde_json::from_str(&json).expect("deserialize");
+
+        assert_eq!(restored.versions.len(), 3);
+        assert_eq!(restored.versions.get("firewall"), Some(&42));
+        assert_eq!(restored.versions.get("dns"), Some(&7));
+        assert_eq!(restored.versions.get("system"), Some(&100));
+    }
+}

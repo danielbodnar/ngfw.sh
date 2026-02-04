@@ -650,4 +650,54 @@ mod tests {
             assert_eq!(&deserialized, variant);
         }
     }
+
+    // ─── 13. WebhookConfig secret never serialized ────────────────────────
+
+    #[test]
+    fn webhook_config_secret_never_serialized() {
+        let config = WebhookConfig {
+            id: "wh-001".to_string(),
+            url: "https://example.com/hook".to_string(),
+            events: vec![WebhookEvent::DeviceOnline, WebhookEvent::ThreatDetected],
+            enabled: true,
+            secret: Some("super-secret-value".to_string()),
+            created_at: 1_700_000_000,
+        };
+
+        let v: Value = serde_json::to_value(&config).unwrap();
+        assert!(
+            v.get("secret").is_none(),
+            "secret field must never appear in serialized output, even when Some"
+        );
+
+        // Also verify other fields are present
+        assert_eq!(v["id"], json!("wh-001"));
+        assert_eq!(v["url"], json!("https://example.com/hook"));
+        assert_eq!(v["enabled"], json!(true));
+    }
+
+    // ─── 14. Device deserializes without agent_mode ───────────────────────
+
+    #[test]
+    fn device_deserializes_without_agent_mode() {
+        let json_str = r#"{
+            "id": "dev-001",
+            "name": "Office Router",
+            "model": "RT-AX88U",
+            "serial": "SN-12345",
+            "firmware_version": "1.0.0",
+            "status": "online",
+            "last_seen": null,
+            "created_at": 1700000000,
+            "tags": ["office", "main"]
+        }"#;
+
+        let device: Device = serde_json::from_str(json_str).unwrap();
+        assert_eq!(device.id, "dev-001");
+        assert_eq!(device.name, "Office Router");
+        assert!(
+            device.agent_mode.is_none(),
+            "agent_mode should default to None when omitted from JSON"
+        );
+    }
 }

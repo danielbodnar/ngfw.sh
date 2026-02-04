@@ -107,9 +107,9 @@ pub async fn metrics_loop(
 
 /// Raw jiffies from the first line of /proc/stat.
 struct CpuSnapshot {
-    user: u64,
-    nice: u64,
-    system: u64,
+    _user: u64,
+    _nice: u64,
+    _system: u64,
     idle: u64,
     total: u64,
 }
@@ -134,9 +134,9 @@ async fn read_cpu_snapshot() -> Option<CpuSnapshot> {
     let total = user + nice + system + idle + extra;
 
     Some(CpuSnapshot {
-        user,
-        nice,
-        system,
+        _user: user,
+        _nice: nice,
+        _system: system,
         idle,
         total,
     })
@@ -405,4 +405,47 @@ fn chrono_timestamp() -> i64 {
         .duration_since(std::time::UNIX_EPOCH)
         .map(|d| d.as_secs() as i64)
         .unwrap_or(0)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn parse_meminfo_kb_valid() {
+        assert_eq!(parse_meminfo_kb("   16384 kB"), Some(16384));
+    }
+
+    #[test]
+    fn parse_meminfo_kb_empty() {
+        assert_eq!(parse_meminfo_kb(""), None);
+    }
+
+    #[test]
+    fn parse_meminfo_kb_no_unit() {
+        assert_eq!(parse_meminfo_kb("  8192"), Some(8192));
+    }
+
+    #[test]
+    fn chrono_timestamp_reasonable() {
+        let ts = chrono_timestamp();
+        // Must be after 2023-11-14 (~1700000000)
+        assert!(ts > 1_700_000_000, "timestamp {} should be > 1700000000", ts);
+    }
+
+    #[test]
+    fn cpu_snapshot_fields() {
+        let snap = CpuSnapshot {
+            _user: 100,
+            _nice: 10,
+            _system: 50,
+            idle: 800,
+            total: 960,
+        };
+        assert_eq!(snap._user, 100);
+        assert_eq!(snap._nice, 10);
+        assert_eq!(snap._system, 50);
+        assert_eq!(snap.idle, 800);
+        assert_eq!(snap.total, 960);
+    }
 }

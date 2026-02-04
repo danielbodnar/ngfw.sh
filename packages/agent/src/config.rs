@@ -9,6 +9,7 @@ pub struct AgentConfig {
     #[serde(default)]
     pub mode: ModeSection,
     #[serde(default)]
+    #[allow(dead_code)]
     pub adapters: AdaptersSection,
 }
 
@@ -23,6 +24,7 @@ pub struct AgentSection {
     pub metrics_interval_secs: u64,
 }
 
+#[allow(dead_code)]
 #[derive(Debug, Clone, Deserialize)]
 pub struct ModeSection {
     #[serde(default = "default_mode")]
@@ -37,6 +39,7 @@ impl Default for ModeSection {
     }
 }
 
+#[allow(dead_code)]
 #[derive(Debug, Clone, Deserialize)]
 pub struct AdaptersSection {
     #[serde(default = "default_true")]

@@ -4,13 +4,11 @@
 //! via WebSocket, receives configuration and commands, reports telemetry,
 //! and manages router subsystems.
 
-mod adapters;
 mod collector;
 mod config;
 mod connection;
 mod dispatcher;
 mod mode;
-mod rollback;
 
 use config::AgentConfig;
 use tracing::{error, info};
@@ -39,7 +37,13 @@ async fn main() {
     };
 
     if check_mode {
-        println!("Configuration OK: {:#?}", config);
+        println!("Configuration OK:");
+        println!("  device_id: {}", config.agent.device_id);
+        println!("  websocket_url: {}", config.agent.websocket_url);
+        println!("  api_key: {}...", &config.agent.api_key[..8.min(config.agent.api_key.len())]);
+        println!("  log_level: {:?}", config.agent.log_level);
+        println!("  metrics_interval: {}s", config.agent.metrics_interval_secs);
+        println!("  mode: {}", config.mode.default);
         return;
     }
 

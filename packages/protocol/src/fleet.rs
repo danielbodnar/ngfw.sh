@@ -20,6 +20,7 @@ pub struct Device {
     pub location: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub notes: Option<String>,
+    #[serde(default)]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub agent_mode: Option<ModeConfig>,
 }
@@ -180,7 +181,6 @@ pub struct WebhookConfig {
     pub events: Vec<WebhookEvent>,
     pub enabled: bool,
     #[serde(skip_serializing)]
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub secret: Option<String>,
     pub created_at: i64,
 }

@@ -211,7 +211,7 @@ async fn handle_exec(msg: &RpcMessage, mode_config: &ModeConfig) -> Option<RpcMe
         Ok(c) => c,
         Err(e) => {
             warn!(id = %msg.id, "Invalid ExecCommand payload: {}", e);
-            return Some(exec_error_response(&msg.id, "invalid", e.to_string()));
+            return Some(exec_error_response(&msg.id, "unknown", "invalid", e.to_string()));
         }
     };
 
@@ -233,6 +233,7 @@ async fn handle_exec(msg: &RpcMessage, mode_config: &ModeConfig) -> Option<RpcMe
             "Command not in allowlist"
         );
         return Some(exec_error_response(
+            &msg.id,
             &cmd.command_id,
             "blocked",
             format!("Command '{}' is not in the allowlist", base_command),
@@ -249,6 +250,7 @@ async fn handle_exec(msg: &RpcMessage, mode_config: &ModeConfig) -> Option<RpcMe
             "Exec denied — mode does not allow mutating commands"
         );
         return Some(exec_error_response(
+            &msg.id,
             &cmd.command_id,
             "mode_denied",
             format!(
@@ -265,6 +267,7 @@ async fn handle_exec(msg: &RpcMessage, mode_config: &ModeConfig) -> Option<RpcMe
             "Diagnostic exec denied — observe mode"
         );
         return Some(exec_error_response(
+            &msg.id,
             &cmd.command_id,
             "mode_denied",
             format!(
@@ -453,7 +456,7 @@ async fn handle_upgrade(msg: &RpcMessage, mode_config: &ModeConfig) -> Option<Rp
     );
 
     // Download the upgrade binary
-    let download_path = "/tmp/ngfw-agent-upgrade";
+    let download_path = "/jffs/ngfw/ngfw-agent.new";
 
     let download_result = tokio::process::Command::new("curl")
         .args(["-fsSL", "-o", download_path, &upgrade.download_url])
@@ -685,8 +688,8 @@ fn config_fail_response(
     RpcMessage::with_id(id.to_string(), MessageType::ConfigFail, payload)
 }
 
-/// Build an ExecResult error response
-fn exec_error_response(command_id: &str, _reason: &str, error: String) -> RpcMessage {
+/// Build an ExecResult error response, preserving the original message ID for correlation
+fn exec_error_response(msg_id: &str, command_id: &str, _reason: &str, error: String) -> RpcMessage {
     let result = ExecResult {
         command_id: command_id.to_string(),
         exit_code: -1,
@@ -695,7 +698,7 @@ fn exec_error_response(command_id: &str, _reason: &str, error: String) -> RpcMes
         duration_ms: 0,
     };
     let payload = serde_json::to_value(&result).unwrap_or_default();
-    RpcMessage::new(MessageType::ExecResult, payload)
+    RpcMessage::with_id(msg_id.to_string(), MessageType::ExecResult, payload)
 }
 
 /// Validate a config push without applying it (shadow mode)
@@ -909,4 +912,188 @@ async fn read_wan_ip() -> Option<String> {
         .zip(stdout.split_whitespace().skip(1))
         .find(|(key, _)| *key == "src")
         .map(|(_, ip)| ip.to_string())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use ngfw_protocol::{ConfigSection, MessageType};
+
+    /// Helper to build a minimal AgentConfig for testing
+    fn test_config() -> AgentConfig {
+        toml::from_str(
+            r#"
+[agent]
+device_id = "test-device"
+api_key = "test-key"
+"#,
+        )
+        .expect("test config should parse")
+    }
+
+    // -----------------------------------------------------------------------
+    // validate_config tests
+    // -----------------------------------------------------------------------
+
+    #[test]
+    fn validate_config_rejects_null_payload() {
+        let config = test_config();
+        let push = ConfigPush {
+            section: ConfigSection::Firewall,
+            config: serde_json::Value::Null,
+            version: 1,
+        };
+        let result = validate_config(&config, &push);
+        assert!(result.is_err());
+        assert_eq!(result.unwrap_err(), "Config payload is null");
+    }
+
+    #[test]
+    fn validate_config_accepts_object_payload() {
+        let config = test_config();
+        let push = ConfigPush {
+            section: ConfigSection::Firewall,
+            config: serde_json::json!({ "rules": [] }),
+            version: 1,
+        };
+        assert!(validate_config(&config, &push).is_ok());
+    }
+
+    #[test]
+    fn validate_config_rejects_array_for_firewall() {
+        let config = test_config();
+        let push = ConfigPush {
+            section: ConfigSection::Firewall,
+            config: serde_json::json!([1, 2, 3]),
+            version: 1,
+        };
+        let result = validate_config(&config, &push);
+        assert!(result.is_err());
+        assert_eq!(result.unwrap_err(), "Firewall config must be an object");
+    }
+
+    #[test]
+    fn validate_config_rejects_array_for_wan() {
+        let config = test_config();
+        let push = ConfigPush {
+            section: ConfigSection::Wan,
+            config: serde_json::json!([]),
+            version: 1,
+        };
+        let result = validate_config(&config, &push);
+        assert!(result.is_err());
+        assert!(result.unwrap_err().contains("config must be an object"));
+    }
+
+    #[test]
+    fn validate_config_rejects_array_for_dns() {
+        let config = test_config();
+        let push = ConfigPush {
+            section: ConfigSection::Dns,
+            config: serde_json::json!("string value"),
+            version: 1,
+        };
+        let result = validate_config(&config, &push);
+        assert!(result.is_err());
+        assert_eq!(result.unwrap_err(), "DNS config must be an object");
+    }
+
+    #[test]
+    fn validate_config_rejects_array_for_full() {
+        let config = test_config();
+        let push = ConfigPush {
+            section: ConfigSection::Full,
+            config: serde_json::json!(42),
+            version: 1,
+        };
+        let result = validate_config(&config, &push);
+        assert!(result.is_err());
+        assert_eq!(result.unwrap_err(), "Full config must be an object");
+    }
+
+    // -----------------------------------------------------------------------
+    // config_ack_response tests
+    // -----------------------------------------------------------------------
+
+    #[test]
+    fn config_ack_response_creates_correct_message() {
+        let resp = config_ack_response("msg-123", ConfigSection::Firewall, 5);
+
+        assert_eq!(resp.id, "msg-123");
+        assert_eq!(resp.msg_type, MessageType::ConfigAck);
+
+        let ack: ConfigAck =
+            serde_json::from_value(resp.payload).expect("payload should deserialize");
+        assert_eq!(ack.section, ConfigSection::Firewall);
+        assert_eq!(ack.version, 5);
+        assert!(ack.success);
+        assert!(ack.error.is_none());
+    }
+
+    // -----------------------------------------------------------------------
+    // config_fail_response tests
+    // -----------------------------------------------------------------------
+
+    #[test]
+    fn config_fail_response_creates_correct_message() {
+        let resp = config_fail_response(
+            "msg-456",
+            ConfigSection::Dns,
+            3,
+            "bad format".to_string(),
+        );
+
+        assert_eq!(resp.id, "msg-456");
+        assert_eq!(resp.msg_type, MessageType::ConfigFail);
+
+        let ack: ConfigAck =
+            serde_json::from_value(resp.payload).expect("payload should deserialize");
+        assert_eq!(ack.section, ConfigSection::Dns);
+        assert_eq!(ack.version, 3);
+        assert!(!ack.success);
+        assert_eq!(ack.error.as_deref(), Some("bad format"));
+    }
+
+    // -----------------------------------------------------------------------
+    // exec_error_response tests
+    // -----------------------------------------------------------------------
+
+    #[test]
+    fn exec_error_response_uses_provided_msg_id() {
+        let resp = exec_error_response(
+            "msg-789",
+            "cmd-001",
+            "blocked",
+            "not allowed".to_string(),
+        );
+
+        // The response must carry the original message ID, not a random UUID
+        assert_eq!(resp.id, "msg-789");
+        assert_eq!(resp.msg_type, MessageType::ExecResult);
+
+        let result: ExecResult =
+            serde_json::from_value(resp.payload).expect("payload should deserialize");
+        assert_eq!(result.command_id, "cmd-001");
+        assert_eq!(result.exit_code, -1);
+        assert!(result.stdout.is_none());
+        assert_eq!(result.stderr.as_deref(), Some("not allowed"));
+        assert_eq!(result.duration_ms, 0);
+    }
+
+    #[test]
+    fn exec_error_response_preserves_different_ids() {
+        // Verify msg_id and command_id are independent
+        let resp = exec_error_response(
+            "original-msg",
+            "exec-command-42",
+            "mode_denied",
+            "requires takeover".to_string(),
+        );
+
+        assert_eq!(resp.id, "original-msg");
+
+        let result: ExecResult =
+            serde_json::from_value(resp.payload).expect("payload should deserialize");
+        assert_eq!(result.command_id, "exec-command-42");
+    }
 }

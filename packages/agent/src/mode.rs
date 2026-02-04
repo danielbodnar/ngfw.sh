@@ -37,11 +37,13 @@ pub async fn persist_mode(mode_config: &ModeConfig) -> Result<(), std::io::Error
 }
 
 /// Check whether an action is allowed in the current mode for a given section
+#[allow(dead_code)]
 pub fn can_apply(mode_config: &ModeConfig, section: &ConfigSection) -> bool {
     matches!(mode_config.effective_mode(section), AgentMode::Takeover)
 }
 
 /// Check whether shadow validation (diff without apply) is allowed
+#[allow(dead_code)]
 pub fn can_shadow(mode_config: &ModeConfig, section: &ConfigSection) -> bool {
     matches!(
         mode_config.effective_mode(section),

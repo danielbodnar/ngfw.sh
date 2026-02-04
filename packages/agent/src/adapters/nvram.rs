@@ -12,6 +12,26 @@ use tracing::{debug, warn};
 
 use super::{ConfigDiff, SubsystemAdapter, ValidationIssue};
 
+/// NVRAM key prefixes that contain sensitive values (passwords, keys, tokens).
+const SENSITIVE_PREFIXES: &[&str] = &[
+    "wl0_wpa_psk",
+    "wl1_wpa_psk",
+    "wl2_wpa_psk",
+    "wgs", // WireGuard keys
+    "vpn_server",
+    "vpn_client",
+    "http_passwd",
+    "ddns_passwd",
+    "pppoe_passwd",
+];
+
+/// Returns `true` when `key` starts with any prefix in [`SENSITIVE_PREFIXES`].
+fn is_sensitive_key(key: &str) -> bool {
+    SENSITIVE_PREFIXES
+        .iter()
+        .any(|prefix| key.starts_with(prefix))
+}
+
 #[derive(Default)]
 pub struct NvramAdapter;
 
@@ -45,10 +65,17 @@ impl NvramAdapter {
 
         if !output.status.success() {
             let stderr = String::from_utf8_lossy(&output.stderr);
+            if is_sensitive_key(key) {
+                return Err(format!("nvram set {}=[REDACTED] failed: {}", key, stderr).into());
+            }
             return Err(format!("nvram set {}={} failed: {}", key, value, stderr).into());
         }
 
-        debug!("nvram set {}={}", key, value);
+        if is_sensitive_key(key) {
+            debug!("nvram set {}=[REDACTED]", key);
+        } else {
+            debug!("nvram set {}={}", key, value);
+        }
         Ok(())
     }
 
@@ -203,5 +230,30 @@ impl SubsystemAdapter for NvramAdapter {
         // NVRAM has no runtime metrics; return entry count.
         let all = Self::show_all().await?;
         Ok(json!({ "total_keys": all.len() }))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn sensitive_wifi_password() {
+        assert!(is_sensitive_key("wl0_wpa_psk"));
+    }
+
+    #[test]
+    fn sensitive_wireguard_key() {
+        assert!(is_sensitive_key("wgs1_priv"));
+    }
+
+    #[test]
+    fn non_sensitive_wan_interface() {
+        assert!(!is_sensitive_key("wan_ifname"));
+    }
+
+    #[test]
+    fn sensitive_http_password() {
+        assert!(is_sensitive_key("http_passwd"));
     }
 }
