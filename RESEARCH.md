@@ -45,15 +45,13 @@ The model: customers purchase affordable supported hardware and pay a monthly su
 | **Annual** | **$240/yr** ($20/mo) | **$468/yr** ($39/mo) | **$948/yr** ($79/mo) | **$1,908/yr** ($159/mo) |
 | **Annual Savings** | 20% | 20% | 20% | 20% |
 | **Routers** | 1 | 3 | 10 | 25 |
-| **Users** | 1 | 3 | 10 | Unlimited |
-| **Devices (behind router)** | 50 | 150 | 500 | Unlimited |
 | | | | | |
 | **Core Features** | | | | |
 | Cloud dashboard | Yes | Yes | Yes | Yes |
 | Real-time monitoring | Yes | Yes | Yes | Yes |
 | WAN/LAN/DHCP management | Yes | Yes | Yes | Yes |
 | WiFi management | Yes | Yes | Yes | Yes |
-| Firewall rules | 25 rules | 100 rules | Unlimited | Unlimited |
+| Firewall rules (unlimited) | Yes | Yes | Yes | Yes |
 | NAT / port forwarding | Yes | Yes | Yes | Yes |
 | Configuration backup (R2) | 3 backups | 10 backups | 50 backups | Unlimited |
 | Firmware management | Yes | Yes | Yes | Yes |
@@ -71,8 +69,8 @@ The model: customers purchase affordable supported hardware and pay a monthly su
 | | | | | |
 | **Networking** | | | | |
 | VLANs | 2 | 8 | 32 | Unlimited |
-| VPN server (WireGuard) | 3 peers | 10 peers | 50 peers | Unlimited |
-| VPN client profiles | 1 | 3 | 10 | Unlimited |
+| VPN server (WireGuard, unlimited peers) | Yes | Yes | Yes | Yes |
+| VPN client profiles | Yes | Yes | Yes | Yes |
 | QoS / traffic shaping | - | Yes | Yes | Yes |
 | Dynamic DNS | - | Yes | Yes | Yes |
 | | | | | |
