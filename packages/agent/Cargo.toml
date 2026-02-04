@@ -32,7 +32,7 @@ tokio = { version = "1", features = [
 ] }
 
 # WebSocket client
-tokio-tungstenite = { version = "0.26", features = ["native-tls"] }
+tokio-tungstenite = { version = "0.26", default-features = false, features = ["connect", "rustls-tls-webpki-roots"] }
 futures-util = "0.3"
 
 # Serialization

@@ -5,16 +5,31 @@ PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
 echo "=== NGFW Agent Integration Test (QEMU VM) ==="
 
+# Cleanup trap to kill background processes on exit
+MOCK_PID="" SERVE_PID="" QEMU_PID=""
+cleanup() {
+  echo "Cleaning up..."
+  [ -n "$QEMU_PID" ] && kill $QEMU_PID 2>/dev/null || true
+  [ -n "$MOCK_PID" ] && kill $MOCK_PID 2>/dev/null || true
+  [ -n "$SERVE_PID" ] && kill $SERVE_PID 2>/dev/null || true
+  wait 2>/dev/null || true
+}
+trap cleanup EXIT
+
 # Step 1: Cross-compile agent for aarch64-linux-musl
 echo "Cross-compiling agent for aarch64..."
 cd "$PROJECT_ROOT"
 cross build -p ngfw-agent --release --target aarch64-unknown-linux-musl
-AGENT_BIN="$PROJECT_ROOT/target/aarch64-unknown-linux-musl/release/ngfw-agent"
+
+# Resolve target directory (respects CARGO_TARGET_DIR)
+TARGET_DIR="${CARGO_TARGET_DIR:-$PROJECT_ROOT/target}"
+AGENT_BIN="$TARGET_DIR/aarch64-unknown-linux-musl/release/ngfw-agent"
 
 if [ ! -f "$AGENT_BIN" ]; then
   echo "ERROR: Agent binary not found at $AGENT_BIN"
   exit 1
 fi
+echo "Agent binary: $AGENT_BIN ($(ls -lh "$AGENT_BIN" | awk '{print $5}'))"
 
 # Step 2: Start mock API server in background
 echo "Starting mock API server..."
@@ -55,10 +70,5 @@ for i in $(seq 1 $TIMEOUT); do
   fi
   sleep 1
 done
-
-# Cleanup
-echo "Stopping services..."
-kill $QEMU_PID $MOCK_PID $SERVE_PID 2>/dev/null || true
-wait 2>/dev/null || true
 
 echo "=== QEMU integration test passed ==="
