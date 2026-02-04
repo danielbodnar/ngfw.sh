@@ -16,6 +16,8 @@ pub fn build_router() -> Router<'static, ()> {
         .get_async("/api/system/hardware", system::get_hardware)
         .post_async("/api/system/reboot", system::reboot)
         .post_async("/api/system/shutdown", system::shutdown)
+        // ========== Metrics endpoints ==========
+        .get_async("/api/metrics/latest", system::get_latest_metrics)
         // ========== WAN endpoints ==========
         .get_async("/api/wan/config", network::get_wan_config)
         .put_async("/api/wan/config", network::update_wan_config)

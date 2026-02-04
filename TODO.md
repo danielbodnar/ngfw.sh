@@ -1,145 +1,125 @@
-# NGFW.sh - Project TODO
+# NGFW.sh MVP Launch — Implementation Tracker
 
-## Authentication Migration: WorkOS to Clerk.com
-
-### Completed Tasks
-
-- [x] **Discovery Phase**
-  - [x] Analyzed current codebase architecture (React/Vite portal, Hono API)
-  - [x] Identified existing WorkOS AuthKit integration
-  - [x] Researched Clerk.com React and Backend SDK integration patterns
-
-- [x] **Package Installation**
-  - [x] Installed `@clerk/clerk-react@5.59.3` in portal
-  - [x] Installed `@clerk/backend@2.29.2` in packages/schema
-
-- [x] **Environment Configuration**
-  - [x] Created `portal/.dev.vars` with `VITE_CLERK_PUBLISHABLE_KEY`
-  - [x] Created `portal/.dev.vars.example` as template
-  - [x] Created `packages/schema/.dev.vars` with Clerk secrets
-  - [x] Created `packages/schema/.dev.vars.example` as template
-  - [x] Updated `portal/wrangler.toml` with observability settings
-  - [x] Updated `packages/schema/wrangler.jsonc` with observability settings
-
-- [x] **Frontend Integration**
-  - [x] Created `portal/src/vite-env.d.ts` for TypeScript env types
-  - [x] Updated `portal/src/main.tsx` with ClerkProvider
-  - [x] Updated `portal/src/App.tsx`:
-    - [x] Added Clerk component imports (SignedIn, SignedOut, SignIn, UserButton, etc.)
-    - [x] Replaced manual auth state with Clerk's SignedIn/SignedOut components
-    - [x] Updated ProfilePage to use `useUser()` hook for real user data
-    - [x] Added AuthPage wrapper with NGFW.sh branding
-    - [x] Configured dark theme for Clerk components
-
-### Pending Tasks
-
-- [ ] **Backend Integration**
-  - [ ] Create Clerk JWT verification middleware in packages/schema
-  - [ ] Add middleware to protected API routes
-  - [ ] Test JWT verification with Clerk's JWKS endpoint
-
-- [ ] **Deployment**
-  - [ ] Add CLERK_SECRET_KEY to Cloudflare Worker secrets:
-    ```bash
-    cd packages/schema
-    bunx wrangler@latest secret put CLERK_SECRET_KEY
-    ```
-  - [ ] Deploy portal: `cd portal && bun run deploy`
-  - [ ] Deploy API: `cd packages/schema && bun run deploy`
-  - [ ] Verify deployment with worker logs
-
-- [ ] **Testing**
-  - [ ] Test sign-in flow with email/password
-  - [ ] Test sign-up flow with email/password
-  - [ ] Test sign-out flow
-  - [ ] Verify ProfilePage displays real Clerk user data
-  - [ ] Test JWT verification on protected API endpoints
-
-### Future Tasks (Post-MVP)
-
-- [ ] **Migration to Astro + Vue**
-  - [ ] Convert React SPA to Astro multi-page application
-  - [ ] Replace React components with Vue 3 components
-  - [ ] Implement Clerk with Astro's official integration
-
-- [ ] **Enhanced Auth Features**
-  - [ ] Enable Clerk Waitlist feature
-  - [ ] Enable MFA/2FA settings
-  - [ ] Enable Passkeys support
-  - [ ] Implement User API Keys management
-  - [ ] Configure B2C Billing integration
+> **Goal:** User can sign up, register a device, deploy the agent, and see live metrics in the portal.
 
 ---
 
-## Clerk Configuration Reference
+## Completed
 
-### Clerk Instance Details
-
-| Parameter | Value |
-|-----------|-------|
-| Instance Name | tough-unicorn-25 |
-| Publishable Key | `pk_test_dG91Z2gtdW5pY29ybi0yNS5jbGVyay5hY2NvdW50cy5kZXYk` |
-| JWKS Endpoint | `https://tough-unicorn-25.clerk.accounts.dev/.well-known/jwks.json` |
-| Dashboard | https://dashboard.clerk.com |
-
-### Enabled Features
-
-- Email + Password authentication
-- Phone number authentication
-- Waitlist mode
-- Multi-factor authentication (MFA)
-- Clerk Sessions
-- B2C Billing
-- Passkeys
-- User API Keys
-
-### Environment Variables
-
-**Portal (portal/.dev.vars):**
-```
-VITE_CLERK_PUBLISHABLE_KEY=pk_test_...
-```
-
-**API (packages/schema/.dev.vars):**
-```
-CLERK_SECRET_KEY=sk_test_...
-CLERK_PUBLISHABLE_KEY=pk_test_...
-```
-
-### Files Modified
-
-| File | Changes |
-|------|---------|
-| `portal/package.json` | Added @clerk/clerk-react |
-| `packages/schema/package.json` | Added @clerk/backend |
-| `portal/src/main.tsx` | ClerkProvider wrapper |
-| `portal/src/App.tsx` | SignedIn/SignedOut, ProfilePage updates |
-| `portal/src/vite-env.d.ts` | TypeScript env types |
-| `portal/wrangler.toml` | Observability settings |
-| `packages/schema/wrangler.jsonc` | Observability settings, Clerk comment |
-| `portal/.dev.vars` | Clerk publishable key |
-| `packages/schema/.dev.vars` | Clerk secret + publishable keys |
+- [x] **A1:** Fix WebSocket URL default (`/ws` -> `/agent/ws`) in agent config
+- [x] **A2:** Implement DurableObjectWebSocket trait for AgentConnection
 
 ---
 
-## Development Commands
+## Stream A: Rust API (packages/api)
 
-```bash
-# Install dependencies
-bun install
+- [ ] **A3:** Implement JWT signature verification with Clerk JWKS
+  - Add `verify_jwt()` with JWKS fetch + CACHE KV (1h TTL)
+  - Update `authenticate()` to use verification, dev fallback
+  - File: `packages/api/src/middleware/auth.rs`
 
-# Start portal dev server
-cd portal && bun run dev
+- [ ] **A4:** Fix AgentConnection auth to verify API key against KV
+  - Look up `apikey:{api_key}` in DEVICES KV, verify device_id match
+  - File: `packages/api/src/rpc/agent_connection.rs`
 
-# Start API dev server
-cd packages/schema && bun run dev
+- [ ] **A5:** Add latest metrics retrieval endpoint
+  - `GET /api/metrics/latest?device_id=xxx` reads from CACHE KV
+  - Files: `packages/api/src/handlers/system.rs`, `packages/api/src/handlers/router.rs`
 
-# Deploy portal
-cd portal && bun run deploy
+- [ ] **A6:** Fix CORS to allow portal origins
+  - Allow: `app.ngfw.sh`, `ngfw.sh`, `localhost:5173`, `localhost:4321`
+  - File: `packages/api/src/middleware/cors.rs`
 
-# Deploy API
-cd packages/schema && bun run deploy
+- [ ] **A7:** Fix fleet handler plan limits to match billing tiers
+  - Current: `free/home/homeplus` — D1 has: `Starter/Pro/Business/Business Plus`
+  - File: `packages/api/src/handlers/fleet.rs`
 
-# Add Clerk secret to production
-cd packages/schema && bunx wrangler@latest secret put CLERK_SECRET_KEY
-```
+- [ ] **A8:** Full WASM build verification (`worker-build --release`)
+
+---
+
+## Stream B: Schema API (packages/schema)
+
+- [ ] **B1:** Create D1 migration for devices table
+  - File: `packages/schema/migrations/0005_add_devices_table.sql`
+
+- [ ] **B2:** Implement Clerk JWT middleware for Schema API
+  - Use `@clerk/backend` `verifyToken()`
+  - Files: `packages/schema/src/middleware/auth.ts`, `packages/schema/src/index.ts`
+
+- [ ] **B3:** Add fleet device CRUD endpoints
+  - `GET /fleet/devices`, `POST /fleet/devices`, `DELETE /fleet/devices/:id`, `GET /fleet/devices/:id/status`
+  - D1 + KV dual-write (device:{id}, apikey:{key}, owner:{userId}:{id})
+  - Files: `packages/schema/src/endpoints/fleet/`
+
+- [ ] **B4:** Add device status proxy endpoint
+  - Read from CONFIGS KV + DEVICES KV, merge device info + connection status
+  - File: `packages/schema/src/endpoints/fleet/deviceStatus.ts`
+
+- [ ] **B5:** Verify billing endpoints match tier definitions
+
+- [ ] **B6:** Build and test Schema API (`bun run build:schema && bun run test:schema`)
+
+---
+
+## Stream C: Agent (packages/agent)
+
+- [ ] **C1:** Wire real metrics into initial STATUS message
+  - Replace hardcoded zeros in `connection.rs:141-156`
+
+- [ ] **C2:** Read firmware version from NVRAM
+  - Replace `"unknown"` with NVRAM read, fall back to CARGO_PKG_VERSION
+
+- [ ] **C3:** Add connection state structured logging
+  - Add `device_id` and `attempt` fields to tracing spans
+
+- [ ] **C4:** Fix uptime reading in StatusPayload
+  - Parse `/proc/uptime` first field
+
+- [ ] **C5:** Agent build verification (`cargo build -p ngfw-agent --release && cargo clippy --workspace`)
+
+---
+
+## Stream D: Portal (packages/portal)
+
+- [ ] **D1:** Create typed API client module (`packages/portal/src/api.ts`)
+- [ ] **D2:** Add device management React hooks (`packages/portal/src/hooks/useDevices.ts`)
+- [ ] **D3:** Replace dashboard mock data with real API calls
+- [ ] **D4:** Build device registration flow (form + API key display + install instructions)
+- [ ] **D5:** Build device list with online/offline status badges
+- [ ] **D6:** Connect live metrics to dashboard (5s polling)
+- [ ] **D7:** Add loading states and error handling
+
+---
+
+## Stream E: Deploy (depends on all above)
+
+- [ ] **E1:** Set Clerk secrets on Cloudflare
+- [ ] **E2:** Run D1 migrations on production
+- [ ] **E3:** Deploy Schema API
+- [ ] **E4:** Deploy Rust API
+- [ ] **E5:** Deploy Portal
+- [ ] **E6:** End-to-end smoke test
+
+---
+
+## Verification Checklist
+
+- [ ] `cargo test --workspace` — all tests pass
+- [ ] `cargo clippy --workspace` — zero warnings
+- [ ] `bun run test:schema` — schema tests pass
+- [ ] `bun run build` — all packages build
+- [ ] E2E smoke test passes
+
+---
+
+## NOT in MVP (Deferred)
+
+- Shadow/Takeover mode adapter implementations
+- Config push/apply flow
+- Self-upgrade mechanism
+- Cross-compilation to aarch64
+- 50+ AGENTS.md endpoints (firewall, VPN, QoS, DNS, IDS, etc.)
+- CI/CD auto-deploy pipeline
+- Rate limiting middleware
+- WebSocket streaming endpoints

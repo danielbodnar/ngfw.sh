@@ -291,7 +291,8 @@ impl AgentConnection {
     async fn handle_auth_message(&self, message: &RpcMessage) -> Result<()> {
         let auth: AuthRequest = serde_json::from_value(message.payload.clone())?;
 
-        let is_valid = {
+        // Check that device_id matches the one assigned during WebSocket setup
+        let device_id_matches = {
             let agent_state = self.agent_state.borrow();
             agent_state
                 .device_id
@@ -299,6 +300,20 @@ impl AgentConnection {
                 .map(|id| id == &auth.device_id)
                 .unwrap_or(false)
         };
+
+        // Verify the API key against DEVICES KV — borrow is dropped before await
+        let kv = self.env.kv("DEVICES")?;
+        let kv_device_id = kv
+            .get(&format!("apikey:{}", auth.api_key))
+            .text()
+            .await?;
+
+        let api_key_valid = kv_device_id
+            .as_ref()
+            .map(|stored_id| stored_id == &auth.device_id)
+            .unwrap_or(false);
+
+        let is_valid = device_id_matches && api_key_valid;
 
         let response = if is_valid {
             {

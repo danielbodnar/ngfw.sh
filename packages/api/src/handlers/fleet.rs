@@ -28,11 +28,10 @@ pub async fn register_device(mut req: Request, ctx: RouteContext<()>) -> Result<
         .await
         .map_err(|e| Error::from(e.error.message))?;
 
-    let limit = match auth.plan.as_str() {
-        "free" => 5,
-        "home" => 50,
-        "homeplus" => 100,
-        _ => u32::MAX, // unlimited for pro and business
+    let limit = match auth.plan.to_lowercase().as_str() {
+        "starter" => 10,
+        "pro" | "business" | "business_plus" | "business plus" => u32::MAX,
+        _ => u32::MAX, // graceful degradation: unknown plans get unlimited
     };
 
     if current_devices >= limit {

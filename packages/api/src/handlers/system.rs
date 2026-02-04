@@ -300,6 +300,46 @@ pub async fn factory_reset(req: Request, ctx: RouteContext<()>) -> Result<Respon
     result.into_api_response()
 }
 
+/// GET /api/metrics/latest
+pub async fn get_latest_metrics(req: Request, ctx: RouteContext<()>) -> Result<Response> {
+    let auth = authenticate(&req, &ctx.env)
+        .await
+        .map_err(|e| Error::from(e.error.message))?;
+
+    let url = req.url()?;
+    let device_id = url
+        .query_pairs()
+        .find(|(k, _)| k == "device_id")
+        .map(|(_, v)| v.into_owned())
+        .ok_or_else(|| Error::from("Missing device_id query parameter"))?;
+
+    check_device_access(&auth, &device_id, &ctx.env)
+        .await
+        .map_err(|e| Error::from(e.error.message))?;
+
+    let kv = ctx.env.kv("CACHE")?;
+    let prefix = format!("metrics:{}:", device_id);
+    let list_response = kv.list().prefix(prefix).execute().await?;
+
+    let latest_key = list_response
+        .keys
+        .iter()
+        .map(|k| k.name.clone())
+        .max();
+
+    match latest_key {
+        Some(key) => match kv.get(&key).text().await? {
+            Some(value) => {
+                let json: serde_json::Value =
+                    serde_json::from_str(&value).map_err(|e| Error::from(e.to_string()))?;
+                Response::from_json(&json)
+            }
+            None => ApiError::not_found("Metrics").into_response(),
+        },
+        None => ApiError::not_found("Metrics").into_response(),
+    }
+}
+
 // Helper functions
 
 fn get_device_id(req: &Request) -> Result<String> {

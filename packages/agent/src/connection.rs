@@ -5,7 +5,7 @@ use ngfw_protocol::{AuthRequest, MessageType, RpcMessage, StatusPayload};
 use tokio::sync::{mpsc, watch};
 use tokio::time::{Duration, sleep, timeout};
 use tokio_tungstenite::tungstenite::Message;
-use tracing::{debug, error, info, warn};
+use tracing::{debug, error, info, info_span, warn, Instrument};
 use url::Url;
 
 use crate::config::AgentConfig;
@@ -26,12 +26,18 @@ pub async fn connection_loop(
     mut shutdown: watch::Receiver<bool>,
 ) {
     let mut backoff = Duration::from_secs(1);
+    let mut attempt: u64 = 0;
 
+    let span = info_span!("connection", device_id = %config.agent.device_id);
+
+    async {
     loop {
         if *shutdown.borrow() {
             info!("Connection loop shutting down");
             return;
         }
+
+        attempt += 1;
 
         // Build WebSocket URL with query params
         let ws_url = format!(
@@ -39,7 +45,7 @@ pub async fn connection_loop(
             config.agent.websocket_url, config.agent.device_id, config.agent.device_id
         );
 
-        info!("Connecting to {}", config.agent.websocket_url);
+        info!(attempt = attempt, "Connecting to {}", config.agent.websocket_url);
 
         match connect_and_run(
             &ws_url,
@@ -53,6 +59,7 @@ pub async fn connection_loop(
             Ok(()) => {
                 info!("Connection closed cleanly");
                 backoff = Duration::from_secs(1); // Reset on clean close
+                attempt = 0; // Reset attempt counter on clean close
             }
             Err(e) => {
                 error!("Connection error: {}", e);
@@ -63,7 +70,7 @@ pub async fn connection_loop(
             return;
         }
 
-        warn!("Reconnecting in {:?}", backoff);
+        info!(attempt = attempt, delay_ms = backoff.as_millis() as u64, "Reconnecting");
         tokio::select! {
             _ = sleep(backoff) => {}
             _ = shutdown.changed() => { return; }
@@ -72,6 +79,7 @@ pub async fn connection_loop(
         // Exponential backoff: 1s → 2s → 4s → ... → 60s max
         backoff = (backoff * 2).min(MAX_BACKOFF);
     }
+    }.instrument(span).await;
 }
 
 async fn connect_and_run(
