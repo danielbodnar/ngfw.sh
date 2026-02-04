@@ -13,9 +13,9 @@ Centralized management, configuration, monitoring, and security — designed wit
 
 [Website](https://ngfw.sh) · [Dashboard](https://app.ngfw.sh) · [Documentation](https://docs.ngfw.sh) · [API Reference](https://specs.ngfw.sh)
 
-<br />
 
-https://github.com/user-attachments/assets/walkthrough.webm
+<img src="assets/screenshots/03-dashboard.png" alt="Dashboard" width="800"/>
+
 
 </div>
 
