@@ -74,7 +74,7 @@ api_key = "minimal-key"
 
     assert_eq!(config.agent.device_id, "minimal-dev");
     assert_eq!(config.agent.api_key, "minimal-key");
-    assert_eq!(config.agent.websocket_url, "wss://api.ngfw.sh/ws");
+    assert_eq!(config.agent.websocket_url, "wss://api.ngfw.sh/agent/ws");
     assert_eq!(config.agent.metrics_interval_secs, 5);
     assert_eq!(config.mode.default, "observe");
     assert!(!config.adapters.wireguard);

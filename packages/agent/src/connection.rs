@@ -359,27 +359,24 @@ async fn read_firmware_version() -> String {
         .args(["get", "firmver"])
         .output()
         .await
+        && output.status.success()
     {
-        if output.status.success() {
-            let ver = String::from_utf8_lossy(&output.stdout).trim().to_string();
-            if !ver.is_empty() {
-                // Also try to get the build number for a more complete version string
-                if let Ok(build_output) = tokio::process::Command::new("nvram")
-                    .args(["get", "buildno"])
-                    .output()
-                    .await
-                {
-                    if build_output.status.success() {
-                        let build = String::from_utf8_lossy(&build_output.stdout)
-                            .trim()
-                            .to_string();
-                        if !build.is_empty() {
-                            return format!("{}.{}", ver, build);
-                        }
-                    }
+        let ver = String::from_utf8_lossy(&output.stdout).trim().to_string();
+        if !ver.is_empty() {
+            // Also try to get the build number for a more complete version string
+            if let Ok(build_output) = tokio::process::Command::new("nvram")
+                .args(["get", "buildno"])
+                .output()
+                .await
+            {
+                let build = String::from_utf8_lossy(&build_output.stdout)
+                    .trim()
+                    .to_string();
+                if build_output.status.success() && !build.is_empty() {
+                    return format!("{}.{}", ver, build);
                 }
-                return ver;
             }
+            return ver;
         }
     }
 
