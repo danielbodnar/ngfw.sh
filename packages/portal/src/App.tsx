@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect, useCallback } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Activity, Shield, Wifi, Globe, Server, Database, Settings, Monitor, FileText, ChevronDown, ChevronRight, Search, Bell, User, Power, HardDrive, Network, Radio, Lock, Eye, EyeOff, Filter, Download, Upload, RefreshCw, Plus, Trash2, Edit, Copy, Check, X, AlertTriangle, Zap, Clock, TrendingUp, TrendingDown, BarChart3, PieChart, Layers, Route, ShieldAlert, ShieldCheck, ShieldOff, Cpu, Thermometer, MemoryStick, ArrowUpDown, ExternalLink, Terminal, Key, Users, Map, List, Grid, Play, Pause, Square, ChevronLeft, Home, Menu, Maximize2, Minimize2, CreditCard, LogOut, Mail, Building, Crown, Sparkles, Router, CircuitBoard, Loader2 } from 'lucide-react';
 import {
   SignedIn,
@@ -1476,6 +1476,317 @@ const FirewallPage = () => {
   );
 };
 
+// Devices Page — registration flow, device list with status, delete
+const DevicesPage = () => {
+  const { devices, loading, error, refetch } = useDevices();
+  const { register, loading: registering, error: registerError } = useRegisterDevice();
+  const { getToken } = useAuth();
+
+  // Local UI state
+  const [showForm, setShowForm] = useState(false);
+  const [formName, setFormName] = useState('');
+  const [formModel, setFormModel] = useState('');
+  const [registrationResult, setRegistrationResult] = useState<{
+    device_id: string;
+    api_key: string;
+    websocket_url: string;
+  } | null>(null);
+  const [copiedField, setCopiedField] = useState<string | null>(null);
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+
+  const handleRegister = async () => {
+    if (!formName.trim()) return;
+    try {
+      const result = await register({
+        name: formName.trim(),
+        model: formModel.trim() || undefined,
+      });
+      setRegistrationResult({
+        device_id: result.id,
+        api_key: result.api_key,
+        websocket_url: result.websocket_url,
+      });
+    } catch {
+      // Error is already captured by the hook
+    }
+  };
+
+  const handleDone = () => {
+    setRegistrationResult(null);
+    setShowForm(false);
+    setFormName('');
+    setFormModel('');
+    refetch();
+  };
+
+  const handleDelete = async (deviceId: string) => {
+    setDeleting(true);
+    setDeleteError(null);
+    try {
+      const api = createApiClient(getToken);
+      await api.deleteDevice(deviceId);
+      setDeleteConfirmId(null);
+      refetch();
+    } catch (err) {
+      setDeleteError(err instanceof Error ? err.message : 'Failed to delete device');
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  const copyToClipboard = (text: string, field: string) => {
+    navigator.clipboard.writeText(text).then(() => {
+      setCopiedField(field);
+      setTimeout(() => setCopiedField(null), 2000);
+    });
+  };
+
+  const formatLastSeen = (timestamp: number | null) => {
+    if (!timestamp) return 'Never';
+    const diff = Date.now() - timestamp * 1000;
+    if (diff < 60000) return 'Just now';
+    if (diff < 3600000) return `${Math.floor(diff / 60000)}m ago`;
+    if (diff < 86400000) return `${Math.floor(diff / 3600000)}h ago`;
+    return `${Math.floor(diff / 86400000)}d ago`;
+  };
+
+  const statusBadge = (status: Device['status']) => {
+    const variants: Record<Device['status'], 'success' | 'default' | 'warning'> = {
+      online: 'success',
+      offline: 'default',
+      provisioning: 'warning',
+    };
+    return <Badge variant={variants[status]}>{status}</Badge>;
+  };
+
+  // Registration success screen
+  if (registrationResult) {
+    const configToml = `[agent]
+device_id = "${registrationResult.device_id}"
+api_key = "${registrationResult.api_key}"
+websocket_url = "wss://api.ngfw.sh/agent/ws"`;
+
+    return (
+      <div className="max-w-2xl mx-auto space-y-6">
+        <Card>
+          <div className="text-center mb-6">
+            <div className="w-12 h-12 bg-emerald-900/50 border border-emerald-800 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Check className="w-6 h-6 text-emerald-400" />
+            </div>
+            <h3 className="text-lg font-medium text-zinc-200">Device Registered</h3>
+            <p className="text-sm text-zinc-500 mt-1">Save the API key below — it will not be shown again.</p>
+          </div>
+
+          <div className="bg-red-900/20 border border-red-800 rounded-lg px-4 py-3 mb-6 flex items-start gap-2">
+            <AlertTriangle className="w-4 h-4 text-red-400 mt-0.5 shrink-0" />
+            <p className="text-sm text-red-400">
+              This is the only time the API key will be displayed. Copy and store it securely.
+            </p>
+          </div>
+
+          <div className="space-y-4">
+            <div>
+              <span className="block text-xs text-zinc-500 mb-1">Device ID</span>
+              <div className="flex items-center gap-2">
+                <code className="flex-1 bg-zinc-800 border border-zinc-700 rounded px-3 py-2 text-sm font-mono text-zinc-200 break-all">{registrationResult.device_id}</code>
+                <Button size="sm" variant="ghost" onClick={() => copyToClipboard(registrationResult.device_id, 'device_id')}>
+                  {copiedField === 'device_id' ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+                </Button>
+              </div>
+            </div>
+
+            <div>
+              <span className="block text-xs text-zinc-500 mb-1">API Key</span>
+              <div className="flex items-center gap-2">
+                <code className="flex-1 bg-zinc-800 border border-zinc-700 rounded px-3 py-2 text-sm font-mono text-emerald-400 break-all">{registrationResult.api_key}</code>
+                <Button size="sm" variant="ghost" onClick={() => copyToClipboard(registrationResult.api_key, 'api_key')}>
+                  {copiedField === 'api_key' ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+                </Button>
+              </div>
+            </div>
+
+            <div>
+              <span className="block text-xs text-zinc-500 mb-1">WebSocket URL</span>
+              <div className="flex items-center gap-2">
+                <code className="flex-1 bg-zinc-800 border border-zinc-700 rounded px-3 py-2 text-sm font-mono text-zinc-200 break-all">{registrationResult.websocket_url}</code>
+                <Button size="sm" variant="ghost" onClick={() => copyToClipboard(registrationResult.websocket_url, 'ws_url')}>
+                  {copiedField === 'ws_url' ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-6 pt-6 border-t border-zinc-800">
+            <h4 className="text-sm font-medium text-zinc-300 mb-2">Agent Configuration</h4>
+            <p className="text-xs text-zinc-500 mb-3">Add this to your router agent's <code className="text-zinc-400">config.toml</code>:</p>
+            <div className="relative">
+              <pre className="bg-zinc-950 border border-zinc-800 rounded-lg p-4 text-sm font-mono text-zinc-300 overflow-x-auto">{configToml}</pre>
+              <Button
+                size="sm"
+                variant="ghost"
+                className="absolute top-2 right-2"
+                onClick={() => copyToClipboard(configToml, 'config')}
+              >
+                {copiedField === 'config' ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+              </Button>
+            </div>
+          </div>
+
+          <div className="flex justify-end mt-6">
+            <Button variant="primary" onClick={handleDone}>Done</Button>
+          </div>
+        </Card>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-lg font-medium text-zinc-200">Managed Devices</h2>
+          <p className="text-sm text-zinc-500">{devices.length} device{devices.length !== 1 ? 's' : ''} registered</p>
+        </div>
+        <div className="flex gap-2">
+          <Button size="sm" onClick={() => refetch()} disabled={loading}>
+            <RefreshCw className={cn('w-3 h-3', loading && 'animate-spin')} />Refresh
+          </Button>
+          <Button size="sm" variant="primary" onClick={() => setShowForm(true)}>
+            <Plus className="w-3 h-3" />Register Device
+          </Button>
+        </div>
+      </div>
+
+      {/* Registration form */}
+      {showForm && (
+        <Card title="Register New Device">
+          <div className="space-y-4">
+            <Input
+              label="Device Name *"
+              placeholder="e.g. Edge Router, Office Gateway"
+              value={formName}
+              onChange={e => setFormName(e.target.value)}
+            />
+            <Input
+              label="Model (optional)"
+              placeholder="e.g. NGFW.sh 200"
+              value={formModel}
+              onChange={e => setFormModel(e.target.value)}
+            />
+            {registerError && (
+              <div className="bg-red-900/20 border border-red-800 rounded-lg px-4 py-3 text-sm text-red-400">
+                {registerError}
+              </div>
+            )}
+            <div className="flex justify-end gap-2">
+              <Button variant="ghost" onClick={() => { setShowForm(false); setFormName(''); setFormModel(''); }}>Cancel</Button>
+              <Button variant="primary" onClick={handleRegister} disabled={registering || !formName.trim()}>
+                {registering ? <><Spinner /> Registering...</> : 'Register'}
+              </Button>
+            </div>
+          </div>
+        </Card>
+      )}
+
+      {/* Error states */}
+      {error && (
+        <div className="bg-red-900/20 border border-red-800 rounded-lg px-4 py-3 text-sm text-red-400">
+          Failed to load devices: {error}
+        </div>
+      )}
+      {deleteError && (
+        <div className="bg-red-900/20 border border-red-800 rounded-lg px-4 py-3 text-sm text-red-400">
+          {deleteError}
+        </div>
+      )}
+
+      {/* Loading state */}
+      {loading && devices.length === 0 && (
+        <div className="flex items-center justify-center py-12">
+          <div className="text-center">
+            <Spinner className="w-6 h-6 text-zinc-500 mx-auto mb-3" />
+            <p className="text-sm text-zinc-500">Loading devices...</p>
+          </div>
+        </div>
+      )}
+
+      {/* Empty state */}
+      {!loading && !error && devices.length === 0 && (
+        <Card>
+          <div className="flex flex-col items-center justify-center py-12 text-center">
+            <Layers className="w-12 h-12 text-zinc-600 mb-4" />
+            <h3 className="text-lg font-medium text-zinc-200 mb-2">No devices yet</h3>
+            <p className="text-sm text-zinc-500 mb-6 max-w-md">
+              Register your first device to begin managing it from the cloud.
+            </p>
+            <Button variant="primary" onClick={() => setShowForm(true)}>
+              <Plus className="w-4 h-4" />Register Device
+            </Button>
+          </div>
+        </Card>
+      )}
+
+      {/* Device list */}
+      {devices.length > 0 && (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {devices.map(device => (
+            <div key={device.id} className="bg-zinc-900 border border-zinc-800 rounded-lg p-4 hover:border-zinc-700 transition-colors">
+              <div className="flex items-start justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <span className={cn('w-2.5 h-2.5 rounded-full', device.status === 'online' ? 'bg-emerald-500' : device.status === 'provisioning' ? 'bg-amber-500 animate-pulse' : 'bg-zinc-600')} />
+                  <h4 className="text-sm font-medium text-zinc-200">{device.name}</h4>
+                </div>
+                {statusBadge(device.status)}
+              </div>
+
+              <div className="space-y-1.5 text-xs mb-4">
+                {device.model && (
+                  <div className="flex justify-between">
+                    <span className="text-zinc-500">Model</span>
+                    <span className="font-mono text-zinc-300">{device.model}</span>
+                  </div>
+                )}
+                <div className="flex justify-between">
+                  <span className="text-zinc-500">Device ID</span>
+                  <span className="font-mono text-zinc-400 truncate ml-4 max-w-[140px]">{device.id}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-zinc-500">Last Seen</span>
+                  <span className="font-mono text-zinc-300">{formatLastSeen(device.last_seen)}</span>
+                </div>
+                {device.firmware_version && (
+                  <div className="flex justify-between">
+                    <span className="text-zinc-500">Firmware</span>
+                    <span className="font-mono text-zinc-300">{device.firmware_version}</span>
+                  </div>
+                )}
+              </div>
+
+              <div className="flex justify-end pt-3 border-t border-zinc-800">
+                {deleteConfirmId === device.id ? (
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-zinc-500">Delete?</span>
+                    <Button size="sm" variant="ghost" onClick={() => setDeleteConfirmId(null)} disabled={deleting}>No</Button>
+                    <Button size="sm" variant="danger" onClick={() => handleDelete(device.id)} disabled={deleting}>
+                      {deleting ? <Spinner /> : 'Yes'}
+                    </Button>
+                  </div>
+                ) : (
+                  <Button size="sm" variant="ghost" onClick={() => setDeleteConfirmId(device.id)}>
+                    <Trash2 className="w-3 h-3" />Delete
+                  </Button>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
 // Navigation structure
 const navGroups: NavGroup[] = [
   { label: 'Overview', items: [{ id: 'dashboard', label: 'Dashboard', icon: <Monitor className="w-4 h-4" /> }] },
@@ -1564,7 +1875,7 @@ export default function App() {
   const handleLogout = () => signOut();
 
   const pages: Record<View, React.ReactNode> = {
-    dashboard: <Dashboard />,
+    dashboard: <Dashboard onNavigate={setView} />,
     wan: <WANPage />,
     lan: <LANPage />,
     wifi: <WiFiPage />,
@@ -1586,7 +1897,7 @@ export default function App() {
     backup: <BackupPage />,
     logs: <div className="text-zinc-500">System Logs page</div>,
     hardware: <HardwarePage />,
-    devices: <div className="text-zinc-500">Managed Devices page</div>,
+    devices: <DevicesPage />,
     profile: <ProfilePage />,
     billing: <BillingPage />,
   };

@@ -137,22 +137,22 @@ export function createApiClient(
 
   return {
     listDevices() {
-      return request<Device[]>('/api/devices');
+      return request<Device[]>('/fleet/devices');
     },
 
     registerDevice(data) {
-      return request<DeviceRegistrationResponse>('/api/devices', {
+      return request<DeviceRegistrationResponse>('/fleet/devices', {
         method: 'POST',
         body: JSON.stringify(data),
       });
     },
 
     getDeviceStatus(deviceId) {
-      return request<DeviceStatus>(`/api/devices/${encodeURIComponent(deviceId)}/status`);
+      return request<DeviceStatus>(`/fleet/devices/${encodeURIComponent(deviceId)}/status`);
     },
 
     deleteDevice(deviceId) {
-      return request<void>(`/api/devices/${encodeURIComponent(deviceId)}`, {
+      return request<void>(`/fleet/devices/${encodeURIComponent(deviceId)}`, {
         method: 'DELETE',
       });
     },
