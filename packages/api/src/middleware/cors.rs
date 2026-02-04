@@ -15,7 +15,7 @@ const ALLOWED_ORIGINS: &[&str] = &[
 
 /// Check if an origin is in the allowlist
 fn is_origin_allowed(origin: &str) -> bool {
-    ALLOWED_ORIGINS.iter().any(|&allowed| allowed == origin)
+    ALLOWED_ORIGINS.contains(&origin)
 }
 
 /// CORS headers for API responses
