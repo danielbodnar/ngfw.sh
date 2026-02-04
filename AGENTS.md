@@ -293,7 +293,9 @@ Query parameters for `/api/traffic/logs`:
 
 | Method | Path                               | Description           |
 | ------ | ---------------------------------- | --------------------- |
-| GET    | `/api/billing/plan`                | Current plan          |
+| GET    | `/api/billing/plans`               | List all plans        |
+| GET    | `/api/billing/plans/:id`           | Get plan details      |
+| GET    | `/api/billing/plan`                | Current subscription  |
 | PUT    | `/api/billing/plan`                | Change plan           |
 | GET    | `/api/billing/usage`               | Current period usage  |
 | GET    | `/api/billing/payment-methods`     | Payment methods       |
@@ -301,6 +303,35 @@ Query parameters for `/api/traffic/logs`:
 | DELETE | `/api/billing/payment-methods/:id` | Remove payment method |
 | GET    | `/api/billing/invoices`            | Invoice history       |
 | GET    | `/api/billing/invoices/:id`        | Download invoice      |
+
+#### Plan tiers
+
+| | Starter | Pro | Business | Business Plus |
+|---|---|---|---|---|
+| **Monthly** | $25/mo | $49/mo | $99/mo | $199/mo |
+| **Annual** | $240/yr | $468/yr | $948/yr | $1,908/yr |
+| Routers | 1 | 3 | 10 | 25 |
+| Users | 1 | 3 | 10 | Unlimited |
+| Devices | 50 | 150 | 500 | Unlimited |
+| Firewall rules | 25 | 100 | Unlimited | Unlimited |
+| VLANs | 2 | 8 | 32 | Unlimited |
+| VPN peers | 3 | 10 | 50 | Unlimited |
+| Config backups | 3 | 10 | 50 | Unlimited |
+| DNS blocklists | 1 | 5 | Unlimited | Unlimited |
+| DNS log retention | 24h | 7d | 30d | 90d |
+| Traffic log retention | 24h | 7d | 30d | 90d |
+| Audit log | 7d | 30d | 90d | 1yr |
+| IDS/IPS | - | Yes | Yes | Yes |
+| QoS | - | Yes | Yes | Yes |
+| Dynamic DNS | - | Yes | Yes | Yes |
+| Fleet management | - | - | Yes | Yes |
+| API access | - | - | Yes | Yes |
+| Webhooks | - | - | 5 | Unlimited |
+| PDF reports | - | Monthly | Weekly | Daily |
+
+Plan IDs: `starter`, `pro`, `business`, `business_plus`
+
+Prices stored in cents (e.g. `2500` = $25.00). Limit value `-1` means unlimited.
 
 ## Router agent RPC
 
@@ -548,7 +579,7 @@ All error responses use this format:
 
 ## Webhooks
 
-Business plan users can configure webhooks for these events:
+Business and Business Plus plan users can configure webhooks for these events:
 
 | Event                | Description               |
 | -------------------- | ------------------------- |
