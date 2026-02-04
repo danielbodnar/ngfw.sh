@@ -1,6 +1,7 @@
 import { z } from "zod";
 
-export const device = z.object({
+/** Full device record (internal — includes api_key). */
+export const deviceInternal = z.object({
 	id: z.string(),
 	name: z.string(),
 	model: z.string().nullable(),
@@ -13,10 +14,13 @@ export const device = z.object({
 	last_seen: z.number().int().nullable(),
 });
 
+/** Public device record — never exposes api_key. */
+export const device = deviceInternal.omit({ api_key: true });
+
 export const DeviceModel = {
 	tableName: "devices",
 	primaryKeys: ["id"],
-	schema: device,
+	schema: deviceInternal,
 	serializer: (obj: object) => obj,
 	serializerObject: device,
 };

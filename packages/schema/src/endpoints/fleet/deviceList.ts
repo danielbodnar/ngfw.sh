@@ -27,7 +27,7 @@ export class DeviceList extends OpenAPIRoute {
 		const db = c.env.DB;
 
 		const { results } = await db
-			.prepare("SELECT * FROM devices WHERE owner_id = ?")
+			.prepare("SELECT id, name, model, serial, owner_id, firmware_version, status, created_at, last_seen FROM devices WHERE owner_id = ?")
 			.bind(userId)
 			.all();
 

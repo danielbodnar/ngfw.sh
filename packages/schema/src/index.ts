@@ -3,6 +3,7 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { tasksRouter } from "./endpoints/tasks/router";
 import { billingRouter } from "./endpoints/billing/router";
+import { fleetRouter } from "./endpoints/fleet/router";
 import type { ContentfulStatusCode } from "hono/utils/http-status";
 
 // Start a Hono app
@@ -10,7 +11,7 @@ const app = new Hono<{ Bindings: Env }>();
 
 // Enable CORS for API access
 app.use("*", cors({
-	origin: ["https://ngfw.sh", "https://docs.ngfw.sh", "http://localhost:4321", "http://localhost:5173"],
+	origin: ["https://app.ngfw.sh", "https://ngfw.sh", "https://docs.ngfw.sh", "http://localhost:4321", "http://localhost:5173"],
 	allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
 	allowHeaders: ["Content-Type", "Authorization"],
 }));
@@ -89,6 +90,9 @@ openapi.route("/tasks", tasksRouter);
 
 // Register Billing Sub router
 openapi.route("/billing", billingRouter);
+
+// Register Fleet Sub router (protected by Clerk JWT auth)
+openapi.route("/fleet", fleetRouter);
 
 // Export the Hono app
 export default app;
