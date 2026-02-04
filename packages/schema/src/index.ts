@@ -1,7 +1,6 @@
 import { ApiException, fromHono } from "chanfana";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
-import { tasksRouter } from "./endpoints/tasks/router";
 import { billingRouter } from "./endpoints/billing/router";
 import { fleetRouter } from "./endpoints/fleet/router";
 import type { ContentfulStatusCode } from "hono/utils/http-status";
@@ -84,9 +83,6 @@ const openapi = fromHono(app, {
 		],
 	},
 });
-
-// Register Tasks Sub router (example endpoints from template)
-openapi.route("/tasks", tasksRouter);
 
 // Register Billing Sub router
 openapi.route("/billing", billingRouter);
