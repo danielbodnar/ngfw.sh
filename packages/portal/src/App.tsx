@@ -1,5 +1,5 @@
-import React, { useState, useMemo, useEffect } from 'react';
-import { Activity, Shield, Wifi, Globe, Server, Database, Settings, Monitor, FileText, ChevronDown, ChevronRight, Search, Bell, User, Power, HardDrive, Network, Radio, Lock, Eye, EyeOff, Filter, Download, Upload, RefreshCw, Plus, Trash2, Edit, Copy, Check, X, AlertTriangle, Zap, Clock, TrendingUp, TrendingDown, BarChart3, PieChart, Layers, Route, ShieldAlert, ShieldCheck, ShieldOff, Cpu, Thermometer, MemoryStick, ArrowUpDown, ExternalLink, Terminal, Key, Users, Map, List, Grid, Play, Pause, Square, ChevronLeft, Home, Menu, Maximize2, Minimize2, CreditCard, LogOut, Mail, Building, Crown, Sparkles, Router, CircuitBoard } from 'lucide-react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
+import { Activity, Shield, Wifi, Globe, Server, Database, Settings, Monitor, FileText, ChevronDown, ChevronRight, Search, Bell, User, Power, HardDrive, Network, Radio, Lock, Eye, EyeOff, Filter, Download, Upload, RefreshCw, Plus, Trash2, Edit, Copy, Check, X, AlertTriangle, Zap, Clock, TrendingUp, TrendingDown, BarChart3, PieChart, Layers, Route, ShieldAlert, ShieldCheck, ShieldOff, Cpu, Thermometer, MemoryStick, ArrowUpDown, ExternalLink, Terminal, Key, Users, Map, List, Grid, Play, Pause, Square, ChevronLeft, Home, Menu, Maximize2, Minimize2, CreditCard, LogOut, Mail, Building, Crown, Sparkles, Router, CircuitBoard, Loader2 } from 'lucide-react';
 import {
   SignedIn,
   SignedOut,
@@ -9,6 +9,8 @@ import {
   useClerk,
   useAuth
 } from '@clerk/clerk-react';
+import { useDevices, useDeviceStatus, useRegisterDevice } from './hooks/useDevices.ts';
+import { createApiClient, type Device } from './api.ts';
 
 // Types
 type View = 'dashboard' | 'wan' | 'lan' | 'wifi' | 'dhcp' | 'routing' | 'firewall' | 'nat' | 'traffic' | 'dns-filter' | 'ips' | 'vpn-server' | 'vpn-client' | 'qos' | 'ddns' | 'grafana' | 'loki' | 'reports' | 'firmware' | 'backup' | 'logs' | 'hardware' | 'devices' | 'profile' | 'billing';
@@ -628,102 +630,186 @@ const BillingPage = () => {
   );
 };
 
-// Dashboard with more graphs
-const Dashboard = () => (
-  <div className="space-y-6">
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-      <Stat label="WAN IP" value={systemStats.wanIp} sub="eth0 • DHCP" icon={<Globe className="w-4 h-4" />} />
-      <Stat label="Active Connections" value={formatNumber(systemStats.connections)} sub="+23 last 5m" trend="up" icon={<Activity className="w-4 h-4" />} />
-      <Stat label="LAN Clients" value={systemStats.lanClients} sub="18 WiFi • 16 Wired" icon={<Users className="w-4 h-4" />} />
-      <Stat label="Uptime" value={systemStats.uptime} icon={<Clock className="w-4 h-4" />} />
-    </div>
-    
-    <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
-      <Card title="System Health" className="lg:col-span-1">
-        <div className="space-y-4">
-          <GaugeComponent value={systemStats.cpu} label="CPU" />
-          <GaugeComponent value={systemStats.memory} label="Memory" />
-          <GaugeComponent value={systemStats.temp} max={90} label="Temperature" color="amber" />
-          <div className="pt-2 border-t border-zinc-800">
-            <div className="flex justify-between text-xs"><span className="text-zinc-500">Load Average</span><span className="font-mono text-zinc-300">{systemStats.load.join(' / ')}</span></div>
-          </div>
-        </div>
-      </Card>
-      
-      <Card title="Bandwidth (24h)" actions={<span className="text-xs text-zinc-500">12.4 GB total</span>} className="lg:col-span-3">
-        <div className="space-y-4">
-          <div className="flex items-center justify-between text-sm">
-            <div className="flex items-center gap-4">
-              <span className="text-emerald-400">↓ Download: 9.8 GB</span>
-              <span className="text-blue-400">↑ Upload: 2.6 GB</span>
-            </div>
-            <span className="text-zinc-500">Peak: 847 Mbps</span>
-          </div>
-          <MiniChart data={bandwidthData} color="emerald" height={100} />
-        </div>
-      </Card>
-    </div>
-
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-      <Card title="Active Connections (24h)" className="lg:col-span-1">
-        <MiniChart data={connectionsData} color="blue" height={80} />
-        <div className="flex justify-between text-xs mt-2"><span className="text-zinc-500">Avg: 523</span><span className="text-zinc-500">Peak: 1,247</span></div>
-      </Card>
-      <Card title="DNS Queries (24h)" className="lg:col-span-1">
-        <MiniChart data={dnsData} color="amber" height={80} />
-        <div className="flex justify-between text-xs mt-2"><span className="text-zinc-500">Total: 48,293</span><span className="text-zinc-500">Blocked: 18.2%</span></div>
-      </Card>
-      <Card title="Threat Events (24h)" className="lg:col-span-1">
-        <MiniChart data={threatData} color="red" height={80} />
-        <div className="flex justify-between text-xs mt-2"><span className="text-zinc-500">Detected: 47</span><span className="text-zinc-500">Blocked: 100%</span></div>
-      </Card>
-    </div>
-
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-      <Card title="Top Clients by Traffic" actions={<Button size="sm" variant="ghost">View All</Button>}>
-        <Table
-          columns={[
-            { key: 'hostname', label: 'Device' },
-            { key: 'ip', label: 'IP' },
-            { key: 'download', label: '↓ Down', render: v => formatBytes(v) },
-            { key: 'upload', label: '↑ Up', render: v => formatBytes(v) },
-            { key: 'connections', label: 'Conn' },
-          ]}
-          data={topClients}
-        />
-      </Card>
-      
-      <Card title="Recent Threat Events" actions={<Button size="sm" variant="ghost">View All</Button>}>
-        <Table
-          columns={[
-            { key: 'time', label: 'Time' },
-            { key: 'type', label: 'Type', render: v => <span className="text-red-400">{v}</span> },
-            { key: 'src', label: 'Source' },
-            { key: 'severity', label: 'Severity', render: v => <Badge variant={v === 'critical' ? 'danger' : v === 'high' ? 'warning' : 'info'}>{v}</Badge> },
-            { key: 'blocked', label: 'Status', render: v => <Badge variant={v ? 'success' : 'danger'}>{v ? 'Blocked' : 'Allowed'}</Badge> },
-          ]}
-          data={threatEvents}
-        />
-      </Card>
-    </div>
-
-    <Card title="Interface Status">
-      <Table
-        columns={[
-          { key: 'name', label: 'Interface', render: (v, r) => <div className="flex items-center gap-2"><span className={cn('w-2 h-2 rounded-full', r.status === 'up' ? 'bg-emerald-500' : 'bg-red-500')} /><span>{v}</span></div> },
-          { key: 'type', label: 'Type', render: v => <Badge>{v}</Badge> },
-          { key: 'ip', label: 'IP Address' },
-          { key: 'mac', label: 'MAC' },
-          { key: 'rx', label: 'RX Total', render: v => formatBytes(v) },
-          { key: 'tx', label: 'TX Total', render: v => formatBytes(v) },
-          { key: 'rxRate', label: 'RX Rate', render: v => <span className="text-emerald-400">{formatRate(v)}</span> },
-          { key: 'txRate', label: 'TX Rate', render: v => <span className="text-blue-400">{formatRate(v)}</span> },
-        ]}
-        data={interfaces}
-      />
-    </Card>
-  </div>
+// Spinner component for loading states
+const Spinner = ({ className }: { className?: string }) => (
+  <Loader2 className={cn('w-4 h-4 animate-spin', className)} />
 );
+
+// Format uptime seconds to human-readable string
+const formatUptime = (seconds: number) => {
+  const days = Math.floor(seconds / 86400);
+  const hours = Math.floor((seconds % 86400) / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  return days > 0 ? `${days}d ${hours}h ${minutes}m` : `${hours}h ${minutes}m`;
+};
+
+// Dashboard with real API data and mock fallbacks
+const Dashboard = ({ onNavigate }: { onNavigate: (view: View) => void }) => {
+  const { devices, loading: devicesLoading, error: devicesError } = useDevices();
+  const firstDevice = devices.length > 0 ? devices[0] : null;
+  const { status: deviceStatus, loading: statusLoading, error: statusError } = useDeviceStatus(firstDevice?.id ?? null);
+
+  // Determine whether we have live metrics available
+  const hasLiveMetrics = deviceStatus?.metrics != null;
+  const metrics = deviceStatus?.metrics;
+  const isDeviceOnline = deviceStatus?.connection?.online ?? false;
+
+  // Use live data when available, mock data as fallback while loading
+  const cpu = hasLiveMetrics ? metrics!.cpu : systemStats.cpu;
+  const memory = hasLiveMetrics ? metrics!.memory : systemStats.memory;
+  const temp = hasLiveMetrics ? (metrics!.temperature ?? systemStats.temp) : systemStats.temp;
+  const load = hasLiveMetrics ? metrics!.load : systemStats.load;
+  const connections = hasLiveMetrics ? metrics!.connections : systemStats.connections;
+  const uptime = hasLiveMetrics ? formatUptime(metrics!.uptime) : systemStats.uptime;
+
+  // No devices registered state
+  if (!devicesLoading && !devicesError && devices.length === 0) {
+    return (
+      <div className="space-y-6">
+        <Card>
+          <div className="flex flex-col items-center justify-center py-12 text-center">
+            <Layers className="w-12 h-12 text-zinc-600 mb-4" />
+            <h3 className="text-lg font-medium text-zinc-200 mb-2">No devices registered</h3>
+            <p className="text-sm text-zinc-500 mb-6 max-w-md">
+              Register your first router to start monitoring and managing it from the cloud dashboard.
+            </p>
+            <Button variant="primary" onClick={() => onNavigate('devices')}>
+              <Plus className="w-4 h-4" />Register a Device
+            </Button>
+          </div>
+        </Card>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Device loading/error banner */}
+      {devicesLoading && (
+        <div className="flex items-center gap-2 text-sm text-zinc-400">
+          <Spinner /> Loading devices...
+        </div>
+      )}
+      {devicesError && (
+        <div className="bg-red-900/20 border border-red-800 rounded-lg px-4 py-3 text-sm text-red-400">
+          Failed to load devices: {devicesError}
+        </div>
+      )}
+      {statusError && firstDevice && (
+        <div className="bg-red-900/20 border border-red-800 rounded-lg px-4 py-3 text-sm text-red-400">
+          Failed to fetch device status: {statusError}
+        </div>
+      )}
+      {firstDevice && !isDeviceOnline && !statusLoading && !statusError && (
+        <div className="bg-amber-900/20 border border-amber-800 rounded-lg px-4 py-3 flex items-center gap-2 text-sm text-amber-400">
+          <AlertTriangle className="w-4 h-4 shrink-0" />
+          Device &quot;{firstDevice.name}&quot; is offline. Showing last known metrics.
+        </div>
+      )}
+
+      {/* Data source indicator */}
+      {firstDevice && (
+        <div className="flex items-center gap-2 text-xs text-zinc-500">
+          <span className={cn('w-2 h-2 rounded-full', isDeviceOnline ? 'bg-emerald-500' : 'bg-zinc-600')} />
+          {isDeviceOnline ? `Live from ${firstDevice.name}` : hasLiveMetrics ? `Last known from ${firstDevice.name}` : `Mock data (loading ${firstDevice.name}...)`}
+          {statusLoading && <Spinner className="w-3 h-3 text-zinc-600" />}
+        </div>
+      )}
+
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <Stat label="WAN IP" value={systemStats.wanIp} sub="eth0 • DHCP" icon={<Globe className="w-4 h-4" />} />
+        <Stat label="Active Connections" value={formatNumber(connections)} sub="+23 last 5m" trend="up" icon={<Activity className="w-4 h-4" />} />
+        <Stat label="LAN Clients" value={systemStats.lanClients} sub="18 WiFi • 16 Wired" icon={<Users className="w-4 h-4" />} />
+        <Stat label="Uptime" value={uptime} icon={<Clock className="w-4 h-4" />} />
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+        <Card title="System Health" className="lg:col-span-1">
+          <div className="space-y-4">
+            <GaugeComponent value={cpu} label="CPU" />
+            <GaugeComponent value={memory} label="Memory" />
+            <GaugeComponent value={temp} max={90} label="Temperature" color="amber" />
+            <div className="pt-2 border-t border-zinc-800">
+              <div className="flex justify-between text-xs"><span className="text-zinc-500">Load Average</span><span className="font-mono text-zinc-300">{load.join(' / ')}</span></div>
+            </div>
+          </div>
+        </Card>
+
+        <Card title="Bandwidth (24h)" actions={<span className="text-xs text-zinc-500">12.4 GB total</span>} className="lg:col-span-3">
+          <div className="space-y-4">
+            <div className="flex items-center justify-between text-sm">
+              <div className="flex items-center gap-4">
+                <span className="text-emerald-400">↓ Download: 9.8 GB</span>
+                <span className="text-blue-400">↑ Upload: 2.6 GB</span>
+              </div>
+              <span className="text-zinc-500">Peak: 847 Mbps</span>
+            </div>
+            <MiniChart data={bandwidthData} color="emerald" height={100} />
+          </div>
+        </Card>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <Card title="Active Connections (24h)" className="lg:col-span-1">
+          <MiniChart data={connectionsData} color="blue" height={80} />
+          <div className="flex justify-between text-xs mt-2"><span className="text-zinc-500">Avg: 523</span><span className="text-zinc-500">Peak: 1,247</span></div>
+        </Card>
+        <Card title="DNS Queries (24h)" className="lg:col-span-1">
+          <MiniChart data={dnsData} color="amber" height={80} />
+          <div className="flex justify-between text-xs mt-2"><span className="text-zinc-500">Total: 48,293</span><span className="text-zinc-500">Blocked: 18.2%</span></div>
+        </Card>
+        <Card title="Threat Events (24h)" className="lg:col-span-1">
+          <MiniChart data={threatData} color="red" height={80} />
+          <div className="flex justify-between text-xs mt-2"><span className="text-zinc-500">Detected: 47</span><span className="text-zinc-500">Blocked: 100%</span></div>
+        </Card>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <Card title="Top Clients by Traffic" actions={<Button size="sm" variant="ghost">View All</Button>}>
+          <Table
+            columns={[
+              { key: 'hostname', label: 'Device' },
+              { key: 'ip', label: 'IP' },
+              { key: 'download', label: '↓ Down', render: v => formatBytes(v) },
+              { key: 'upload', label: '↑ Up', render: v => formatBytes(v) },
+              { key: 'connections', label: 'Conn' },
+            ]}
+            data={topClients}
+          />
+        </Card>
+
+        <Card title="Recent Threat Events" actions={<Button size="sm" variant="ghost">View All</Button>}>
+          <Table
+            columns={[
+              { key: 'time', label: 'Time' },
+              { key: 'type', label: 'Type', render: v => <span className="text-red-400">{v}</span> },
+              { key: 'src', label: 'Source' },
+              { key: 'severity', label: 'Severity', render: v => <Badge variant={v === 'critical' ? 'danger' : v === 'high' ? 'warning' : 'info'}>{v}</Badge> },
+              { key: 'blocked', label: 'Status', render: v => <Badge variant={v ? 'success' : 'danger'}>{v ? 'Blocked' : 'Allowed'}</Badge> },
+            ]}
+            data={threatEvents}
+          />
+        </Card>
+      </div>
+
+      <Card title="Interface Status">
+        <Table
+          columns={[
+            { key: 'name', label: 'Interface', render: (v, r) => <div className="flex items-center gap-2"><span className={cn('w-2 h-2 rounded-full', r.status === 'up' ? 'bg-emerald-500' : 'bg-red-500')} /><span>{v}</span></div> },
+            { key: 'type', label: 'Type', render: v => <Badge>{v}</Badge> },
+            { key: 'ip', label: 'IP Address' },
+            { key: 'mac', label: 'MAC' },
+            { key: 'rx', label: 'RX Total', render: v => formatBytes(v) },
+            { key: 'tx', label: 'TX Total', render: v => formatBytes(v) },
+            { key: 'rxRate', label: 'RX Rate', render: v => <span className="text-emerald-400">{formatRate(v)}</span> },
+            { key: 'txRate', label: 'TX Rate', render: v => <span className="text-blue-400">{formatRate(v)}</span> },
+          ]}
+          data={interfaces}
+        />
+      </Card>
+    </div>
+  );
+};
 
 // Traffic Logs with filtering
 const TrafficPage = () => {

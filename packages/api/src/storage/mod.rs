@@ -1103,7 +1103,7 @@ pub async fn revoke_user_session(
 
 // Billing
 pub async fn get_subscription(_user_id: &str, _env: &Env) -> ApiResult<serde_json::Value> {
-    Ok(serde_json::json!({"plan": "free"}))
+    Ok(serde_json::json!({"plan": "starter"}))
 }
 pub async fn change_subscription(
     _user_id: &str,

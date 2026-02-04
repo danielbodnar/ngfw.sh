@@ -41,9 +41,9 @@ impl JwtClaims {
         self.exp < now
     }
 
-    /// Get the user's plan or default to "free"
+    /// Get the user's plan or default to "starter"
     pub fn get_plan(&self) -> &str {
-        self.plan.as_deref().unwrap_or("free")
+        self.plan.as_deref().unwrap_or("starter")
     }
 }
 
@@ -61,7 +61,7 @@ impl From<JwtClaims> for AuthContext {
         Self {
             user_id: claims.sub,
             org_id: claims.org_id,
-            plan: claims.plan.unwrap_or_else(|| "free".to_string()),
+            plan: claims.plan.unwrap_or_else(|| "starter".to_string()),
             email: claims.email,
         }
     }

@@ -96,13 +96,16 @@ async fn connect_and_run(
 
     info!("WebSocket connected, sending auth...");
 
+    // Read firmware version from NVRAM, fall back to crate version
+    let firmware_version = read_firmware_version().await;
+
     // Send AUTH message
     let auth_msg = RpcMessage::new(
         MessageType::Auth,
         serde_json::to_value(AuthRequest {
             device_id: config.agent.device_id.clone(),
             api_key: config.agent.api_key.clone(),
-            firmware_version: "unknown".to_string(), // TODO: read from nvram
+            firmware_version,
         })?,
     );
     let auth_json = serde_json::to_string(&auth_msg)?;
@@ -140,24 +143,40 @@ async fn connect_and_run(
     .await;
 
     match auth_result {
-        Ok(Ok(())) => info!("Authenticated successfully"),
-        Ok(Err(e)) => return Err(e.into()),
-        Err(_) => return Err("Auth handshake timed out".into()),
+        Ok(Ok(())) => {
+            debug!(device_id = %config.agent.device_id, "Auth succeeded");
+            info!("Authenticated successfully");
+        }
+        Ok(Err(ref e)) => {
+            debug!(device_id = %config.agent.device_id, error = %e, "Auth failed");
+            return Err(auth_result.unwrap().unwrap_err().into());
+        }
+        Err(_) => {
+            debug!(device_id = %config.agent.device_id, "Auth handshake timed out");
+            return Err("Auth handshake timed out".into());
+        }
     }
 
-    // Send initial STATUS
+    // Collect real system metrics for the initial STATUS message
+    let uptime = read_uptime().await;
+    let memory = read_memory_percent().await;
+    let temperature = read_temperature().await;
+    let load = read_loadavg().await;
+    let connections = read_connection_count().await;
+    let firmware = read_firmware_version().await;
+
     let status_msg = RpcMessage::new(
         MessageType::Status,
         serde_json::to_value(StatusPayload {
-            uptime: 0, // TODO: read actual uptime
-            cpu: 0.0,
-            memory: 0.0,
-            temperature: None,
-            load: [0.0, 0.0, 0.0],
+            uptime,
+            cpu: 0.0, // CPU % requires two time-separated samples; use 0.0 for initial
+            memory,
+            temperature,
+            load,
             interfaces: vec![],
-            connections: 0,
+            connections,
             wan_ip: None,
-            firmware: "unknown".to_string(),
+            firmware,
         })?,
     );
     let status_json = serde_json::to_string(&status_msg)?;
@@ -237,5 +256,201 @@ async fn connect_and_run(
                 }
             }
         }
+    }
+}
+
+// ---------------------------------------------------------------------------
+// System metric helpers
+// ---------------------------------------------------------------------------
+
+/// Read system uptime in seconds from `/proc/uptime`.
+/// Returns 0 on non-Linux systems or if the file is unreadable.
+async fn read_uptime() -> u64 {
+    match tokio::fs::read_to_string("/proc/uptime").await {
+        Ok(contents) => contents
+            .split_whitespace()
+            .next()
+            .and_then(|s| s.parse::<f64>().ok())
+            .map(|f| f as u64)
+            .unwrap_or(0),
+        Err(_) => 0,
+    }
+}
+
+/// Read memory usage as a percentage from `/proc/meminfo`.
+/// Computes `(MemTotal - MemAvailable) / MemTotal * 100`.
+/// Returns 0.0 on non-Linux systems or if the file is unreadable.
+async fn read_memory_percent() -> f32 {
+    let data = match tokio::fs::read_to_string("/proc/meminfo").await {
+        Ok(d) => d,
+        Err(_) => return 0.0,
+    };
+
+    let mut total: Option<u64> = None;
+    let mut available: Option<u64> = None;
+
+    for line in data.lines() {
+        if let Some(rest) = line.strip_prefix("MemTotal:") {
+            total = rest.split_whitespace().next().and_then(|s| s.parse().ok());
+        } else if let Some(rest) = line.strip_prefix("MemAvailable:") {
+            available = rest.split_whitespace().next().and_then(|s| s.parse().ok());
+        }
+        if total.is_some() && available.is_some() {
+            break;
+        }
+    }
+
+    match (total, available) {
+        (Some(t), Some(a)) if t > 0 => {
+            let used = t.saturating_sub(a);
+            (used as f64 / t as f64 * 100.0) as f32
+        }
+        _ => 0.0,
+    }
+}
+
+/// Read load averages from `/proc/loadavg` (first 3 fields).
+/// Returns `[0.0, 0.0, 0.0]` on non-Linux systems.
+async fn read_loadavg() -> [f32; 3] {
+    match tokio::fs::read_to_string("/proc/loadavg").await {
+        Ok(contents) => {
+            let parts: Vec<f32> = contents
+                .split_whitespace()
+                .take(3)
+                .filter_map(|s| s.parse().ok())
+                .collect();
+            if parts.len() == 3 {
+                [parts[0], parts[1], parts[2]]
+            } else {
+                [0.0, 0.0, 0.0]
+            }
+        }
+        Err(_) => [0.0, 0.0, 0.0],
+    }
+}
+
+/// Read CPU/SoC temperature from `/sys/class/thermal/thermal_zone0/temp`.
+/// The kernel reports millidegrees Celsius; we divide by 1000.
+/// Returns `None` if the file does not exist (non-Linux or no thermal zone).
+async fn read_temperature() -> Option<f32> {
+    match tokio::fs::read_to_string("/sys/class/thermal/thermal_zone0/temp").await {
+        Ok(contents) => contents.trim().parse::<f32>().ok().map(|t| t / 1000.0),
+        Err(_) => None,
+    }
+}
+
+/// Count active network connections from `/proc/net/tcp` (minus header line).
+/// Returns 0 on non-Linux systems.
+async fn read_connection_count() -> u32 {
+    match tokio::fs::read_to_string("/proc/net/tcp").await {
+        Ok(contents) => contents.lines().count().saturating_sub(1) as u32,
+        Err(_) => 0,
+    }
+}
+
+/// Read the router firmware version.
+///
+/// Attempts to read from NVRAM (`nvram get firmver` + `nvram get buildno`)
+/// which is available on asuswrt-merlin routers. Falls back to the agent's
+/// own crate version if NVRAM is unavailable (e.g. dev environments).
+async fn read_firmware_version() -> String {
+    // Try NVRAM first (asuswrt-merlin stores firmware info here)
+    if let Ok(output) = tokio::process::Command::new("nvram")
+        .args(["get", "firmver"])
+        .output()
+        .await
+    {
+        if output.status.success() {
+            let ver = String::from_utf8_lossy(&output.stdout).trim().to_string();
+            if !ver.is_empty() {
+                // Also try to get the build number for a more complete version string
+                if let Ok(build_output) = tokio::process::Command::new("nvram")
+                    .args(["get", "buildno"])
+                    .output()
+                    .await
+                {
+                    if build_output.status.success() {
+                        let build = String::from_utf8_lossy(&build_output.stdout)
+                            .trim()
+                            .to_string();
+                        if !build.is_empty() {
+                            return format!("{}.{}", ver, build);
+                        }
+                    }
+                }
+                return ver;
+            }
+        }
+    }
+
+    // Fall back to the agent's own version
+    env!("CARGO_PKG_VERSION").to_string()
+}
+
+// ---------------------------------------------------------------------------
+// Tests
+// ---------------------------------------------------------------------------
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[tokio::test]
+    async fn read_uptime_returns_nonzero_on_linux() {
+        let uptime = read_uptime().await;
+        // On Linux CI/dev, uptime should be > 0. On non-Linux, it returns 0.
+        if cfg!(target_os = "linux") {
+            assert!(uptime > 0, "uptime should be > 0 on Linux, got {}", uptime);
+        } else {
+            assert_eq!(uptime, 0);
+        }
+    }
+
+    #[tokio::test]
+    async fn read_memory_percent_in_valid_range() {
+        let mem = read_memory_percent().await;
+        // On Linux, memory should be between 0 and 100. On non-Linux, 0.0.
+        assert!(
+            (0.0..=100.0).contains(&mem),
+            "memory percentage should be 0-100, got {}",
+            mem,
+        );
+    }
+
+    #[tokio::test]
+    async fn read_loadavg_returns_three_values() {
+        let load = read_loadavg().await;
+        // All values should be non-negative
+        for val in &load {
+            assert!(*val >= 0.0, "load average should be >= 0, got {}", val);
+        }
+    }
+
+    #[tokio::test]
+    async fn read_temperature_returns_valid_range_or_none() {
+        let temp = read_temperature().await;
+        if let Some(t) = temp {
+            // Sanity check: temperature should be between -50 and 150 degrees C
+            assert!(
+                (-50.0..=150.0).contains(&t),
+                "temperature should be reasonable, got {}",
+                t,
+            );
+        }
+        // None is fine on systems without thermal zones
+    }
+
+    #[tokio::test]
+    async fn read_connection_count_returns_valid_value() {
+        let count = read_connection_count().await;
+        // Just verify it doesn't panic; on non-Linux it returns 0
+        assert!(count < 1_000_000, "connection count seems unreasonable: {}", count);
+    }
+
+    #[tokio::test]
+    async fn read_firmware_version_returns_non_empty() {
+        let ver = read_firmware_version().await;
+        assert!(!ver.is_empty(), "firmware version should not be empty");
+        // On dev environments without nvram, should fall back to CARGO_PKG_VERSION
     }
 }

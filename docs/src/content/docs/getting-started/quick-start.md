@@ -15,7 +15,7 @@ This guide will help you get NGFW.sh up and running quickly.
 
 1. Visit [ngfw.sh](https://ngfw.sh) and click **Sign Up**
 2. Sign in with Google, GitHub, or create an account with email
-3. Choose your subscription plan (Free tier available)
+3. Choose your subscription plan (all plans include a 14-day free trial)
 
 ## Step 2: Register Your Device
 

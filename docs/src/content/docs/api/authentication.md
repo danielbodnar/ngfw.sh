@@ -57,7 +57,7 @@ JWT tokens include the following claims:
 |-------|-------------|
 | `sub` | User ID |
 | `org_id` | Organization ID (business plans) |
-| `plan` | Subscription plan (`free`, `home`, `homeplus`, `pro`, `business`) |
+| `plan` | Subscription plan (`starter`, `pro`, `business`, `business_plus`) |
 | `exp` | Expiration timestamp |
 
 ## Token Expiration
