@@ -18,8 +18,9 @@ if [ ! -f "$IMAGE_DIR/$VHD_NAME" ]; then
   wget -O "$IMAGE_DIR/$VHD_NAME" "${BASE_URL}/${VHD_NAME}"
 fi
 
-# Convert VHD to qcow2 and patch for NoCloud datasource
-if [ ! -f "$IMAGE_DIR/ngfw-test.qcow2" ] || [ "$IMAGE_DIR/$VHD_NAME" -nt "$IMAGE_DIR/ngfw-test.qcow2" ]; then
+# Always rebuild qcow2 from VHD to ensure clean cloud-init state
+# (QEMU snapshot=on prevents runtime writes, but we need a clean base each time)
+if true; then
   echo "Converting VHD to qcow2..."
   qemu-img convert -f vpc -O qcow2 "$IMAGE_DIR/$VHD_NAME" "$IMAGE_DIR/ngfw-test.qcow2"
   qemu-img resize "$IMAGE_DIR/ngfw-test.qcow2" 2G
