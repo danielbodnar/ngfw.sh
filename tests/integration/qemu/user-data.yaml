@@ -1,0 +1,68 @@
+#cloud-config
+hostname: ngfw-test-router
+manage_etc_hosts: true
+
+users:
+  - name: ngfw
+    shell: /bin/ash
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    lock_passwd: true
+    ssh_authorized_keys:
+      - ssh-ed25519 AAAA_PLACEHOLDER_FOR_TEST_KEY
+
+write_files:
+  - path: /usr/local/bin/nvram
+    permissions: "0755"
+    content: |
+      #!/bin/sh
+      case "$1 $2" in
+        "get firmver")       echo "3.0.0.4" ;;
+        "get buildno")       echo "388" ;;
+        "get model")         echo "RT-AX92U" ;;
+        "get serial_no")     echo "MOCK-SN-001" ;;
+        "get lan_ipaddr")    echo "192.168.1.1" ;;
+        "get wan0_ipaddr")   echo "203.0.113.42" ;;
+        "get wl0_ssid")      echo "NGFW-Test-2G" ;;
+        "get wl1_ssid")      echo "NGFW-Test-5G" ;;
+        *)                   echo "" ;;
+      esac
+
+  - path: /usr/local/bin/wl
+    permissions: "0755"
+    content: |
+      #!/bin/sh
+      case "$1" in
+        "status")    echo "Status: Connected" ;;
+        "assoclist") echo "assoclist 00:11:22:33:44:55" ;;
+        *)           echo "" ;;
+      esac
+
+  - path: /etc/ngfw/config.toml
+    permissions: "0644"
+    content: |
+      [agent]
+      device_id = "test-device-001"
+      api_key = "test-api-key-secret-001"
+      websocket_url = "ws://10.0.2.2:8787/agent/ws"
+      log_level = "debug"
+      metrics_interval_secs = 5
+
+      [mode]
+      default = "observe"
+
+      [adapters]
+      iptables = true
+      dnsmasq = true
+      wifi = true
+      wireguard = false
+      system = true
+
+runcmd:
+  - mkdir -p /jffs/ngfw
+  - |
+    echo "Downloading agent binary from host..."
+    wget -q -O /usr/local/bin/ngfw-agent http://10.0.2.2:9999/ngfw-agent
+    chmod +x /usr/local/bin/ngfw-agent
+  - |
+    echo "Starting NGFW agent..."
+    /usr/local/bin/ngfw-agent --config /etc/ngfw/config.toml &

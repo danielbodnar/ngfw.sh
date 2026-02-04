@@ -1,0 +1,16 @@
+[agent]
+device_id = "test-device-001"
+api_key = "test-api-key-secret-001"
+websocket_url = "ws://mock-api:8787/agent/ws"
+log_level = "debug"
+metrics_interval_secs = 5
+
+[mode]
+default = "observe"
+
+[adapters]
+iptables = true
+dnsmasq = true
+wifi = true
+wireguard = false
+system = true

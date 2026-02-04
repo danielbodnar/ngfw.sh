@@ -205,3 +205,6 @@ dist
 ### Playwright ###
 /test-results/
 /playwright-report/
+
+### QEMU VM images ###
+tests/integration/qemu/.images/

@@ -24,6 +24,8 @@
     "format:check": "oxfmt --check .",
     "test": "bun run test:schema",
     "test:schema": "bun run --cwd packages/schema test",
+    "test:integration:docker": "tests/integration/run-docker.sh",
+    "test:integration:qemu": "tests/integration/run-qemu.sh",
     "db:migrate": "bun run db:migrate:local",
     "db:migrate:local": "wrangler d1 migrations apply DB --local --config packages/schema/wrangler.jsonc",
     "db:migrate:remote": "wrangler d1 migrations apply DB --remote --config packages/schema/wrangler.jsonc",

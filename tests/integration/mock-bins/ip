@@ -1,0 +1,16 @@
+#!/bin/sh
+case "$*" in
+  "-j addr show"|"addr show")
+    cat <<'JSON'
+[{"ifname":"eth0","addr_info":[{"family":"inet","local":"203.0.113.42","prefixlen":24}]},
+ {"ifname":"br0","addr_info":[{"family":"inet","local":"192.168.1.1","prefixlen":24}]}]
+JSON
+    ;;
+  "-j link show"|"link show")
+    cat <<'JSON'
+[{"ifname":"eth0","operstate":"UP","mtu":1500},
+ {"ifname":"br0","operstate":"UP","mtu":1500}]
+JSON
+    ;;
+  *) echo "[]" ;;
+esac

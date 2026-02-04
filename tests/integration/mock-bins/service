@@ -1,0 +1,3 @@
+#!/bin/sh
+# Mock service command - noop
+exit 0

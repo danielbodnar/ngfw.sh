@@ -1,0 +1,32 @@
+services:
+  mock-api:
+    image: oven/bun:1
+    working_dir: /app
+    volumes:
+      - ../mock-api:/app:ro
+    command: bun run server.ts
+    ports:
+      - "8787:8787"
+    healthcheck:
+      test: ["CMD", "bun", "-e", "fetch('http://localhost:8787/health').then(r => { if (!r.ok) process.exit(1) })"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+
+  agent:
+    build:
+      context: ../../..
+      dockerfile: tests/integration/docker/Dockerfile
+    depends_on:
+      mock-api:
+        condition: service_healthy
+    tmpfs:
+      - /sys:exec
+    volumes:
+      - /proc:/proc:ro
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: "2"

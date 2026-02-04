@@ -70,12 +70,43 @@
 
 ---
 
+## Stream F: Integration Test Environment (RT-AX92U Simulation)
+
+> Local test environment that simulates an ASUS RT-AX92U router for end-to-end agent testing.
+> Two approaches: Docker (QEMU user-mode) and QEMU VM (full system emulation).
+> All files live under `tests/integration/`.
+
+- [x] **F1:** Create mock binaries (nvram, wl, ip, iptables, service) and mock sysfs files
+- [x] **F2:** Create mock API WebSocket server (Bun, speaks RPC protocol)
+- [x] **F3:** Create agent test config and Docker entrypoint
+- [x] **F4:** Create Dockerfile (multi-stage cross-compile) and compose.yaml
+- [x] **F5:** Create Docker integration test runner (`run-docker.sh`)
+- [x] **F6:** Create QEMU VM image builder (Alpine cloud image + cloud-init)
+- [x] **F7:** Create QEMU VM launcher and test runner (`run-qemu.sh`)
+- [x] **F8:** Add integration test scripts to root `package.json` and `.gitignore`
+
+### Run Tests
+
+```bash
+bun run test:integration:docker   # Docker approach (fast, CI-friendly)
+bun run test:integration:qemu     # QEMU VM approach (full system emulation)
+```
+
+### Prerequisites
+
+- Docker with BuildKit + `docker run --privileged multiarch/qemu-user-static` (binfmt)
+- `qemu-system-aarch64` + `edk2-aarch64` (QEMU approach only)
+- `cross` (`cargo install cross`) for aarch64 cross-compilation
+- `mkisofs` or `genisoimage` (cloud-init ISO, QEMU approach only)
+
+---
+
 ## NOT in MVP (Deferred)
 
 - Shadow/Takeover mode adapter implementations
 - Config push/apply flow
 - Self-upgrade mechanism
-- Cross-compilation to aarch64
+- ~~Cross-compilation to aarch64~~ → Covered by F1-F8 integration test environment
 - 50+ AGENTS.md endpoints (firewall, VPN, QoS, DNS, IDS, etc.)
 - CI/CD auto-deploy pipeline
 - Rate limiting middleware

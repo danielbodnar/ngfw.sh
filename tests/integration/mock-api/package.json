@@ -1,0 +1,8 @@
+{
+  "name": "ngfw-mock-api",
+  "private": true,
+  "scripts": {
+    "start": "bun run server.ts"
+  },
+  "dependencies": {}
+}
