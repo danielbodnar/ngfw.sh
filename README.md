@@ -22,11 +22,11 @@ NGFW.sh closes that gap: real-time, beautiful, actionable network intelligence �
 
 ## How It Works
 
-1. **Choose supported hardware** from a curated list at sign-up (or add devices later via the portal)
-2. **Flash the NGFW.sh agent** onto your router (guided setup, under 5 minutes)
-3. **Manage everything from the cloud** at [app.ngfw.sh](https://app.ngfw.sh) — firewall rules, DNS filtering, VPN, IDS/IPS, traffic analytics, firmware updates
+1. **Sign up** at [app.ngfw.sh](https://app.ngfw.sh) and register your router
+2. **Install the NGFW.sh agent** on your router (guided setup, under 5 minutes)
+3. **Monitor and manage from the cloud** — real-time metrics, device status, and fleet management from anywhere
 
-The router agent connects to our API via persistent WebSocket through Cloudflare Durable Objects. Configuration changes push in real-time. Firmware updates are automatic. You never touch the router's local interface again.
+The router agent connects to our API via persistent WebSocket through Cloudflare Durable Objects for real-time metrics and status. The portal provides a centralized dashboard for device management, monitoring, and configuration. Advanced features (firewall rules, DNS filtering, VPN, IDS/IPS, traffic analytics, firmware updates) are rolling out progressively.
 
 ## Screenshots
 

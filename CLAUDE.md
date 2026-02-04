@@ -205,7 +205,10 @@ Chanfana auto-generates OpenAPI 3.1 specs. Endpoints extend Chanfana base classe
 ## Current Status
 
 - Frontend Clerk integration: **Complete**
-- Backend JWT middleware (schema): **Pending**
-- Backend JWT middleware (Rust api): **Scaffolded**
+- Backend JWT middleware (schema): **Complete** (Clerk `verifyToken` via `@clerk/backend`)
+- Backend JWT middleware (Rust api): **Complete** (RS256 via Web Crypto API + JWKS with KV cache)
+- Fleet device CRUD (schema): **Complete** (register, list, status, delete)
+- Portal real API integration: **Complete** (typed client, hooks, live metrics polling)
+- Agent real metrics + NVRAM firmware: **Complete**
 - Production deployment: **Pending**
 - Future: Migration from React SPA to Astro + Vue
