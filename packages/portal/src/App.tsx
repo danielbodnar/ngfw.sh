@@ -167,24 +167,22 @@ const dnsData = generateTimeSeriesData(24, 1000, 400);
 const threatData = generateTimeSeriesData(24, 10, 15);
 
 // Billing Plans — prices in cents (Stripe convention)
+// Pricing is feature-based, not limit-based. No caps on devices, users, VPN peers, or firewall rules.
 const billingPlans = [
   {
     id: 'starter',
     name: 'Starter',
     priceMonthly: 2500,
     priceAnnual: 24000,
-    description: 'Essential cloud management for a single router',
+    description: 'Cloud-managed security for a single router',
     features: [
-      '1 router',
-      '1 user',
-      '50 devices',
-      '25 firewall rules',
+      '1 managed router',
       'DNS filtering (1 blocklist)',
       '24-hour DNS & traffic logs',
       '2 VLANs',
-      '3 VPN peers',
       '3 config backups',
       '7-day audit log',
+      'Email support',
     ],
     notIncluded: ['IDS/IPS', 'QoS', 'Dynamic DNS', 'Fleet management', 'API access'],
     cta: 'Get Started',
@@ -195,17 +193,15 @@ const billingPlans = [
     name: 'Pro',
     priceMonthly: 4900,
     priceAnnual: 46800,
-    description: 'Advanced security and networking for power users',
+    description: 'Advanced security and threat detection',
     features: [
-      '3 routers, 3 users',
-      '150 devices',
-      '100 firewall rules',
+      'Up to 3 managed routers',
       'IDS/IPS with 10 custom rules',
       'DNS filtering (5 blocklists)',
       '7-day DNS & traffic logs',
       'QoS traffic shaping',
       'Dynamic DNS',
-      '10 VPN peers',
+      '8 VLANs',
       'Monthly PDF reports',
     ],
     notIncluded: ['Fleet management', 'API access', 'Webhooks'],
@@ -217,11 +213,9 @@ const billingPlans = [
     name: 'Business',
     priceMonthly: 9900,
     priceAnnual: 94800,
-    description: 'Fleet management and API access for IT professionals',
+    description: 'Fleet management and API access for IT pros',
     features: [
-      '10 routers, 10 users',
-      '500 devices',
-      'Unlimited firewall rules',
+      'Up to 10 managed routers',
       'IDS/IPS with 100 custom rules',
       'Unlimited DNS blocklists',
       '30-day DNS & traffic logs',
@@ -239,11 +233,9 @@ const billingPlans = [
     name: 'Business Plus',
     priceMonthly: 19900,
     priceAnnual: 190800,
-    description: 'Unlimited everything for MSPs and multi-site businesses',
+    description: 'Full platform for MSPs and multi-site networks',
     features: [
-      '25 routers, unlimited users',
-      'Unlimited devices',
-      'Unlimited firewall rules',
+      'Up to 25 managed routers',
       'Unlimited IDS/IPS custom rules',
       'Unlimited DNS blocklists',
       '90-day DNS & traffic logs',
@@ -612,14 +604,9 @@ const BillingPage = () => {
       <Card title="Usage This Period" className="bg-gradient-to-r from-zinc-900 to-zinc-900/50">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
           <div>
-            <p className="text-xs text-zinc-500 uppercase">Devices</p>
-            <p className="text-2xl font-bold text-white">34 <span className="text-sm font-normal text-zinc-500">/ 50</span></p>
-            <div className="h-1.5 bg-zinc-800 rounded-full mt-2"><div className="h-1.5 bg-emerald-500 rounded-full" style={{ width: '68%' }} /></div>
-          </div>
-          <div>
             <p className="text-xs text-zinc-500 uppercase">DNS Queries</p>
             <p className="text-2xl font-bold text-white">847K</p>
-            <p className="text-xs text-zinc-500">Unlimited</p>
+            <p className="text-xs text-zinc-500">This month</p>
           </div>
           <div>
             <p className="text-xs text-zinc-500 uppercase">Threats Blocked</p>
@@ -627,9 +614,14 @@ const BillingPage = () => {
             <p className="text-xs text-zinc-500">This month</p>
           </div>
           <div>
-            <p className="text-xs text-zinc-500 uppercase">VPN Peers</p>
-            <p className="text-2xl font-bold text-white">2 <span className="text-sm font-normal text-zinc-500">/ 3</span></p>
-            <div className="h-1.5 bg-zinc-800 rounded-full mt-2"><div className="h-1.5 bg-blue-500 rounded-full" style={{ width: '67%' }} /></div>
+            <p className="text-xs text-zinc-500 uppercase">Ads Blocked</p>
+            <p className="text-2xl font-bold text-blue-400">12,847</p>
+            <p className="text-xs text-zinc-500">This month</p>
+          </div>
+          <div>
+            <p className="text-xs text-zinc-500 uppercase">Connected Devices</p>
+            <p className="text-2xl font-bold text-white">34</p>
+            <p className="text-xs text-zinc-500">18 WiFi / 16 Wired</p>
           </div>
         </div>
       </Card>

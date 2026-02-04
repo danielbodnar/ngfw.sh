@@ -311,23 +311,23 @@ Query parameters for `/api/traffic/logs`:
 | **Monthly** | $25/mo | $49/mo | $99/mo | $199/mo |
 | **Annual** | $240/yr | $468/yr | $948/yr | $1,908/yr |
 | Routers | 1 | 3 | 10 | 25 |
-| Users | 1 | 3 | 10 | Unlimited |
-| Devices | 50 | 150 | 500 | Unlimited |
-| Firewall rules | 25 | 100 | Unlimited | Unlimited |
-| VLANs | 2 | 8 | 32 | Unlimited |
-| VPN peers | 3 | 10 | 50 | Unlimited |
-| Config backups | 3 | 10 | 50 | Unlimited |
-| DNS blocklists | 1 | 5 | Unlimited | Unlimited |
+| DNS filtering | 1 blocklist | 5 blocklists | Unlimited | Unlimited |
 | DNS log retention | 24h | 7d | 30d | 90d |
 | Traffic log retention | 24h | 7d | 30d | 90d |
 | Audit log | 7d | 30d | 90d | 1yr |
+| Config backups | 3 | 10 | 50 | Unlimited |
+| VLANs | 2 | 8 | 32 | Unlimited |
 | IDS/IPS | - | Yes | Yes | Yes |
+| IDS/IPS custom rules | - | 10 | 100 | Unlimited |
 | QoS | - | Yes | Yes | Yes |
 | Dynamic DNS | - | Yes | Yes | Yes |
+| Traffic streaming | - | Yes | Yes | Yes |
 | Fleet management | - | - | Yes | Yes |
 | API access | - | - | Yes | Yes |
 | Webhooks | - | - | 5 | Unlimited |
 | PDF reports | - | Monthly | Weekly | Daily |
+
+Pricing is feature-based, not limit-based. There are no per-plan caps on devices, users, VPN peers, or firewall rules.
 
 Plan IDs: `starter`, `pro`, `business`, `business_plus`
 
