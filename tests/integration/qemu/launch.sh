@@ -38,7 +38,7 @@ exec qemu-system-aarch64 \
   -smp 2 \
   -m 512 \
   -bios "$UEFI_FW" \
-  -drive file="$IMAGE_DIR/ngfw-test.qcow2",format=qcow2,if=virtio \
+  -drive file="$IMAGE_DIR/ngfw-test.qcow2",format=qcow2,if=virtio,snapshot=on \
   -drive file="$IMAGE_DIR/seed.iso",format=raw,if=virtio \
   -netdev user,id=net0,hostfwd=tcp::2222-:22,hostfwd=tcp::8080-:80 \
   -device virtio-net-pci,netdev=net0 \
