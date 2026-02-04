@@ -67,7 +67,7 @@ impl Default for AdaptersSection {
 }
 
 fn default_ws_url() -> String {
-    "wss://api.ngfw.sh/ws".to_string()
+    "wss://api.ngfw.sh/agent/ws".to_string()
 }
 
 fn default_metrics_interval() -> u64 {
@@ -147,7 +147,7 @@ api_key = "key-001"
         // Agent defaults
         assert_eq!(config.agent.device_id, "dev-001");
         assert_eq!(config.agent.api_key, "key-001");
-        assert_eq!(config.agent.websocket_url, "wss://api.ngfw.sh/ws");
+        assert_eq!(config.agent.websocket_url, "wss://api.ngfw.sh/agent/ws");
         assert!(config.agent.log_level.is_none());
         assert_eq!(config.agent.metrics_interval_secs, 5);
 
@@ -166,7 +166,7 @@ api_key = "key-001"
     /// match the expected constants.
     #[test]
     fn default_values_match_expectations() {
-        assert_eq!(default_ws_url(), "wss://api.ngfw.sh/ws");
+        assert_eq!(default_ws_url(), "wss://api.ngfw.sh/agent/ws");
         assert_eq!(default_metrics_interval(), 5);
         assert_eq!(default_mode(), "observe");
         assert!(default_true());
