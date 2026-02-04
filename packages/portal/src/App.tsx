@@ -166,110 +166,91 @@ const connectionsData = generateTimeSeriesData(24, 500, 200);
 const dnsData = generateTimeSeriesData(24, 1000, 400);
 const threatData = generateTimeSeriesData(24, 10, 15);
 
-// Billing Plans
+// Billing Plans — prices in cents (Stripe convention)
 const billingPlans = [
   {
-    id: 'free',
-    name: 'Free',
-    price: 0,
-    period: 'forever',
-    description: 'Essential security for getting started',
+    id: 'starter',
+    name: 'Starter',
+    priceMonthly: 2500,
+    priceAnnual: 24000,
+    description: 'Essential cloud management for a single router',
     features: [
-      'Basic firewall rules',
-      'Traffic monitoring (24h retention)',
-      'Up to 5 devices',
-      'Community support',
-      'Basic dashboard',
+      '1 router',
+      '1 user',
+      '50 devices',
+      '25 firewall rules',
+      'DNS filtering (1 blocklist)',
+      '24-hour DNS & traffic logs',
+      '2 VLANs',
+      '3 VPN peers',
+      '3 config backups',
+      '7-day audit log',
     ],
-    notIncluded: ['DNS ad blocking', 'Web filtering', 'VPN', 'IDS/IPS', 'API access'],
-    cta: 'Current Plan',
+    notIncluded: ['IDS/IPS', 'QoS', 'Dynamic DNS', 'Fleet management', 'API access'],
+    cta: 'Get Started',
     popular: false,
-  },
-  {
-    id: 'home',
-    name: 'Home',
-    price: 12,
-    period: 'month',
-    description: 'Advanced protection for home networks',
-    features: [
-      'Everything in Free',
-      'DNS ad & tracker blocking',
-      'Basic web filtering (10 presets)',
-      'Up to 50 devices',
-      '7-day log retention',
-      'Email support',
-      'Custom firewall rules',
-      'Basic reporting',
-    ],
-    notIncluded: ['VPN server', 'IDS/IPS', 'API access'],
-    cta: 'Upgrade',
-    popular: false,
-  },
-  {
-    id: 'homeplus',
-    name: 'Home+',
-    price: 24,
-    period: 'month',
-    description: 'Complete home security suite',
-    features: [
-      'Everything in Home',
-      'Advanced web filtering (custom categories)',
-      'Malware & phishing protection',
-      'WireGuard VPN server (5 peers)',
-      'Up to 100 devices',
-      '30-day log retention',
-      'Priority email support',
-      'Advanced reporting & analytics',
-      'Parental controls',
-      'Device fingerprinting',
-    ],
-    notIncluded: ['IDS/IPS', 'API access', 'Multi-site'],
-    cta: 'Upgrade',
-    popular: true,
   },
   {
     id: 'pro',
     name: 'Pro',
-    price: 60,
-    period: 'month',
-    description: 'Professional-grade network security',
+    priceMonthly: 4900,
+    priceAnnual: 46800,
+    description: 'Advanced security and networking for power users',
     features: [
-      'Everything in Home+',
-      'Intrusion Detection System (IDS)',
-      'Intrusion Prevention System (IPS)',
-      'Application control & DPI',
+      '3 routers, 3 users',
+      '150 devices',
+      '100 firewall rules',
+      'IDS/IPS with 10 custom rules',
+      'DNS filtering (5 blocklists)',
+      '7-day DNS & traffic logs',
       'QoS traffic shaping',
-      'WireGuard VPN (unlimited peers)',
-      'Unlimited devices',
-      'Multi-site management (up to 3)',
-      '90-day log retention',
-      'RESTful API access',
-      'Phone support',
-      'Threat intelligence feeds',
+      'Dynamic DNS',
+      '10 VPN peers',
+      'Monthly PDF reports',
+    ],
+    notIncluded: ['Fleet management', 'API access', 'Webhooks'],
+    cta: 'Upgrade',
+    popular: true,
+  },
+  {
+    id: 'business',
+    name: 'Business',
+    priceMonthly: 9900,
+    priceAnnual: 94800,
+    description: 'Fleet management and API access for IT professionals',
+    features: [
+      '10 routers, 10 users',
+      '500 devices',
+      'Unlimited firewall rules',
+      'IDS/IPS with 100 custom rules',
+      'Unlimited DNS blocklists',
+      '30-day DNS & traffic logs',
+      'Fleet management & templates',
+      'REST API access',
+      '5 webhook endpoints',
+      '90-day audit log',
     ],
     notIncluded: [],
     cta: 'Upgrade',
     popular: false,
   },
   {
-    id: 'business',
-    name: 'Business',
-    price: 120,
-    period: 'month',
-    description: 'Enterprise features for SMB',
+    id: 'business_plus',
+    name: 'Business Plus',
+    priceMonthly: 19900,
+    priceAnnual: 190800,
+    description: 'Unlimited everything for MSPs and multi-site businesses',
     features: [
-      'Everything in Pro',
-      'Active Directory / LDAP integration',
-      'RADIUS authentication',
-      'High Availability (HA) clustering',
-      'Custom threat feeds',
-      'Compliance reporting (SOC2, HIPAA)',
-      'Unlimited sites',
-      '1-year log retention',
-      'Dedicated account manager',
-      '99.9% SLA guarantee',
-      'SSO / SAML support',
-      'Audit logging',
+      '25 routers, unlimited users',
+      'Unlimited devices',
+      'Unlimited firewall rules',
+      'Unlimited IDS/IPS custom rules',
+      'Unlimited DNS blocklists',
+      '90-day DNS & traffic logs',
+      'Unlimited webhooks',
+      '1-year audit log',
+      'Priority support (4hr SLA)',
+      'Onboarding assistance',
     ],
     notIncluded: [],
     cta: 'Contact Sales',
@@ -278,9 +259,9 @@ const billingPlans = [
 ];
 
 const routers = [
-  { id: 'br100', name: 'NGFW.sh 100', price: 149, image: '📦', specs: 'Dual-core 1GHz, 512MB RAM, 4x GbE', plans: ['home', 'homeplus'] },
-  { id: 'br200', name: 'NGFW.sh 200', price: 249, image: '📦', specs: 'Quad-core 1.5GHz, 1GB RAM, 5x GbE, WiFi 6', plans: ['home', 'homeplus', 'pro'] },
-  { id: 'br400', name: 'NGFW.sh 400 Pro', price: 449, image: '📦', specs: 'Quad-core 2GHz, 4GB RAM, 8x 2.5GbE, WiFi 6E, 10G SFP+', plans: ['pro', 'business'] },
+  { id: 'br100', name: 'NGFW.sh 100', price: 149, image: '📦', specs: 'Dual-core 1GHz, 512MB RAM, 4x GbE', plans: ['starter', 'pro'] },
+  { id: 'br200', name: 'NGFW.sh 200', price: 249, image: '📦', specs: 'Quad-core 1.5GHz, 1GB RAM, 5x GbE, WiFi 6', plans: ['starter', 'pro', 'business'] },
+  { id: 'br400', name: 'NGFW.sh 400 Pro', price: 449, image: '📦', specs: 'Quad-core 2GHz, 4GB RAM, 8x 2.5GbE, WiFi 6E, 10G SFP+', plans: ['business', 'business_plus'] },
 ];
 
 // Components
@@ -516,8 +497,8 @@ const ProfilePage = () => {
 // Billing Page
 const BillingPage = () => {
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('monthly');
-  const [selectedPlan, setSelectedPlan] = useState('homeplus');
-  const currentPlan = 'homeplus';
+  const [selectedPlan, setSelectedPlan] = useState('starter');
+  const currentPlan = 'starter';
 
   return (
     <div className="space-y-8 max-w-6xl">
@@ -534,7 +515,7 @@ const BillingPage = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {billingPlans.map(plan => (
           <div key={plan.id} className={cn('bg-zinc-900 border rounded-xl p-5 relative transition-all', plan.popular ? 'border-emerald-500 ring-1 ring-emerald-500/20' : 'border-zinc-800', plan.id === currentPlan && 'ring-2 ring-emerald-500')}>
             {plan.popular && <div className="absolute -top-3 left-1/2 -translate-x-1/2"><Badge variant="success"><Sparkles className="w-3 h-3 inline mr-1" />Most Popular</Badge></div>}
@@ -542,9 +523,9 @@ const BillingPage = () => {
             
             <h3 className="text-lg font-semibold text-white">{plan.name}</h3>
             <div className="mt-2 mb-4">
-              <span className="text-3xl font-bold text-white">${billingCycle === 'annual' ? Math.floor(plan.price * 0.8) : plan.price}</span>
-              {plan.price > 0 && <span className="text-zinc-500">/{billingCycle === 'annual' ? 'mo' : 'month'}</span>}
-              {billingCycle === 'annual' && plan.price > 0 && <p className="text-xs text-zinc-500">billed annually</p>}
+              <span className="text-3xl font-bold text-white">${billingCycle === 'annual' ? Math.floor(plan.priceAnnual / 12 / 100) : Math.floor(plan.priceMonthly / 100)}</span>
+              <span className="text-zinc-500">/mo</span>
+              {billingCycle === 'annual' && <p className="text-xs text-zinc-500">billed annually (${Math.floor(plan.priceAnnual / 100)}/yr)</p>}
             </div>
             <p className="text-sm text-zinc-400 mb-4">{plan.description}</p>
             
@@ -620,9 +601,9 @@ const BillingPage = () => {
               { key: 'invoice', label: '', render: () => <Button size="sm" variant="ghost"><Download className="w-3 h-3" /></Button> },
             ]}
             data={[
-              { date: '2024-12-01', description: 'Home+ Plan', amount: '$24.00', status: 'Paid' },
-              { date: '2024-11-01', description: 'Home+ Plan', amount: '$24.00', status: 'Paid' },
-              { date: '2024-10-01', description: 'Home+ Plan', amount: '$24.00', status: 'Paid' },
+              { date: '2025-02-01', description: 'Starter Plan', amount: '$25.00', status: 'Paid' },
+              { date: '2025-01-01', description: 'Starter Plan', amount: '$25.00', status: 'Paid' },
+              { date: '2024-12-01', description: 'Starter Plan', amount: '$25.00', status: 'Paid' },
             ]}
           />
         </Card>
@@ -632,8 +613,8 @@ const BillingPage = () => {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
           <div>
             <p className="text-xs text-zinc-500 uppercase">Devices</p>
-            <p className="text-2xl font-bold text-white">34 <span className="text-sm font-normal text-zinc-500">/ 100</span></p>
-            <div className="h-1.5 bg-zinc-800 rounded-full mt-2"><div className="h-1.5 bg-emerald-500 rounded-full" style={{ width: '34%' }} /></div>
+            <p className="text-2xl font-bold text-white">34 <span className="text-sm font-normal text-zinc-500">/ 50</span></p>
+            <div className="h-1.5 bg-zinc-800 rounded-full mt-2"><div className="h-1.5 bg-emerald-500 rounded-full" style={{ width: '68%' }} /></div>
           </div>
           <div>
             <p className="text-xs text-zinc-500 uppercase">DNS Queries</p>
@@ -647,8 +628,8 @@ const BillingPage = () => {
           </div>
           <div>
             <p className="text-xs text-zinc-500 uppercase">VPN Peers</p>
-            <p className="text-2xl font-bold text-white">4 <span className="text-sm font-normal text-zinc-500">/ 5</span></p>
-            <div className="h-1.5 bg-zinc-800 rounded-full mt-2"><div className="h-1.5 bg-blue-500 rounded-full" style={{ width: '80%' }} /></div>
+            <p className="text-2xl font-bold text-white">2 <span className="text-sm font-normal text-zinc-500">/ 3</span></p>
+            <div className="h-1.5 bg-zinc-800 rounded-full mt-2"><div className="h-1.5 bg-blue-500 rounded-full" style={{ width: '67%' }} /></div>
           </div>
         </div>
       </Card>
