@@ -154,7 +154,7 @@ Portal needs `VITE_CLERK_PUBLISHABLE_KEY` in `.dev.vars`. Both API packages need
 | KV | `CACHE` | Blocklist and threat feed cache |
 | R2 | `FIRMWARE` | Firmware images |
 | R2 | `BACKUPS` | Configuration backups |
-| R2 | `REPORTS` | Generated PDF reports |
+| R2 | `REPORTS` | Generated reports |
 
 ## Rust API Structure (packages/api/src/)
 

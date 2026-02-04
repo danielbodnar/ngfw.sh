@@ -83,7 +83,6 @@ Pricing is **feature-based, not limit-based**. There are no artificial caps on d
 | Dual boot slot management | Yes | Yes | Yes | Yes |
 | Configuration backup & restore | 3 backups | 10 backups | 50 backups | Unlimited |
 | Audit log | 7 days | 30 days | 90 days | 1 year |
-| PDF reports | - | Monthly | Weekly | Daily |
 | Email support | Yes | Yes | Yes | Yes |
 | Priority support (4hr SLA) | - | - | - | Yes |
 | Onboarding assistance | - | - | - | Yes |
@@ -209,7 +208,7 @@ Pricing is **feature-based, not limit-based**. There are no artificial caps on d
 | KV | `CACHE` | Blocklist & threat feed cache |
 | R2 | `FIRMWARE` | Firmware images |
 | R2 | `BACKUPS` | Configuration backups |
-| R2 | `REPORTS` | Generated PDF reports |
+| R2 | `REPORTS` | Generated reports |
 
 ## Tech Stack
 

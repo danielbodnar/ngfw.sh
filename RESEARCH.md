@@ -81,7 +81,6 @@ The model: customers purchase affordable supported hardware and pay a monthly su
 | REST API access | - | - | Yes | Yes |
 | Webhooks | - | - | 5 endpoints | Unlimited |
 | Audit log | 7 days | 30 days | 90 days | 1 year |
-| PDF reports (R2) | - | Monthly | Weekly | Daily + on-demand |
 | | | | | |
 | **Support** | | | | |
 | Community forum | Yes | Yes | Yes | Yes |

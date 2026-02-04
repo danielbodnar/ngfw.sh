@@ -202,7 +202,6 @@ const billingPlans = [
       'QoS traffic shaping',
       'Dynamic DNS',
       '8 VLANs',
-      'Monthly PDF reports',
     ],
     notIncluded: ['Fleet management', 'API access', 'Webhooks'],
     cta: 'Upgrade',

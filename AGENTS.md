@@ -325,8 +325,6 @@ Query parameters for `/api/traffic/logs`:
 | Fleet management | - | - | Yes | Yes |
 | API access | - | - | Yes | Yes |
 | Webhooks | - | - | 5 | Unlimited |
-| PDF reports | - | Monthly | Weekly | Daily |
-
 Pricing is feature-based, not limit-based. There are no per-plan caps on devices, users, VPN peers, or firewall rules.
 
 Plan IDs: `starter`, `pro`, `business`, `business_plus`
@@ -539,7 +537,7 @@ Sent every 5 seconds:
 | ---------- | --------------------- |
 | `firmware` | Firmware images       |
 | `backups`  | Configuration backups |
-| `reports`  | Generated PDF reports |
+| `reports`  | Generated reports |
 
 ## Error handling
 
