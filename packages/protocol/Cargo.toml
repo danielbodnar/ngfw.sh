@@ -1,0 +1,26 @@
+[package]
+name = "ngfw-protocol"
+version = "0.1.0"
+edition = "2024"
+authors = ["NGFW.sh Team"]
+description = "Shared RPC protocol types for NGFW.sh agent-server communication"
+license = "MIT"
+
+[lib]
+name = "ngfw_protocol"
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+[features]
+default = []
+# Use "js" feature when compiling for wasm32 targets (Cloudflare Workers)
+js = ["uuid/v4", "uuid/js"]
+# Use "native" feature when compiling for native targets (router agent)
+native = ["uuid/v4"]
+
+[dependencies.uuid]
+version = "1.20.0"
+default-features = false
+features = ["serde"]

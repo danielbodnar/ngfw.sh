@@ -1,0 +1,3 @@
+[workspace]
+members = ["packages/protocol", "packages/agent", "packages/api"]
+resolver = "3"

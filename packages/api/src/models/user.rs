@@ -76,31 +76,58 @@ pub struct UserSession {
     pub current: bool,
 }
 
-/// Subscription plan
+/// Subscription plan tier
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-#[serde(rename_all = "lowercase")]
-pub enum Plan {
-    Free,
-    Home,
-    HomePlus,
+#[serde(rename_all = "snake_case")]
+pub enum PlanTier {
+    Starter,
     Pro,
     Business,
+    BusinessPlus,
 }
 
 /// Billing plan details
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct BillingPlan {
-    pub plan: Plan,
+    pub id: String,
+    pub name: String,
+    pub description: String,
     pub price_monthly: u32,
-    pub price_yearly: u32,
-    pub device_limit: Option<u32>,
-    pub features: Vec<String>,
+    pub price_annual: u32,
+    pub limits: PlanLimits,
+}
+
+/// Quantitative limits for a plan
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct PlanLimits {
+    pub routers: i32,
+    pub users: i32,
+    pub devices: i32,
+    pub firewall_rules: i32,
+    pub backups: i32,
+    pub dns_blocklists: i32,
+    pub dns_log_hours: i32,
+    pub traffic_log_hours: i32,
+    pub vlans: i32,
+    pub vpn_peers: i32,
+    pub vpn_client_profiles: i32,
+    pub ids_custom_rules: i32,
+    pub webhook_endpoints: i32,
+    pub audit_log_days: i32,
+    pub has_ids: bool,
+    pub has_ips: bool,
+    pub has_qos: bool,
+    pub has_ddns: bool,
+    pub has_traffic_stream: bool,
+    pub has_fleet: bool,
+    pub has_api: bool,
+    pub has_reports: bool,
 }
 
 /// Current subscription
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Subscription {
-    pub plan: Plan,
+    pub plan: PlanTier,
     pub status: SubscriptionStatus,
     pub billing_cycle: BillingCycle,
     pub current_period_start: i64,
@@ -129,7 +156,7 @@ pub enum BillingCycle {
 /// Change plan request
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ChangePlanRequest {
-    pub plan: Plan,
+    pub plan: PlanTier,
     pub billing_cycle: BillingCycle,
 }
 

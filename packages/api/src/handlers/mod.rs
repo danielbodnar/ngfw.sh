@@ -1,10 +1,10 @@
 //! Request handlers for the NGFW.sh API
 
-pub mod router;
-pub mod system;
+pub mod agent;
+pub mod fleet;
 pub mod network;
+pub mod router;
 pub mod security;
 pub mod services;
+pub mod system;
 pub mod user;
-pub mod fleet;
-pub mod agent;

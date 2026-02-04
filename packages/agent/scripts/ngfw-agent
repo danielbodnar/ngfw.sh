@@ -1,0 +1,38 @@
+#!/bin/sh
+# NGFW.sh Agent - Merlin user script
+AGENT_BIN="/jffs/ngfw/ngfw-agent"
+AGENT_CONF="/jffs/ngfw/config.toml"
+PID_FILE="/tmp/ngfw-agent.pid"
+LOG_FILE="/tmp/ngfw-agent.log"
+
+case "$1" in
+    start)
+        if [ -f "$PID_FILE" ] && kill -0 "$(cat $PID_FILE)" 2>/dev/null; then
+            echo "ngfw-agent already running (PID $(cat $PID_FILE))"
+            exit 0
+        fi
+        $AGENT_BIN --config "$AGENT_CONF" --daemon >> "$LOG_FILE" 2>&1 &
+        echo $! > "$PID_FILE"
+        echo "ngfw-agent started (PID $!)"
+        ;;
+    stop)
+        if [ -f "$PID_FILE" ]; then
+            kill "$(cat $PID_FILE)" 2>/dev/null
+            rm -f "$PID_FILE"
+            echo "ngfw-agent stopped"
+        fi
+        ;;
+    restart)
+        $0 stop
+        sleep 1
+        $0 start
+        ;;
+    status)
+        if [ -f "$PID_FILE" ] && kill -0 "$(cat $PID_FILE)" 2>/dev/null; then
+            echo "ngfw-agent running (PID $(cat $PID_FILE))"
+        else
+            echo "ngfw-agent not running"
+            rm -f "$PID_FILE" 2>/dev/null
+        fi
+        ;;
+esac

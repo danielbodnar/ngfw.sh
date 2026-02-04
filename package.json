@@ -8,6 +8,8 @@
     "build:www": "bun run --cwd packages/www build",
     "build:portal": "bun run --cwd packages/portal build",
     "build:schema": "wrangler deploy --cwd packages/schema --dry-run --outdir dist",
+    "build:agent": "cd packages/agent && cross build --release --target aarch64-unknown-linux-gnu",
+    "build:agent:musl": "cd packages/agent && cross build --release --target aarch64-unknown-linux-musl",
     "build:api": "cd packages/api; cargo install -q worker-build; worker-build --release",
     "build:docs": "bun run --cwd docs build",
     "dev": "echo 'Run dev servers individually: bun run dev:www, dev:portal, dev:schema, dev:api, or dev:docs'",

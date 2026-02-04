@@ -10,9 +10,11 @@ license = "MIT"
 crate-type = ["cdylib"]
 
 [dependencies]
+# Shared protocol types
+ngfw-protocol = { path = "../protocol", features = ["js"] }
+
 # Cloudflare Workers Rust SDK
 worker = { version = "0.7.4", features = ["http", "d1"] }
-
 
 # WASM bindgen (re-exported by worker but needed for some macros)
 wasm-bindgen = "0.2"
