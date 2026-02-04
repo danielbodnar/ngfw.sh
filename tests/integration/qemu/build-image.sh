@@ -18,14 +18,33 @@ if [ ! -f "$IMAGE_DIR/$VHD_NAME" ]; then
   wget -O "$IMAGE_DIR/$VHD_NAME" "${BASE_URL}/${VHD_NAME}"
 fi
 
-# Convert VHD to qcow2 if needed
+# Convert VHD to qcow2 and patch for NoCloud datasource
 if [ ! -f "$IMAGE_DIR/ngfw-test.qcow2" ] || [ "$IMAGE_DIR/$VHD_NAME" -nt "$IMAGE_DIR/ngfw-test.qcow2" ]; then
   echo "Converting VHD to qcow2..."
   qemu-img convert -f vpc -O qcow2 "$IMAGE_DIR/$VHD_NAME" "$IMAGE_DIR/ngfw-test.qcow2"
-
-  # Resize disk to 2GB
   qemu-img resize "$IMAGE_DIR/ngfw-test.qcow2" 2G
-  echo "Image converted and resized to 2GB"
+
+  # Patch cloud-init: the Azure image hardcodes datasource_list: ["Azure"]
+  # We need NoCloud to read our cidata seed ISO instead
+  echo "Patching cloud-init datasource (Azure -> NoCloud)..."
+  sudo modprobe nbd max_part=8 2>/dev/null || true
+  sudo qemu-nbd --connect=/dev/nbd0 "$IMAGE_DIR/ngfw-test.qcow2"
+  sleep 1
+
+  MOUNT_DIR=$(mktemp -d)
+  sudo mount -o rw /dev/nbd0p2 "$MOUNT_DIR"
+
+  # Replace the Azure-only datasource override at the end of cloud.cfg
+  sudo sed -i 's/^datasource_list: \["Azure"\]$/datasource_list: ["NoCloud", "None"]/' "$MOUNT_DIR/etc/cloud/cloud.cfg"
+
+  # Clear any cached cloud-init state from the base image
+  sudo rm -rf "$MOUNT_DIR/var/lib/cloud/instances" "$MOUNT_DIR/var/lib/cloud/data" "$MOUNT_DIR/var/lib/cloud/instance" 2>/dev/null || true
+
+  sudo umount "$MOUNT_DIR"
+  rmdir "$MOUNT_DIR"
+  sudo qemu-nbd --disconnect /dev/nbd0
+
+  echo "Image converted, resized to 2GB, and patched for NoCloud"
 else
   echo "Using cached qcow2 image"
 fi
@@ -39,7 +58,6 @@ instance-id: ngfw-test-001
 local-hostname: ngfw-test-router
 EOF
 
-# Use mkisofs/genisoimage to create the seed ISO
 if command -v mkisofs >/dev/null 2>&1; then
   mkisofs -output "$IMAGE_DIR/seed.iso" -volid cidata -joliet -rock "$SEED_DIR/"
 elif command -v genisoimage >/dev/null 2>&1; then
