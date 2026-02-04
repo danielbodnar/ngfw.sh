@@ -1,206 +1,314 @@
-# NGFW.sh
+<div align="center">
 
-Cloud-managed next-generation firewall and router administration platform. Replace the terrible web interface that shipped with your router with a beautiful, secure, cloud-hosted management console.
+# 🛡️ NGFW.sh
 
-## The Problem
+**Cloud-managed next-generation firewall and router administration platform that runs on Cloudflare's Edge.**
 
-### 1. Consumer routers are a security disaster
+Centralized management, configuration, monitoring, and security — designed with families in mind.
 
-99% of home users don't know how to log into their router, let alone update the firmware to patch critical security vulnerabilities. The management portals that ship with consumer hardware are practically malware themselves — bloated, outdated, and in many cases actively phoning home to foreign servers. The firmware update situation is even worse: most consumer routers ship with known CVEs and never get patched. This is a market ripe for disruption.
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Cloudflare Workers](https://img.shields.io/badge/Cloudflare-Workers-F38020?logo=cloudflare&logoColor=white)](https://workers.cloudflare.com/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.9+-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Rust](https://img.shields.io/badge/Rust-workers--rs-000000?logo=rust&logoColor=white)](https://github.com/cloudflare/workers-rs)
 
-### 2. Network security is either non-existent or inaccessible
+[Website](https://ngfw.sh) · [Dashboard](https://app.ngfw.sh) · [Documentation](https://docs.ngfw.sh) · [API Reference](https://specs.ngfw.sh)
 
-IDS/IPS systems, DNS filtering, traffic analytics, and VPN management available to consumers are either non-existent, prohibitively expensive, or entirely too complicated — requiring high technical competence to set up and configure, making it a non-starter for most people. The enterprise solutions (Meraki, Palo Alto, Fortinet) start at thousands per year. The prosumer solutions (OPNsense + ZenArmor, pfSense) require you to be a network engineer. There's nothing in between.
+<br />
 
-The challenge is being extremely selective about what we can and can't do. We're still dealing with consumer hardware — we can't promise features that require enterprise-grade silicon (like certain layers of deep packet inspection at multi-gigabit speeds). But we can deliver a thoughtfully curated security stack that covers the 90% case.
+https://github.com/user-attachments/assets/walkthrough.webm
 
-### 3. Beautiful dashboards, logs, and insights for $25-199/mo
+</div>
 
-Existing DNS filtering and network monitoring tools give you flat logs — raw query data with no way to group, report, search, or visualize what's actually happening on your network. No graphs, no charts, no actionable intelligence. Enterprise firewalls solve this but cost $10K+/year and require dedicated IT staff.
+---
 
-NGFW.sh closes that gap: real-time, beautiful, actionable network intelligence — threat detection, ad blocking analytics, traffic patterns, device fingerprinting — all from a cloud dashboard that works from anywhere, on any device, with sub-50ms latency globally. The kind of visibility that used to require a Meraki MX or Palo Alto deployment, available to anyone for $25/mo.
+## ✨ Why NGFW.sh?
 
-## How It Works
+<table>
+<tr>
+<td width="33%" valign="top">
 
-1. **Sign up** at [app.ngfw.sh](https://app.ngfw.sh) and register your router
-2. **Install the NGFW.sh agent** on your router (guided setup, under 5 minutes)
-3. **Monitor and manage from the cloud** — real-time metrics, device status, and fleet management from anywhere
+### 🎯 Simple Management
 
-The router agent connects to our API via persistent WebSocket through Cloudflare Durable Objects for real-time metrics and status. The portal provides a centralized dashboard for device management, monitoring, and configuration. Advanced features (firewall rules, DNS filtering, VPN, IDS/IPS, traffic analytics, firmware updates) are rolling out progressively.
+Most router interfaces haven't kept pace with modern expectations. NGFW.sh provides automatic updates, cloud-based management, and security monitoring — no network engineering degree required.
 
-## Screenshots
+</td>
+<td width="33%" valign="top">
 
-> Video walkthrough: [walkthrough.webm](assets/screenshots/walkthrough.webm)
+### 🔐 Accessible Security
 
-### Login & Authentication
+IDS/IPS, DNS filtering, traffic analytics, and VPN management — capabilities that traditionally required enterprise budgets or deep technical expertise, now available to everyone.
 
-Secure authentication via [Clerk.com](https://clerk.com) — email/password, phone, MFA, and passkeys.
+</td>
+<td width="33%" valign="top">
 
+### 📊 Actionable Insights
+
+Real-time visualization, threat detection, traffic patterns, and device fingerprinting through a cloud dashboard accessible from anywhere with sub-50ms latency globally.
+
+</td>
+</tr>
+</table>
+
+---
+
+## 🚀 Quick Start
+
+```bash
+# 1. Sign up at app.ngfw.sh and register your router
+# 2. Install the agent (guided setup, under 5 minutes)
+# 3. Manage from the cloud — anywhere, any device
+```
+
+The router agent connects via persistent WebSocket through Cloudflare Durable Objects for real-time metrics. Advanced features including firewall rules, DNS filtering, VPN, IDS/IPS, and traffic analytics are rolling out progressively.
+
+---
+
+## 📸 Screenshots
+
+<details>
+<summary><b>Authentication</b> — Secure login via Clerk.com with email, phone, MFA, and passkeys</summary>
+<br />
 <p align="center">
   <img src="assets/screenshots/01-login.png" alt="Login Page" width="400"/>
   <img src="assets/screenshots/02-signup.png" alt="Signup Page" width="400"/>
 </p>
+</details>
 
-### Dashboard
-![Dashboard](assets/screenshots/03-dashboard.png)
-
-### Network Configuration
+<details>
+<summary><b>Dashboard</b> — Real-time system monitoring and status overview</summary>
+<br />
 <p align="center">
-  <img src="assets/screenshots/04-wan.png" alt="WAN Configuration" width="45%"/>
-  <img src="assets/screenshots/08-wifi.png" alt="WiFi Configuration" width="45%"/>
+  <img src="assets/screenshots/03-dashboard.png" alt="Dashboard" width="800"/>
 </p>
+</details>
 
-### Security
+<details>
+<summary><b>Network Configuration</b> — WAN, LAN, and WiFi management</summary>
+<br />
 <p align="center">
-  <img src="assets/screenshots/05-firewall.png" alt="Firewall Rules" width="45%"/>
-  <img src="assets/screenshots/06-dns-filtering.png" alt="DNS Filtering" width="45%"/>
+  <img src="assets/screenshots/04-wan.png" alt="WAN Configuration" width="400"/>
+  <img src="assets/screenshots/08-wifi.png" alt="WiFi Configuration" width="400"/>
 </p>
+</details>
 
-### Billing & Plans
-![Billing & Plans](assets/screenshots/07-billing.png)
+<details>
+<summary><b>Security</b> — Firewall rules and DNS filtering</summary>
+<br />
+<p align="center">
+  <img src="assets/screenshots/05-firewall.png" alt="Firewall Rules" width="400"/>
+  <img src="assets/screenshots/06-dns-filtering.png" alt="DNS Filtering" width="400"/>
+</p>
+</details>
 
-## Feature Comparison
+<details>
+<summary><b>Billing</b> — Plan management and subscriptions</summary>
+<br />
+<p align="center">
+  <img src="assets/screenshots/07-billing.png" alt="Billing & Plans" width="800"/>
+</p>
+</details>
 
-Pricing is **feature-based, not limit-based**. There are no artificial caps on devices, users, VPN peers, or firewall rules on any plan. You pay for features and capabilities, not for permission to connect your own devices.
+---
 
-### Pricing
+## 💰 Pricing
+
+> **Feature-based, not usage-based.** No artificial caps on devices, users, VPN peers, firewall rules, or any other metrics. Pay for capabilities, not permission to use your own network.
 
 | | Starter | Pro | Business | Business Plus |
-|---|---|---|---|---|
-| **Monthly** | $25/mo | $49/mo | $99/mo | $199/mo |
-| **Annual** | $240/yr ($20/mo) | $468/yr ($39/mo) | $948/yr ($79/mo) | $1,908/yr ($159/mo) |
-| **Annual savings** | 20% | 20% | 20% | 20% |
-| **Managed routers** | 1 | Up to 3 | Up to 10 | Up to 25 |
+|:---|:---:|:---:|:---:|:---:|
+| **Monthly** | $25 | $49 | $99 | $199 |
+| **Annual** | $20/mo | $39/mo | $79/mo | $159/mo |
+| | | | | |
+| Core management & monitoring | ✓ | ✓ | ✓ | ✓ |
+| DNS filtering & VPN | ✓ | ✓ | ✓ | ✓ |
+| QoS & traffic shaping | — | ✓ | ✓ | ✓ |
+| IDS/IPS & real-time alerts | — | ✓ | ✓ | ✓ |
+| Fleet management & API | — | — | ✓ | ✓ |
+| Priority support & onboarding | — | — | — | ✓ |
 
-### Cloud Management & Dashboard
+<div align="center">
 
-| Feature | Starter | Pro | Business | Business Plus |
-|---|:---:|:---:|:---:|:---:|
-| Cloud-hosted management portal | Yes | Yes | Yes | Yes |
-| Real-time system monitoring (CPU, RAM, temp, load) | Yes | Yes | Yes | Yes |
-| Interface statistics & status | Yes | Yes | Yes | Yes |
-| Automatic firmware updates | Yes | Yes | Yes | Yes |
-| Dual boot slot management | Yes | Yes | Yes | Yes |
-| Configuration backup & restore | 3 backups | 10 backups | 50 backups | Unlimited |
-| Audit log | 7 days | 30 days | 90 days | 1 year |
-| Email support | Yes | Yes | Yes | Yes |
-| Priority support (4hr SLA) | - | - | - | Yes |
-| Onboarding assistance | - | - | - | Yes |
+**All plans include a 14-day free trial** · 20% discount on annual billing
 
-### Networking
+</div>
 
-| Feature | Starter | Pro | Business | Business Plus |
-|---|:---:|:---:|:---:|:---:|
-| WAN configuration (DHCP, Static, PPPoE) | Yes | Yes | Yes | Yes |
-| WAN status, DHCP lease renew/release | Yes | Yes | Yes | Yes |
-| LAN / bridge configuration | Yes | Yes | Yes | Yes |
-| VLANs | 2 | 8 | 32 | Unlimited |
-| DHCP server & IP pools | Yes | Yes | Yes | Yes |
-| DHCP static reservations | Yes | Yes | Yes | Yes |
-| WiFi radio management | Yes | Yes | Yes | Yes |
-| Multi-SSID configuration | Yes | Yes | Yes | Yes |
-| WiFi client monitoring | Yes | Yes | Yes | Yes |
-| NAT / port forwarding | Yes | Yes | Yes | Yes |
-| UPnP management | Yes | Yes | Yes | Yes |
-| QoS traffic shaping | - | Yes | Yes | Yes |
-| Per-device bandwidth limits | - | Yes | Yes | Yes |
-| Traffic class definitions | - | Yes | Yes | Yes |
-| Dynamic DNS | - | Yes | Yes | Yes |
+---
 
-### Security
+## 📋 Feature Comparison
+
+<details>
+<summary><b>Cloud Management & Dashboard</b></summary>
+<br />
 
 | Feature | Starter | Pro | Business | Business Plus |
-|---|:---:|:---:|:---:|:---:|
-| Stateful firewall (unlimited rules) | Yes | Yes | Yes | Yes |
-| Zone-based policies | Yes | Yes | Yes | Yes |
-| Rule ordering & hit counters | Yes | Yes | Yes | Yes |
-| DNS filtering (ad & tracker blocking) | 1 blocklist | 5 blocklists | Unlimited | Unlimited |
-| DNS allowlist / custom overrides | Yes | Yes | Yes | Yes |
-| Force blocklist update | Yes | Yes | Yes | Yes |
-| IDS (Intrusion Detection System) | - | Yes | Yes | Yes |
-| IPS (Intrusion Prevention System) | - | Yes | Yes | Yes |
-| IDS/IPS rule categories (enable/disable) | - | Yes | Yes | Yes |
-| IDS/IPS custom rules | - | 10 | 100 | Unlimited |
-| Real-time threat alerts (WebSocket) | - | Yes | Yes | Yes |
+|:---|:---:|:---:|:---:|:---:|
+| Cloud-hosted management portal | ✓ | ✓ | ✓ | ✓ |
+| Real-time system monitoring (CPU, RAM, temp, load) | ✓ | ✓ | ✓ | ✓ |
+| Interface statistics & status | ✓ | ✓ | ✓ | ✓ |
+| Automatic firmware updates | ✓ | ✓ | ✓ | ✓ |
+| Dual boot slot management | ✓ | ✓ | ✓ | ✓ |
+| Configuration backup & restore | ✓ | ✓ | ✓ | ✓ |
+| Audit log | ✓ | ✓ | ✓ | ✓ |
+| Email support | ✓ | ✓ | ✓ | ✓ |
+| Priority support (4hr SLA) | — | — | — | ✓ |
+| Onboarding assistance | — | — | — | ✓ |
 
-### VPN
+</details>
 
-| Feature | Starter | Pro | Business | Business Plus |
-|---|:---:|:---:|:---:|:---:|
-| WireGuard VPN server | Yes | Yes | Yes | Yes |
-| VPN peer management (unlimited) | Yes | Yes | Yes | Yes |
-| Peer QR code generation | Yes | Yes | Yes | Yes |
-| VPN client profiles | Yes | Yes | Yes | Yes |
-| Connect/disconnect from dashboard | Yes | Yes | Yes | Yes |
-| VPN connection status monitoring | Yes | Yes | Yes | Yes |
-
-### Logging & Analytics
+<details>
+<summary><b>Networking</b></summary>
+<br />
 
 | Feature | Starter | Pro | Business | Business Plus |
-|---|:---:|:---:|:---:|:---:|
-| DNS query log & statistics | 24 hours | 7 days | 30 days | 90 days |
-| Traffic log with filtering (src, dst, port, proto, app, geo) | 24 hours | 7 days | 30 days | 90 days |
-| Top clients by bandwidth | Yes | Yes | Yes | Yes |
-| Top destinations | Yes | Yes | Yes | Yes |
-| Aggregated traffic statistics | Yes | Yes | Yes | Yes |
-| Real-time traffic stream (WebSocket) | - | Yes | Yes | Yes |
+|:---|:---:|:---:|:---:|:---:|
+| WAN configuration (DHCP, Static, PPPoE) | ✓ | ✓ | ✓ | ✓ |
+| WAN status, DHCP lease renew/release | ✓ | ✓ | ✓ | ✓ |
+| LAN / bridge configuration | ✓ | ✓ | ✓ | ✓ |
+| VLAN support | ✓ | ✓ | ✓ | ✓ |
+| DHCP server & IP pools | ✓ | ✓ | ✓ | ✓ |
+| DHCP static reservations | ✓ | ✓ | ✓ | ✓ |
+| WiFi radio management | ✓ | ✓ | ✓ | ✓ |
+| Multi-SSID configuration | ✓ | ✓ | ✓ | ✓ |
+| WiFi client monitoring | ✓ | ✓ | ✓ | ✓ |
+| NAT / port forwarding | ✓ | ✓ | ✓ | ✓ |
+| UPnP management | ✓ | ✓ | ✓ | ✓ |
+| QoS traffic shaping | — | ✓ | ✓ | ✓ |
+| Per-device bandwidth limits | — | ✓ | ✓ | ✓ |
+| Traffic class definitions | — | ✓ | ✓ | ✓ |
+| Dynamic DNS | — | ✓ | ✓ | ✓ |
 
-### Fleet Management & Integration
+</details>
+
+<details>
+<summary><b>Security</b></summary>
+<br />
 
 | Feature | Starter | Pro | Business | Business Plus |
-|---|:---:|:---:|:---:|:---:|
-| Fleet device management | - | - | Yes | Yes |
-| Configuration templates | - | - | Yes | Yes |
-| Apply template to multiple devices | - | - | Yes | Yes |
-| Bulk device commands | - | - | Yes | Yes |
-| REST API access | - | - | Yes | Yes |
-| Webhook endpoints | - | - | 5 | Unlimited |
+|:---|:---:|:---:|:---:|:---:|
+| Stateful firewall | ✓ | ✓ | ✓ | ✓ |
+| Zone-based policies | ✓ | ✓ | ✓ | ✓ |
+| Rule ordering & hit counters | ✓ | ✓ | ✓ | ✓ |
+| DNS filtering (ad & tracker blocking) | ✓ | ✓ | ✓ | ✓ |
+| DNS allowlist / custom overrides | ✓ | ✓ | ✓ | ✓ |
+| Force blocklist update | ✓ | ✓ | ✓ | ✓ |
+| IDS (Intrusion Detection System) | — | ✓ | ✓ | ✓ |
+| IPS (Intrusion Prevention System) | — | ✓ | ✓ | ✓ |
+| IDS/IPS rule categories | — | ✓ | ✓ | ✓ |
+| IDS/IPS custom rules | — | ✓ | ✓ | ✓ |
+| Real-time threat alerts (WebSocket) | — | ✓ | ✓ | ✓ |
 
-### User & Account
+</details>
+
+<details>
+<summary><b>VPN</b></summary>
+<br />
 
 | Feature | Starter | Pro | Business | Business Plus |
-|---|:---:|:---:|:---:|:---:|
-| User profile management | Yes | Yes | Yes | Yes |
-| Multi-factor authentication (MFA) | Yes | Yes | Yes | Yes |
-| Passkey support | Yes | Yes | Yes | Yes |
-| Session management | Yes | Yes | Yes | Yes |
-| 14-day free trial | Yes | Yes | Yes | Yes |
+|:---|:---:|:---:|:---:|:---:|
+| WireGuard VPN server | ✓ | ✓ | ✓ | ✓ |
+| VPN peer management | ✓ | ✓ | ✓ | ✓ |
+| Peer QR code generation | ✓ | ✓ | ✓ | ✓ |
+| VPN client profiles | ✓ | ✓ | ✓ | ✓ |
+| Connect/disconnect from dashboard | ✓ | ✓ | ✓ | ✓ |
+| VPN connection status monitoring | ✓ | ✓ | ✓ | ✓ |
 
-## Architecture
+</details>
+
+<details>
+<summary><b>Logging & Analytics</b></summary>
+<br />
+
+| Feature | Starter | Pro | Business | Business Plus |
+|:---|:---:|:---:|:---:|:---:|
+| DNS query log & statistics | ✓ | ✓ | ✓ | ✓ |
+| Traffic log with filtering (src, dst, port, proto, app, geo) | ✓ | ✓ | ✓ | ✓ |
+| Top clients by bandwidth | ✓ | ✓ | ✓ | ✓ |
+| Top destinations | ✓ | ✓ | ✓ | ✓ |
+| Aggregated traffic statistics | ✓ | ✓ | ✓ | ✓ |
+| Real-time traffic stream (WebSocket) | — | ✓ | ✓ | ✓ |
+
+</details>
+
+<details>
+<summary><b>Fleet Management & Integration</b></summary>
+<br />
+
+| Feature | Starter | Pro | Business | Business Plus |
+|:---|:---:|:---:|:---:|:---:|
+| Fleet device management | — | — | ✓ | ✓ |
+| Configuration templates | — | — | ✓ | ✓ |
+| Apply template to multiple devices | — | — | ✓ | ✓ |
+| Bulk device commands | — | — | ✓ | ✓ |
+| REST API access | — | — | ✓ | ✓ |
+| Webhook endpoints | — | — | ✓ | ✓ |
+
+</details>
+
+<details>
+<summary><b>Account & Security</b></summary>
+<br />
+
+| Feature | Starter | Pro | Business | Business Plus |
+|:---|:---:|:---:|:---:|:---:|
+| User profile management | ✓ | ✓ | ✓ | ✓ |
+| Multi-factor authentication (MFA) | ✓ | ✓ | ✓ | ✓ |
+| Passkey support | ✓ | ✓ | ✓ | ✓ |
+| Session management | ✓ | ✓ | ✓ | ✓ |
+
+</details>
+
+---
+
+## 🏗️ Architecture
 
 ```
-┌──────────────────────────────────────────────────────────────────┐
-│                    Cloudflare Workers Edge                        │
-│  ┌──────────────┬───────────────┬─────────────┬───────────────┐  │
-│  │  Web Portal  │  Schema API   │  Rust API   │ Config Store  │  │
-│  │ (React/Vite) │(Hono/Chanfana)│(workers-rs) │  (D1/KV/R2)  │  │
-│  └──────────────┴───────────────┴─────────────┴───────────────┘  │
-└──────────────────────────────────────────────────────────────────┘
-                                    │
-                                    │ WebSocket / HTTPS
-                                    ▼
-┌──────────────────────────────────────────────────────────────────┐
-│                    Router (On-Premises)                           │
-│  ┌──────────────────────────────────────────────────────────┐    │
-│  │  RPC Agent  ←→  nftables / dnsmasq / hostapd / WireGuard│    │
-│  └──────────────────────────────────────────────────────────┘    │
-└──────────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────┐
+│                      Cloudflare Workers Edge                         │
+│                                                                      │
+│   ┌────────────┐  ┌────────────┐  ┌────────────┐  ┌─────────────┐   │
+│   │    Web     │  │   Schema   │  │    Rust    │  │   Config    │   │
+│   │   Portal   │  │    API     │  │    API     │  │    Store    │   │
+│   │            │  │            │  │            │  │             │   │
+│   │ React/Vite │  │   Hono/    │  │ workers-rs │  │  D1/KV/R2   │   │
+│   │            │  │  Chanfana  │  │            │  │             │   │
+│   └────────────┘  └────────────┘  └────────────┘  └─────────────┘   │
+│                                                                      │
+└─────────────────────────────────────────────────────────────────────┘
+                                 │
+                                 │  WebSocket / HTTPS
+                                 ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│                        Router (On-Premises)                          │
+│                                                                      │
+│   ┌───────────────────────────────────────────────────────────┐     │
+│   │                        RPC Agent                           │     │
+│   │                            ↕                               │     │
+│   │       nftables  ·  dnsmasq  ·  hostapd  ·  WireGuard      │     │
+│   └───────────────────────────────────────────────────────────┘     │
+│                                                                      │
+└─────────────────────────────────────────────────────────────────────┘
 ```
 
-### Routes
+<details>
+<summary><b>Services</b></summary>
+<br />
 
 | Package | Domain | Purpose |
-|---|---|---|
+|:---|:---|:---|
 | `packages/portal` | app.ngfw.sh | Dashboard SPA |
 | `packages/www` | ngfw.sh | Marketing site |
 | `packages/schema` | specs.ngfw.sh | OpenAPI, CRUD, D1 |
 | `packages/api` | api.ngfw.sh | WebSocket RPC, Durable Objects |
 | `docs/` | docs.ngfw.sh | Documentation (Starlight) |
 
-### Storage
+</details>
+
+<details>
+<summary><b>Storage</b></summary>
+<br />
 
 | Type | Binding | Purpose |
-|---|---|---|
+|:---|:---|:---|
 | D1 | `DB` | Users, plans, subscriptions, configs |
 | KV | `DEVICES` | Device registry & API keys |
 | KV | `CONFIGS` | Device configurations |
@@ -210,42 +318,78 @@ Pricing is **feature-based, not limit-based**. There are no artificial caps on d
 | R2 | `BACKUPS` | Configuration backups |
 | R2 | `REPORTS` | Generated reports |
 
-## Tech Stack
+</details>
 
-| Component | Technology |
-|---|---|
-| Portal | React 19, Vite 7, Tailwind CSS 4 |
-| Marketing | React 19, Vite 7, Tailwind CSS 4 |
-| Schema API | Hono 4, Chanfana 3 (OpenAPI), Zod 4 |
-| Rust API | workers-rs, Durable Objects, WebSocket |
-| Docs | Astro 5, Starlight |
-| Auth | Clerk.com |
-| Database | Cloudflare D1 (SQLite) |
-| Cache | Cloudflare KV |
-| Storage | Cloudflare R2 |
+---
 
-## Development
+## 🛠️ Tech Stack
+
+<table>
+<tr>
+<td valign="top" width="50%">
+
+**Frontend**
+- React 19, Vite 7, Tailwind CSS 4
+- Astro 5, Starlight (docs)
+
+**Auth**
+- Clerk.com
+
+</td>
+<td valign="top" width="50%">
+
+**Backend**
+- Hono 4, Chanfana 3 (OpenAPI), Zod 4
+- workers-rs, Durable Objects, WebSocket
+
+**Storage**
+- Cloudflare D1, KV, R2
+
+</td>
+</tr>
+</table>
+
+---
+
+## 💻 Development
 
 ```bash
+# Setup
 bun run setup          # Install all dependencies
-bun run dev:portal     # Portal dev server
-bun run dev:schema     # Schema API dev server
-bun run dev:api        # Rust API dev server
-bun run dev:www        # Marketing site
-bun run dev:docs       # Documentation
+
+# Development servers
+bun run dev:portal     # Portal        → localhost:5173
+bun run dev:schema     # Schema API    → localhost:8787
+bun run dev:api        # Rust API      → localhost:8788
+bun run dev:www        # Marketing     → localhost:4321
+bun run dev:docs       # Documentation → localhost:4322
+
+# Build & Deploy
 bun run build          # Build all packages
 bun run deploy         # Deploy all packages
+
+# Quality
 bun run test           # Run tests
 bun run lint           # Lint with oxlint
 ```
 
-## Documentation
+---
 
-- **User Docs**: [docs.ngfw.sh](https://docs.ngfw.sh)
-- **API Reference**: [specs.ngfw.sh](https://specs.ngfw.sh)
-- **API Specification**: [AGENTS.md](./AGENTS.md)
-- **Pricing Research**: [RESEARCH.md](./RESEARCH.md)
+## 📚 Documentation
 
-## License
+| Resource | Link |
+|:---|:---|
+| User Documentation | [docs.ngfw.sh](https://docs.ngfw.sh) |
+| API Reference | [specs.ngfw.sh](https://specs.ngfw.sh) |
+| API Specification | [AGENTS.md](./AGENTS.md) |
+| Market Research | [RESEARCH.md](./RESEARCH.md) |
 
-MIT
+---
+
+<div align="center">
+
+**[Website](https://ngfw.sh)** · **[Dashboard](https://app.ngfw.sh)** · **[Docs](https://docs.ngfw.sh)** · **[API](https://specs.ngfw.sh)**
+
+MIT License · Made with ❤️ for families everywhere
+
+</div>
