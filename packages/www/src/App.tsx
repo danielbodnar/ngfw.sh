@@ -22,7 +22,6 @@ import {
   ShieldCheck,
   BarChart3,
   Building,
-  Home,
   Crown,
 } from 'lucide-react'
 
@@ -30,99 +29,83 @@ import {
 const cn = (...classes: (string | boolean | undefined)[]) =>
   classes.filter(Boolean).join(' ')
 
-// Plans data
+// Plans data — prices in cents (Stripe convention)
 const plans = [
   {
-    id: 'free',
-    name: 'Free',
-    price: 0,
-    period: 'forever',
-    description: 'Essential security for getting started',
+    id: 'starter',
+    name: 'Starter',
+    priceMonthly: 2500,
+    priceAnnual: 24000,
+    description: 'Essential cloud management for a single router',
     features: [
-      'Basic firewall rules',
-      'Traffic monitoring (24h)',
-      'Up to 5 devices',
-      'Community support',
+      '1 router, 1 user',
+      '50 devices',
+      '25 firewall rules',
+      'DNS filtering (1 blocklist)',
+      '3 VPN peers',
+      'Email support',
     ],
-    notIncluded: ['DNS blocking', 'VPN', 'IDS/IPS'],
-    cta: 'Get Started Free',
+    notIncluded: ['IDS/IPS', 'QoS', 'Fleet management'],
+    cta: 'Get Started',
     popular: false,
     icon: Shield,
   },
   {
-    id: 'home',
-    name: 'Home',
-    price: 12,
-    period: 'month',
-    description: 'Advanced protection for home networks',
-    features: [
-      'Everything in Free',
-      'DNS ad & tracker blocking',
-      'Up to 50 devices',
-      '7-day log retention',
-      'Email support',
-    ],
-    notIncluded: ['VPN', 'IDS/IPS'],
-    cta: 'Start Free Trial',
-    popular: false,
-    icon: Home,
-  },
-  {
-    id: 'homeplus',
-    name: 'Home+',
-    price: 24,
-    period: 'month',
-    description: 'Complete home security suite',
-    features: [
-      'Everything in Home',
-      'Advanced web filtering',
-      'WireGuard VPN (5 peers)',
-      'Up to 100 devices',
-      '30-day retention',
-      'Parental controls',
-    ],
-    notIncluded: ['IDS/IPS', 'API'],
-    cta: 'Start Free Trial',
-    popular: true,
-    icon: Crown,
-  },
-  {
     id: 'pro',
     name: 'Pro',
-    price: 60,
-    period: 'month',
-    description: 'Professional-grade security',
+    priceMonthly: 4900,
+    priceAnnual: 46800,
+    description: 'Advanced security for power users',
     features: [
-      'Everything in Home+',
+      '3 routers, 3 users',
+      '150 devices',
       'IDS/IPS protection',
-      'Application DPI',
-      'Unlimited VPN peers',
-      'Multi-site (3)',
-      'API access',
+      'QoS traffic shaping',
+      'Dynamic DNS',
+      '10 VPN peers',
     ],
-    notIncluded: [],
+    notIncluded: ['Fleet management', 'API access'],
     cta: 'Start Free Trial',
-    popular: false,
+    popular: true,
     icon: ShieldCheck,
   },
   {
     id: 'business',
     name: 'Business',
-    price: 120,
-    period: 'month',
-    description: 'Enterprise features for SMB',
+    priceMonthly: 9900,
+    priceAnnual: 94800,
+    description: 'Fleet management for IT professionals',
     features: [
-      'Everything in Pro',
-      'AD/LDAP integration',
-      'HA clustering',
-      'Compliance reports',
-      'Unlimited sites',
-      'Dedicated support',
+      '10 routers, 10 users',
+      '500 devices',
+      'Unlimited firewall rules',
+      'Fleet management & templates',
+      'REST API access',
+      '5 webhook endpoints',
+    ],
+    notIncluded: [],
+    cta: 'Start Free Trial',
+    popular: false,
+    icon: Building,
+  },
+  {
+    id: 'business_plus',
+    name: 'Business Plus',
+    priceMonthly: 19900,
+    priceAnnual: 190800,
+    description: 'Unlimited everything for MSPs',
+    features: [
+      '25 routers, unlimited users',
+      'Unlimited devices',
+      'Unlimited IDS/IPS rules',
+      'Unlimited webhooks',
+      '1-year audit log',
+      'Priority support (4hr SLA)',
     ],
     notIncluded: [],
     cta: 'Contact Sales',
     popular: false,
-    icon: Building,
+    icon: Crown,
   },
 ]
 
@@ -134,7 +117,7 @@ const hardware = [
     tagline: 'Perfect for apartments',
     price: 149,
     specs: ['Dual-core 1GHz', '512MB RAM', '4x GbE ports'],
-    supports: ['home', 'homeplus'],
+    supports: ['starter', 'pro'],
     image: '/router-100.png',
   },
   {
@@ -143,7 +126,7 @@ const hardware = [
     tagline: 'Ideal for homes',
     price: 249,
     specs: ['Quad-core 1.5GHz', '1GB RAM', '5x GbE + WiFi 6'],
-    supports: ['home', 'homeplus', 'pro'],
+    supports: ['starter', 'pro', 'business'],
     image: '/router-200.png',
   },
   {
@@ -152,7 +135,7 @@ const hardware = [
     tagline: 'For power users & SMB',
     price: 449,
     specs: ['Quad-core 2GHz', '4GB RAM', '8x 2.5GbE + 10G SFP+'],
-    supports: ['pro', 'business'],
+    supports: ['business', 'business_plus'],
     image: '/router-400.png',
   },
 ]
@@ -209,7 +192,7 @@ const faqs = [
   },
   {
     q: 'Can I try before I buy?',
-    a: 'Yes! All paid plans include a 14-day free trial. No credit card required to start. You can also start with our free tier and upgrade anytime.',
+    a: 'Yes! All plans include a 14-day free trial. No credit card required to start. You can upgrade or downgrade your plan anytime.',
   },
   {
     q: 'What VPN protocol do you use?',
@@ -221,7 +204,7 @@ const faqs = [
   },
   {
     q: 'Do you offer support?',
-    a: 'Free tier includes community support. Home and Home+ plans include email support with 24-hour response time. Pro and Business plans include priority phone support.',
+    a: 'Starter plans include email support with 24-hour response time. Pro and Business plans include priority email support. Business Plus includes priority support with a 4-hour SLA.',
   },
 ]
 
@@ -300,7 +283,7 @@ function FeatureCard({ icon: Icon, title, description, color }: typeof features[
 
 function PricingCard({ plan, billingCycle }: { plan: typeof plans[0]; billingCycle: 'monthly' | 'annual' }) {
   const Icon = plan.icon
-  const price = billingCycle === 'annual' ? Math.floor(plan.price * 0.8) : plan.price
+  const price = billingCycle === 'annual' ? Math.floor(plan.priceAnnual / 12 / 100) : Math.floor(plan.priceMonthly / 100)
   
   return (
     <div
@@ -327,11 +310,9 @@ function PricingCard({ plan, billingCycle }: { plan: typeof plans[0]; billingCyc
       
       <div className="mb-4">
         <span className="text-4xl font-bold text-white">${price}</span>
-        {plan.price > 0 && (
-          <span className="text-zinc-500">/{billingCycle === 'annual' ? 'mo' : 'month'}</span>
-        )}
-        {billingCycle === 'annual' && plan.price > 0 && (
-          <p className="text-xs text-zinc-500 mt-1">billed annually</p>
+        <span className="text-zinc-500">/mo</span>
+        {billingCycle === 'annual' && (
+          <p className="text-xs text-zinc-500 mt-1">billed annually (${Math.floor(plan.priceAnnual / 100)}/yr)</p>
         )}
       </div>
       
@@ -589,7 +570,7 @@ export default function App() {
               Simple, transparent pricing
             </h2>
             <p className="text-zinc-400 max-w-2xl mx-auto mb-8">
-              Start free and upgrade as you grow. All paid plans include a 14-day free trial.
+              Professional network security starting at $25/mo. All plans include a 14-day free trial.
             </p>
             
             <div className="inline-flex items-center gap-2 bg-zinc-800 rounded-lg p-1">
@@ -617,7 +598,7 @@ export default function App() {
             </div>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {plans.map((plan) => (
               <PricingCard key={plan.id} plan={plan} billingCycle={billingCycle} />
             ))}
