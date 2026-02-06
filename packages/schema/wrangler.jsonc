@@ -1,5 +1,6 @@
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
+	"account_id": "5dae265f74e6077ad674a3d855bf9853",
 	"compatibility_date": "2026-02-03",
 	"main": "src/index.ts",
 	"name": "ngfw-specs",

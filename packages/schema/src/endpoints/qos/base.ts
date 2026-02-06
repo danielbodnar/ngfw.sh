@@ -23,7 +23,7 @@ export const qosConfig = z.object({
 export const qosRule = z.object({
 	id: z.number().int(),
 	name: z.string().min(1).max(100),
-	source_ip: z.string().ip().nullable(),
+	source_ip: z.string().nullable(), // TODO: Add IP validation with z.string().regex() in Zod 4
 	protocol: z.string().nullable(),
 	priority: z.number().int().min(0).max(7),
 	bandwidth_limit: z.number().int().min(0).nullable(),

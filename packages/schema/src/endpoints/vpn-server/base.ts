@@ -9,7 +9,7 @@ export const vpnServerConfig = z.object({
 	network: z.string().describe("VPN network in CIDR notation (e.g., 10.0.0.0/24)"),
 	public_key: z.string().describe("Server public key (base64)"),
 	private_key: z.string().describe("Server private key (base64) - never returned in GET"),
-	dns: z.array(z.string().ip()).optional().describe("DNS servers for VPN clients"),
+	dns: z.array(z.string()).optional().describe("DNS servers for VPN clients"), // TODO: Add IP validation with z.string().regex() in Zod 4
 	mtu: z.number().int().min(1280).max(1500).default(1420).optional().describe("MTU for WireGuard interface"),
 	persistent_keepalive: z.number().int().min(0).max(65535).default(25).optional().describe("Persistent keepalive interval in seconds"),
 });

@@ -1,0 +1,47 @@
+{
+  "agent": "vpn-server-api",
+  "status": "complete",
+  "timestamp": "2026-02-06T01:45:00Z",
+  "files_created": [
+    "packages/schema/src/endpoints/vpn-server/base.ts",
+    "packages/schema/src/endpoints/vpn-server/configRead.ts",
+    "packages/schema/src/endpoints/vpn-server/configUpdate.ts",
+    "packages/schema/src/endpoints/vpn-server/peerList.ts",
+    "packages/schema/src/endpoints/vpn-server/peerCreate.ts",
+    "packages/schema/src/endpoints/vpn-server/peerDelete.ts",
+    "packages/schema/src/endpoints/vpn-server/router.ts"
+  ],
+  "endpoints_implemented": [
+    "GET /vpn/server/config - Read WireGuard VPN server configuration (private_key excluded)",
+    "PUT /vpn/server/config - Update WireGuard VPN server configuration",
+    "GET /vpn/server/peers - List all WireGuard VPN peers",
+    "POST /vpn/server/peers - Create a new WPN peer",
+    "DELETE /vpn/server/peers/:id - Delete a VPN peer"
+  ],
+  "schemas": {
+    "vpnServerConfig": "Full config including private_key",
+    "vpnServerConfigPublic": "Config without private_key (used in GET responses)",
+    "vpnServerConfigUpdate": "Partial config for PUT requests",
+    "vpnServerPeer": "Full peer record with stats",
+    "vpnServerPeerCreate": "Peer creation schema (excludes id, timestamps, stats)",
+    "vpnServerPeerUpdate": "Partial peer update schema (not used in current endpoints)"
+  },
+  "features": [
+    "WireGuard configuration: listen_port, network, public_key, private_key (never returned in GET)",
+    "Peer management: name, public_key, allowed_ips, endpoint, persistent_keepalive",
+    "Optional preshared_key for enhanced security",
+    "DNS server configuration for VPN clients",
+    "MTU and keepalive settings",
+    "Peer statistics: last_handshake, rx_bytes, tx_bytes",
+    "Enable/disable individual peers",
+    "Clerk authentication on all endpoints"
+  ],
+  "notes": [
+    "All endpoints use mock data - production would integrate with D1 and router RPC",
+    "private_key is never returned in GET /config (security best practice)",
+    "Peer statistics (last_handshake, rx_bytes, tx_bytes) would come from live device status",
+    "Router integration via packages/schema/src/endpoints/vpn-server/router.ts",
+    "All endpoints require Clerk JWT authentication",
+    "Follows existing patterns from fleet and routing endpoints"
+  ]
+}

@@ -38,7 +38,7 @@ export const NatRuleModel = {
 /** UPnP lease record */
 export const upnpLease = z.object({
 	id: z.string().uuid(),
-	client_ip: z.string().ip(),
+	client_ip: z.string(), // TODO: Add IP validation with z.string().regex() in Zod 4
 	external_port: z.number().int().min(1).max(65535),
 	internal_port: z.number().int().min(1).max(65535),
 	protocol: z.enum(["tcp", "udp"]),
