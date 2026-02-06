@@ -1,0 +1,39 @@
+---
+import PortalLayout from '../../../layouts/PortalLayout.astro';
+
+if (!Astro.locals.user) {
+  return Astro.redirect('/sign-in');
+}
+---
+
+<PortalLayout title="WiFi Performance - NGFW.sh">
+  <div class="space-y-6">
+    <div>
+      <h2 class="text-2xl font-semibold text-[--color-text-primary] mb-1">
+        WiFi Performance
+      </h2>
+      <p class="text-[--color-text-secondary]">
+        Wireless network metrics and client statistics
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div class="bg-[--color-surface-secondary] p-6 rounded-lg">
+        <p class="text-sm text-[--color-text-secondary] mb-2">Connected Clients</p>
+        <p class="text-2xl font-semibold text-[--color-text-primary]">23</p>
+      </div>
+      <div class="bg-[--color-surface-secondary] p-6 rounded-lg">
+        <p class="text-sm text-[--color-text-secondary] mb-2">2.4GHz Signal</p>
+        <p class="text-2xl font-semibold text-[--color-text-primary]">-45 dBm</p>
+      </div>
+      <div class="bg-[--color-surface-secondary] p-6 rounded-lg">
+        <p class="text-sm text-[--color-text-secondary] mb-2">5GHz Signal</p>
+        <p class="text-2xl font-semibold text-[--color-text-primary]">-38 dBm</p>
+      </div>
+      <div class="bg-[--color-surface-secondary] p-6 rounded-lg">
+        <p class="text-sm text-[--color-text-secondary] mb-2">Channel Utilization</p>
+        <p class="text-2xl font-semibold text-[--color-text-primary]">42%</p>
+      </div>
+    </div>
+  </div>
+</PortalLayout>

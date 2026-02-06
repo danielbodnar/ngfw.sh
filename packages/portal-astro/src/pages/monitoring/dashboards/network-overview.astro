@@ -1,0 +1,39 @@
+---
+import PortalLayout from '../../../layouts/PortalLayout.astro';
+
+if (!Astro.locals.user) {
+  return Astro.redirect('/sign-in');
+}
+---
+
+<PortalLayout title="Network Overview - NGFW.sh">
+  <div class="space-y-6">
+    <div>
+      <h2 class="text-2xl font-semibold text-[--color-text-primary] mb-1">
+        Network Overview
+      </h2>
+      <p class="text-[--color-text-secondary]">
+        Overall network health and performance metrics
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="bg-[--color-surface-secondary] p-6 rounded-lg">
+        <p class="text-sm text-[--color-text-secondary] mb-2">WAN Uptime</p>
+        <p class="text-2xl font-semibold text-[--color-text-primary]">99.9%</p>
+      </div>
+      <div class="bg-[--color-surface-secondary] p-6 rounded-lg">
+        <p class="text-sm text-[--color-text-secondary] mb-2">Active Devices</p>
+        <p class="text-2xl font-semibold text-[--color-text-primary]">47</p>
+      </div>
+      <div class="bg-[--color-surface-secondary] p-6 rounded-lg">
+        <p class="text-sm text-[--color-text-secondary] mb-2">Download</p>
+        <p class="text-2xl font-semibold text-[--color-text-primary]">125 Mbps</p>
+      </div>
+      <div class="bg-[--color-surface-secondary] p-6 rounded-lg">
+        <p class="text-sm text-[--color-text-secondary] mb-2">Upload</p>
+        <p class="text-2xl font-semibold text-[--color-text-primary]">45 Mbps</p>
+      </div>
+    </div>
+  </div>
+</PortalLayout>

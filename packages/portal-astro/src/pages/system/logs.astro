@@ -1,0 +1,130 @@
+---
+import PortalLayout from '../../layouts/PortalLayout.astro';
+import LogViewer from '../../components/monitoring/LogViewer.vue';
+import LogFilter from '../../components/monitoring/LogFilter.vue';
+
+// Redirect to sign-in if not authenticated
+if (!Astro.locals.user) {
+  return Astro.redirect('/sign-in');
+}
+---
+
+<PortalLayout title="System Logs - NGFW.sh">
+  <div class="space-y-6">
+    <div>
+      <h2 class="text-2xl font-semibold text-[--color-text-primary] mb-1">
+        System Logs
+      </h2>
+      <p class="text-[--color-text-secondary]">
+        View and search system and security logs
+      </p>
+    </div>
+
+    <div id="logs-app"></div>
+  </div>
+</PortalLayout>
+
+<script>
+  import { createApp } from 'vue';
+  import LogViewer from '../../components/monitoring/LogViewer.vue';
+  import LogFilter from '../../components/monitoring/LogFilter.vue';
+
+  // Mock data - will be replaced by composables
+  const mockLogs = [
+    {
+      id: '1',
+      timestamp: '2026-02-06T14:52:33Z',
+      level: 'info',
+      category: 'system',
+      message: 'Router reboot completed successfully',
+    },
+    {
+      id: '2',
+      timestamp: '2026-02-06T14:51:15Z',
+      level: 'warning',
+      category: 'firewall',
+      message: 'High number of blocked connection attempts from 203.0.113.45',
+    },
+    {
+      id: '3',
+      timestamp: '2026-02-06T14:50:02Z',
+      level: 'error',
+      category: 'wan',
+      message: 'WAN connection lost, switching to backup',
+    },
+    {
+      id: '4',
+      timestamp: '2026-02-06T14:48:22Z',
+      level: 'info',
+      category: 'dhcp',
+      message: 'New DHCP lease assigned to iPhone-John (192.168.1.105)',
+    },
+    {
+      id: '5',
+      timestamp: '2026-02-06T14:45:10Z',
+      level: 'critical',
+      category: 'security',
+      message: 'IPS blocked critical threat: SQL injection attempt',
+    },
+  ];
+
+  const App = {
+    components: { LogViewer, LogFilter },
+    data() {
+      return {
+        logs: mockLogs,
+        filters: {
+          level: 'all',
+          category: 'all',
+          search: '',
+          dateFrom: '',
+          dateTo: '',
+        },
+      };
+    },
+    computed: {
+      filteredLogs() {
+        let filtered = this.logs;
+
+        if (this.filters.level !== 'all') {
+          filtered = filtered.filter(log => log.level === this.filters.level);
+        }
+
+        if (this.filters.category !== 'all') {
+          filtered = filtered.filter(log => log.category === this.filters.category);
+        }
+
+        if (this.filters.search) {
+          const search = this.filters.search.toLowerCase();
+          filtered = filtered.filter(log =>
+            log.message.toLowerCase().includes(search)
+          );
+        }
+
+        return filtered;
+      },
+    },
+    methods: {
+      handleFilterChange(newFilters) {
+        this.filters = { ...this.filters, ...newFilters };
+      },
+      handleExport() {
+        console.log('Exporting logs');
+        // TODO: Implement export
+      },
+    },
+    template: `
+      <div class="space-y-6">
+        <LogFilter
+          :filters="filters"
+          @update="handleFilterChange"
+          @export="handleExport"
+        />
+        <LogViewer :logs="filteredLogs" />
+      </div>
+    `,
+  };
+
+  const app = createApp(App);
+  app.mount('#logs-app');
+</script>

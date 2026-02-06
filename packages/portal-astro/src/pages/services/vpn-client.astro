@@ -1,0 +1,165 @@
+---
+import PortalLayout from '../../layouts/PortalLayout.astro';
+
+// Redirect to sign-in if not authenticated
+if (!Astro.locals.user) {
+  return Astro.redirect('/sign-in');
+}
+---
+
+<PortalLayout title="VPN Client - NGFW.sh">
+  <div class="space-y-6">
+    <div>
+      <h2 class="text-2xl font-semibold text-[--color-text-primary] mb-1">
+        VPN Client
+      </h2>
+      <p class="text-[--color-text-secondary]">
+        Connect to external VPN servers as a client
+      </p>
+    </div>
+
+    <div id="vpn-client-app"></div>
+  </div>
+</PortalLayout>
+
+<script>
+  import { createApp } from 'vue';
+  import VPNClientList from '../../components/services/VPNClientList.vue';
+  import VPNClientForm from '../../components/services/VPNClientForm.vue';
+
+  // Mock data - will be replaced by composables
+  const mockProfiles = [
+    {
+      id: '1',
+      name: 'Work VPN',
+      endpoint: 'vpn.company.com:51820',
+      allowed_ips: ['0.0.0.0/0', '::/0'],
+      enabled: true,
+      status: 'connected',
+      connected_since: Math.floor(Date.now() / 1000) - 7200,
+      rx_bytes: 234827348123,
+      tx_bytes: 128374829123,
+    },
+    {
+      id: '2',
+      name: 'Home Lab',
+      endpoint: '203.0.113.50:51820',
+      allowed_ips: ['192.168.100.0/24'],
+      enabled: true,
+      status: 'disconnected',
+    },
+    {
+      id: '3',
+      name: 'Cloud Gateway',
+      endpoint: 'cloud.example.com:51820',
+      allowed_ips: ['10.10.0.0/16'],
+      enabled: false,
+      status: 'disconnected',
+    },
+  ];
+
+  const app = createApp({
+    components: {
+      VPNClientList,
+      VPNClientForm,
+    },
+    data() {
+      return {
+        profiles: mockProfiles,
+        loading: false,
+        profileFormOpen: false,
+        editingProfile: null,
+      };
+    },
+    methods: {
+      handleAddProfile() {
+        this.editingProfile = null;
+        this.profileFormOpen = true;
+      },
+      handleEditProfile(profile) {
+        this.editingProfile = profile;
+        this.profileFormOpen = true;
+      },
+      handleDeleteProfile(profileId) {
+        if (confirm('Are you sure you want to delete this VPN profile?')) {
+          this.profiles = this.profiles.filter(p => p.id !== profileId);
+          alert('VPN profile deleted');
+        }
+      },
+      handleConnect(profileId) {
+        const profile = this.profiles.find(p => p.id === profileId);
+        if (profile) {
+          profile.status = 'connecting';
+          setTimeout(() => {
+            profile.status = 'connected';
+            profile.connected_since = Math.floor(Date.now() / 1000);
+            profile.rx_bytes = 0;
+            profile.tx_bytes = 0;
+            alert(`Connected to ${profile.name}`);
+          }, 2000);
+        }
+      },
+      handleDisconnect(profileId) {
+        const profile = this.profiles.find(p => p.id === profileId);
+        if (profile) {
+          profile.status = 'disconnected';
+          profile.connected_since = undefined;
+          alert(`Disconnected from ${profile.name}`);
+        }
+      },
+      handleSaveProfile(profileData) {
+        this.loading = true;
+        console.log('Saving VPN profile:', profileData);
+        setTimeout(() => {
+          if (this.editingProfile) {
+            const index = this.profiles.findIndex(p => p.id === this.editingProfile.id);
+            if (index !== -1) {
+              this.profiles[index] = {
+                ...this.profiles[index],
+                ...profileData,
+              };
+            }
+          } else {
+            const newProfile = {
+              ...profileData,
+              id: String(this.profiles.length + 1),
+              status: 'disconnected',
+            };
+            this.profiles.push(newProfile);
+          }
+          this.loading = false;
+          this.profileFormOpen = false;
+          this.editingProfile = null;
+          alert('VPN profile saved successfully');
+        }, 1000);
+      },
+      handleImportConfig(configText) {
+        console.log('Importing config:', configText);
+        alert('Config import not yet implemented');
+      },
+    },
+    template: `
+      <div class="space-y-6">
+        <VPNClientList
+          :profiles="profiles"
+          :loading="false"
+          @add="handleAddProfile"
+          @edit="handleEditProfile"
+          @delete="handleDeleteProfile"
+          @connect="handleConnect"
+          @disconnect="handleDisconnect"
+        />
+        <VPNClientForm
+          :is-open="profileFormOpen"
+          :profile="editingProfile"
+          :loading="loading"
+          @close="profileFormOpen = false"
+          @save="handleSaveProfile"
+          @import="handleImportConfig"
+        />
+      </div>
+    `,
+  });
+
+  app.mount('#vpn-client-app');
+</script>

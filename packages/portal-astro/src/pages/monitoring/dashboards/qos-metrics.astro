@@ -1,0 +1,39 @@
+---
+import PortalLayout from '../../../layouts/PortalLayout.astro';
+
+if (!Astro.locals.user) {
+  return Astro.redirect('/sign-in');
+}
+---
+
+<PortalLayout title="QoS Metrics - NGFW.sh">
+  <div class="space-y-6">
+    <div>
+      <h2 class="text-2xl font-semibold text-[--color-text-primary] mb-1">
+        QoS Metrics
+      </h2>
+      <p class="text-[--color-text-secondary]">
+        Quality of Service and traffic shaping statistics
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div class="bg-[--color-surface-secondary] p-6 rounded-lg">
+        <p class="text-sm text-[--color-text-secondary] mb-2">Active Rules</p>
+        <p class="text-2xl font-semibold text-[--color-text-primary]">12</p>
+      </div>
+      <div class="bg-[--color-surface-secondary] p-6 rounded-lg">
+        <p class="text-sm text-[--color-text-secondary] mb-2">High Priority Traffic</p>
+        <p class="text-2xl font-semibold text-green-500">35 Mbps</p>
+      </div>
+      <div class="bg-[--color-surface-secondary] p-6 rounded-lg">
+        <p class="text-sm text-[--color-text-secondary] mb-2">Shaped Traffic</p>
+        <p class="text-2xl font-semibold text-[--color-text-primary]">42%</p>
+      </div>
+      <div class="bg-[--color-surface-secondary] p-6 rounded-lg">
+        <p class="text-sm text-[--color-text-secondary] mb-2">Packets Dropped</p>
+        <p class="text-2xl font-semibold text-red-500">127</p>
+      </div>
+    </div>
+  </div>
+</PortalLayout>

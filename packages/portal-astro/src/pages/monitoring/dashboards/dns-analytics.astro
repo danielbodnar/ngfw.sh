@@ -1,0 +1,35 @@
+---
+import PortalLayout from '../../../layouts/PortalLayout.astro';
+
+if (!Astro.locals.user) {
+  return Astro.redirect('/sign-in');
+}
+---
+
+<PortalLayout title="DNS Analytics - NGFW.sh">
+  <div class="space-y-6">
+    <div>
+      <h2 class="text-2xl font-semibold text-[--color-text-primary] mb-1">
+        DNS Analytics
+      </h2>
+      <p class="text-[--color-text-secondary]">
+        DNS queries and filtering statistics
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div class="bg-[--color-surface-secondary] p-6 rounded-lg">
+        <p class="text-sm text-[--color-text-secondary] mb-2">Total Queries</p>
+        <p class="text-2xl font-semibold text-[--color-text-primary]">45,892</p>
+      </div>
+      <div class="bg-[--color-surface-secondary] p-6 rounded-lg">
+        <p class="text-sm text-[--color-text-secondary] mb-2">Blocked Queries</p>
+        <p class="text-2xl font-semibold text-red-500">1,247</p>
+      </div>
+      <div class="bg-[--color-surface-secondary] p-6 rounded-lg">
+        <p class="text-sm text-[--color-text-secondary] mb-2">Cache Hit Rate</p>
+        <p class="text-2xl font-semibold text-green-500">87%</p>
+      </div>
+    </div>
+  </div>
+</PortalLayout>

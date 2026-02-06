@@ -1,0 +1,167 @@
+---
+import PortalLayout from '../../layouts/PortalLayout.astro';
+
+// Redirect to sign-in if not authenticated
+if (!Astro.locals.user) {
+  return Astro.redirect('/sign-in');
+}
+---
+
+<PortalLayout title="Firewall - NGFW.sh">
+  <div class="space-y-6">
+    <div>
+      <h2 class="text-2xl font-semibold text-[--color-text-primary] mb-1">
+        Firewall Rules
+      </h2>
+      <p class="text-[--color-text-secondary]">
+        Configure firewall rules, zones, and policies
+      </p>
+    </div>
+
+    <div id="firewall-app"></div>
+  </div>
+</PortalLayout>
+
+<script>
+  import { createApp } from 'vue';
+  import Card from '../../components/ui/Card.vue';
+  import Table from '../../components/ui/Table.vue';
+  import Button from '../../components/ui/Button.vue';
+  import Badge from '../../components/ui/Badge.vue';
+
+  // Mock data - will be replaced by composables
+  const mockRules = [
+    {
+      id: '1',
+      name: 'Allow HTTP/HTTPS',
+      zone_from: 'WAN',
+      zone_to: 'LAN',
+      protocol: 'tcp',
+      ports: '80,443',
+      action: 'accept',
+      enabled: true,
+    },
+    {
+      id: '2',
+      name: 'Block Telnet',
+      zone_from: 'ANY',
+      zone_to: 'ANY',
+      protocol: 'tcp',
+      ports: '23',
+      action: 'reject',
+      enabled: true,
+    },
+    {
+      id: '3',
+      name: 'Allow DNS',
+      zone_from: 'LAN',
+      zone_to: 'WAN',
+      protocol: 'udp',
+      ports: '53',
+      action: 'accept',
+      enabled: true,
+    },
+  ];
+
+  const columns = [
+    { key: 'name', label: 'Name' },
+    { key: 'zone_from', label: 'From Zone' },
+    { key: 'zone_to', label: 'To Zone' },
+    { key: 'protocol', label: 'Protocol' },
+    { key: 'ports', label: 'Ports' },
+    { key: 'action', label: 'Action' },
+    { key: 'status', label: 'Status' },
+    { key: 'actions', label: 'Actions' },
+  ];
+
+  const App = {
+    components: { Card, Table, Button, Badge },
+    data() {
+      return {
+        rules: mockRules,
+        columns,
+      };
+    },
+    methods: {
+      handleAdd() {
+        console.log('Add firewall rule');
+        // TODO: Show form modal
+      },
+      handleEdit(rule) {
+        console.log('Edit rule:', rule);
+        // TODO: Show form modal with data
+      },
+      handleDelete(ruleId) {
+        if (confirm('Are you sure you want to delete this rule?')) {
+          this.rules = this.rules.filter(r => r.id !== ruleId);
+        }
+      },
+      handleToggle(ruleId) {
+        const rule = this.rules.find(r => r.id === ruleId);
+        if (rule) {
+          rule.enabled = !rule.enabled;
+        }
+      },
+    },
+    template: `
+      <Card title="Firewall Rules">
+        <template #actions>
+          <Button @click="handleAdd">Add Rule</Button>
+        </template>
+
+        <Table :columns="columns" :data="rules">
+          <template #cell-name="{ row }">
+            <span class="font-medium text-[--color-text-primary]">{{ row.name }}</span>
+          </template>
+
+          <template #cell-zone_from="{ row }">
+            <Badge variant="info">{{ row.zone_from }}</Badge>
+          </template>
+
+          <template #cell-zone_to="{ row }">
+            <Badge variant="info">{{ row.zone_to }}</Badge>
+          </template>
+
+          <template #cell-protocol="{ row }">
+            <span class="text-sm text-[--color-text-secondary] uppercase">{{ row.protocol }}</span>
+          </template>
+
+          <template #cell-ports="{ row }">
+            <code class="text-xs bg-[--color-surface-secondary] px-2 py-1 rounded">
+              {{ row.ports }}
+            </code>
+          </template>
+
+          <template #cell-action="{ row }">
+            <Badge :variant="row.action === 'accept' ? 'success' : row.action === 'reject' ? 'error' : 'warning'">
+              {{ row.action }}
+            </Badge>
+          </template>
+
+          <template #cell-status="{ row }">
+            <Badge :variant="row.enabled ? 'success' : 'secondary'">
+              {{ row.enabled ? 'Enabled' : 'Disabled' }}
+            </Badge>
+          </template>
+
+          <template #cell-actions="{ row }">
+            <div class="flex gap-2">
+              <Button variant="secondary" size="sm" @click="handleEdit(row)">Edit</Button>
+              <Button
+                :variant="row.enabled ? 'warning' : 'success'"
+                size="sm"
+                @click="handleToggle(row.id)"
+              >
+                {{ row.enabled ? 'Disable' : 'Enable' }}
+              </Button>
+              <Button variant="danger" size="sm" @click="handleDelete(row.id)">Delete</Button>
+            </div>
+          </template>
+        </Table>
+      </Card>
+    `,
+  };
+
+  const app = createApp(App);
+  app.mount('#firewall-app');
+</script>

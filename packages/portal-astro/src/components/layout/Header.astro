@@ -1,0 +1,49 @@
+---
+const user = Astro.locals.user;
+---
+
+<header class="bg-[--color-surface] border-b border-[--color-border] px-6 py-4">
+  <div class="flex items-center justify-between">
+    <!-- Page Title / Breadcrumbs -->
+    <div class="flex items-center gap-4">
+      <h1 class="text-xl font-semibold text-[--color-text-primary]">
+        <slot name="title">Dashboard</slot>
+      </h1>
+    </div>
+
+    <!-- Actions -->
+    <div class="flex items-center gap-4">
+      <!-- Notifications -->
+      <button
+        type="button"
+        class="p-2 rounded-lg text-[--color-text-secondary] hover:bg-[--color-surface-hover] hover:text-[--color-text-primary] transition-colors"
+        aria-label="Notifications"
+      >
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+        </svg>
+      </button>
+
+      <!-- User Menu -->
+      <div class="flex items-center gap-3">
+        {user && (
+          <div class="text-right hidden sm:block">
+            <p class="text-sm font-medium text-[--color-text-primary]">
+              {user.email || 'User'}
+            </p>
+            <p class="text-xs text-[--color-text-muted]">
+              {user.userId}
+            </p>
+          </div>
+        )}
+        <button
+          type="button"
+          class="w-9 h-9 rounded-full bg-[--color-primary] flex items-center justify-center text-white font-medium hover:opacity-80 transition-opacity"
+          aria-label="User menu"
+        >
+          {user?.email ? user.email.charAt(0).toUpperCase() : 'U'}
+        </button>
+      </div>
+    </div>
+  </div>
+</header>

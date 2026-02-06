@@ -1,0 +1,38 @@
+---
+import PortalLayout from '../../../layouts/PortalLayout.astro';
+import DashboardViewer from '../../../components/monitoring/DashboardViewer.vue';
+
+// Redirect to sign-in if not authenticated
+if (!Astro.locals.user) {
+  return Astro.redirect('/sign-in');
+}
+
+// Get dashboard ID from URL
+const { id } = Astro.params;
+---
+
+<PortalLayout title={`Dashboard - NGFW.sh`}>
+  <div id="dashboard-viewer-app" data-dashboard-id={id}></div>
+</PortalLayout>
+
+<script>
+  import { createApp } from 'vue';
+  import DashboardViewer from '../../../components/monitoring/DashboardViewer.vue';
+
+  const dashboardId = document.getElementById('dashboard-viewer-app')?.dataset.dashboardId;
+
+  const App = {
+    components: { DashboardViewer },
+    data() {
+      return {
+        dashboardId,
+      };
+    },
+    template: `
+      <DashboardViewer :dashboard-id="dashboardId" />
+    `,
+  };
+
+  const app = createApp(App);
+  app.mount('#dashboard-viewer-app');
+</script>

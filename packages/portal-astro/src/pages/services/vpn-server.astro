@@ -1,0 +1,186 @@
+---
+import PortalLayout from '../../layouts/PortalLayout.astro';
+import VPNServerConfig from '../../components/services/VPNServerConfig.vue';
+import VPNPeerList from '../../components/services/VPNPeerList.vue';
+import VPNPeerForm from '../../components/services/VPNPeerForm.vue';
+
+// Redirect to sign-in if not authenticated
+if (!Astro.locals.user) {
+  return Astro.redirect('/sign-in');
+}
+---
+
+<PortalLayout title="VPN Server - NGFW.sh">
+  <div class="space-y-6">
+    <div>
+      <h2 class="text-2xl font-semibold text-[--color-text-primary] mb-1">
+        VPN Server
+      </h2>
+      <p class="text-[--color-text-secondary]">
+        Configure WireGuard VPN server and manage client peers
+      </p>
+    </div>
+
+    <div id="vpn-server-app"></div>
+  </div>
+</PortalLayout>
+
+<script>
+  import { createApp } from 'vue';
+  import VPNServerConfig from '../../components/services/VPNServerConfig.vue';
+  import VPNPeerList from '../../components/services/VPNPeerList.vue';
+  import VPNPeerForm from '../../components/services/VPNPeerForm.vue';
+
+  // Mock data - will be replaced by composables
+  const mockConfig = {
+    enabled: true,
+    port: 51820,
+    listen_address: '0.0.0.0',
+    subnet: '10.0.0.0/24',
+    dns_servers: ['1.1.1.1', '8.8.8.8'],
+    persistent_keepalive: 25,
+    mtu: 1420,
+  };
+
+  const mockPeers = [
+    {
+      id: '1',
+      name: 'iPhone',
+      public_key: 'aGVsbG8gd29ybGQgdGhpcyBpcyBhIHRlc3Qga2V5',
+      allowed_ips: ['10.0.0.2/32'],
+      enabled: true,
+      last_handshake: Math.floor(Date.now() / 1000) - 120,
+      rx_bytes: 8374829123,
+      tx_bytes: 5273948234,
+    },
+    {
+      id: '2',
+      name: 'Laptop',
+      public_key: 'dGVzdCBrZXkgbnVtYmVyIHR3byBmb3IgbGFwdG9w',
+      allowed_ips: ['10.0.0.3/32'],
+      enabled: true,
+      last_handshake: Math.floor(Date.now() / 1000) - 3600,
+      rx_bytes: 12847293847,
+      tx_bytes: 8374829123,
+    },
+    {
+      id: '3',
+      name: 'Remote Office',
+      public_key: 'cmVtb3RlIG9mZmljZSB2cG4ga2V5IGZvciB0ZXN0',
+      allowed_ips: ['10.0.0.4/32', '192.168.50.0/24'],
+      enabled: true,
+      last_handshake: Math.floor(Date.now() / 1000) - 60,
+      rx_bytes: 23847293847,
+      tx_bytes: 18374829123,
+    },
+  ];
+
+  const app = createApp({
+    components: {
+      VPNServerConfig,
+      VPNPeerList,
+      VPNPeerForm,
+    },
+    data() {
+      return {
+        config: mockConfig,
+        peers: mockPeers,
+        loading: false,
+        peerFormOpen: false,
+        editingPeer: null,
+      };
+    },
+    methods: {
+      handleSaveConfig(config) {
+        this.loading = true;
+        console.log('Saving VPN server config:', config);
+        setTimeout(() => {
+          this.config = config;
+          this.loading = false;
+          alert('VPN server configuration saved');
+        }, 1000);
+      },
+      handleAddPeer() {
+        this.editingPeer = null;
+        this.peerFormOpen = true;
+      },
+      handleEditPeer(peer) {
+        this.editingPeer = peer;
+        this.peerFormOpen = true;
+      },
+      handleDeletePeer(peerId) {
+        if (confirm('Are you sure you want to delete this peer?')) {
+          this.peers = this.peers.filter(p => p.id !== peerId);
+          alert('Peer deleted');
+        }
+      },
+      handleSavePeer(peerData) {
+        this.loading = true;
+        console.log('Saving peer:', peerData);
+        setTimeout(() => {
+          if (this.editingPeer) {
+            const index = this.peers.findIndex(p => p.id === this.editingPeer.id);
+            if (index !== -1) {
+              this.peers[index] = { ...this.peers[index], ...peerData };
+            }
+          } else {
+            const newPeer = {
+              ...peerData,
+              id: String(this.peers.length + 1),
+              public_key: 'bmV3bHkgZ2VuZXJhdGVkIHB1YmxpYyBrZXk=',
+              last_handshake: undefined,
+              rx_bytes: 0,
+              tx_bytes: 0,
+            };
+            this.peers.push(newPeer);
+          }
+          this.loading = false;
+          this.peerFormOpen = false;
+          this.editingPeer = null;
+          alert('Peer saved successfully');
+        }, 1000);
+      },
+      handleDownloadConfig(peerId) {
+        const peer = this.peers.find(p => p.id === peerId);
+        if (peer) {
+          alert(`Downloading config for ${peer.name}`);
+          console.log('Download config for peer:', peer);
+        }
+      },
+      handleShowQr(peerId) {
+        const peer = this.peers.find(p => p.id === peerId);
+        if (peer) {
+          alert(`Showing QR code for ${peer.name}`);
+          console.log('Show QR for peer:', peer);
+        }
+      },
+    },
+    template: `
+      <div class="space-y-6">
+        <VPNServerConfig
+          :config="config"
+          :loading="loading"
+          @save="handleSaveConfig"
+        />
+        <VPNPeerList
+          :peers="peers"
+          :loading="false"
+          @add="handleAddPeer"
+          @edit="handleEditPeer"
+          @delete="handleDeletePeer"
+          @download-config="handleDownloadConfig"
+          @show-qr="handleShowQr"
+        />
+        <VPNPeerForm
+          :is-open="peerFormOpen"
+          :peer="editingPeer"
+          :loading="loading"
+          @close="peerFormOpen = false"
+          @save="handleSavePeer"
+        />
+      </div>
+    `,
+  });
+
+  app.mount('#vpn-server-app');
+</script>

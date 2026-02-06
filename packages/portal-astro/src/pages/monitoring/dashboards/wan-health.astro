@@ -1,0 +1,39 @@
+---
+import PortalLayout from '../../../layouts/PortalLayout.astro';
+
+if (!Astro.locals.user) {
+  return Astro.redirect('/sign-in');
+}
+---
+
+<PortalLayout title="WAN Health - NGFW.sh">
+  <div class="space-y-6">
+    <div>
+      <h2 class="text-2xl font-semibold text-[--color-text-primary] mb-1">
+        WAN Health
+      </h2>
+      <p class="text-[--color-text-secondary]">
+        Internet connection status and performance
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div class="bg-[--color-surface-secondary] p-6 rounded-lg">
+        <p class="text-sm text-[--color-text-secondary] mb-2">Status</p>
+        <p class="text-2xl font-semibold text-green-500">Connected</p>
+      </div>
+      <div class="bg-[--color-surface-secondary] p-6 rounded-lg">
+        <p class="text-sm text-[--color-text-secondary] mb-2">Latency</p>
+        <p class="text-2xl font-semibold text-[--color-text-primary]">12 ms</p>
+      </div>
+      <div class="bg-[--color-surface-secondary] p-6 rounded-lg">
+        <p class="text-sm text-[--color-text-secondary] mb-2">Packet Loss</p>
+        <p class="text-2xl font-semibold text-green-500">0.1%</p>
+      </div>
+      <div class="bg-[--color-surface-secondary] p-6 rounded-lg">
+        <p class="text-sm text-[--color-text-secondary] mb-2">Uptime</p>
+        <p class="text-2xl font-semibold text-[--color-text-primary]">7d 14h</p>
+      </div>
+    </div>
+  </div>
+</PortalLayout>

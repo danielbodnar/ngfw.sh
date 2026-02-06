@@ -1,0 +1,98 @@
+---
+import PortalLayout from '../../layouts/PortalLayout.astro';
+
+// Redirect to sign-in if not authenticated
+if (!Astro.locals.user) {
+  return Astro.redirect('/sign-in');
+}
+---
+
+<PortalLayout title="Dynamic DNS - NGFW.sh">
+  <div class="space-y-6">
+    <div>
+      <h2 class="text-2xl font-semibold text-[--color-text-primary] mb-1">
+        Dynamic DNS
+      </h2>
+      <p class="text-[--color-text-secondary]">
+        Automatically update DNS records when your WAN IP changes
+      </p>
+    </div>
+
+    <div id="ddns-app"></div>
+  </div>
+</PortalLayout>
+
+<script>
+  import { createApp } from 'vue';
+  import DDNSConfig from '../../components/services/DDNSConfig.vue';
+
+  // Mock data - will be replaced by composables
+  const mockConfig = {
+    enabled: true,
+    provider: 'duckdns',
+    hostname: 'myrouter.duckdns.org',
+    username: '',
+    password: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+    update_interval: 600,
+    force_ipv4: true,
+    force_ipv6: false,
+  };
+
+  const mockStatus = {
+    last_update: Math.floor(Date.now() / 1000) - 300,
+    last_ip: '203.0.113.42',
+    status: 'success',
+    message: 'DNS record updated successfully',
+  };
+
+  const app = createApp({
+    components: {
+      DDNSConfig,
+    },
+    data() {
+      return {
+        config: mockConfig,
+        status: mockStatus,
+        loading: false,
+      };
+    },
+    methods: {
+      handleSaveConfig(config) {
+        this.loading = true;
+        console.log('Saving DDNS config:', config);
+        setTimeout(() => {
+          this.config = config;
+          this.loading = false;
+          alert('Dynamic DNS configuration saved');
+        }, 1000);
+      },
+      handleForceUpdate() {
+        this.loading = true;
+        console.log('Forcing DDNS update');
+        setTimeout(() => {
+          this.status = {
+            last_update: Math.floor(Date.now() / 1000),
+            last_ip: this.status.last_ip,
+            status: 'success',
+            message: 'DNS record updated successfully (forced)',
+          };
+          this.loading = false;
+          alert('DNS update initiated');
+        }, 2000);
+      },
+    },
+    template: `
+      <div>
+        <DDNSConfig
+          :config="config"
+          :status="status"
+          :loading="loading"
+          @save="handleSaveConfig"
+          @force-update="handleForceUpdate"
+        />
+      </div>
+    `,
+  });
+
+  app.mount('#ddns-app');
+</script>

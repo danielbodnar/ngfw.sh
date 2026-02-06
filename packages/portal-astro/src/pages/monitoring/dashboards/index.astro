@@ -1,0 +1,58 @@
+---
+import PortalLayout from '../../../layouts/PortalLayout.astro';
+import DashboardGrid from '../../../components/monitoring/DashboardGrid.vue';
+
+// Redirect to sign-in if not authenticated
+if (!Astro.locals.user) {
+  return Astro.redirect('/sign-in');
+}
+---
+
+<PortalLayout title="Dashboards - NGFW.sh">
+  <div class="space-y-6">
+    <div>
+      <h2 class="text-2xl font-semibold text-[--color-text-primary] mb-1">
+        Dashboards
+      </h2>
+      <p class="text-[--color-text-secondary]">
+        Monitor router metrics and analytics
+      </p>
+    </div>
+
+    <div id="dashboards-app"></div>
+  </div>
+</PortalLayout>
+
+<script>
+  import { createApp } from 'vue';
+  import DashboardGrid from '../../../components/monitoring/DashboardGrid.vue';
+
+  // Mock data - will be replaced by composables
+  const mockDashboards = [
+    { id: 'network-overview', name: 'Network Overview', description: 'Overall network health and performance', icon: 'network' },
+    { id: 'security-events', name: 'Security Events', description: 'IPS alerts and firewall logs', icon: 'shield' },
+    { id: 'dns-analytics', name: 'DNS Analytics', description: 'DNS queries and filtering statistics', icon: 'dns' },
+    { id: 'wifi-performance', name: 'WiFi Performance', description: 'Wireless network metrics', icon: 'wifi' },
+    { id: 'wan-health', name: 'WAN Health', description: 'Internet connection status and speed', icon: 'globe' },
+    { id: 'vpn-metrics', name: 'VPN Metrics', description: 'VPN server and client statistics', icon: 'vpn' },
+    { id: 'system-resources', name: 'System Resources', description: 'CPU, memory, and disk usage', icon: 'server' },
+    { id: 'traffic-analysis', name: 'Traffic Analysis', description: 'Top talkers and protocols', icon: 'chart' },
+    { id: 'firewall-rules', name: 'Firewall Rules', description: 'Rule hits and blocks', icon: 'firewall' },
+    { id: 'qos-metrics', name: 'QoS Metrics', description: 'Quality of Service statistics', icon: 'qos' },
+  ];
+
+  const App = {
+    components: { DashboardGrid },
+    data() {
+      return {
+        dashboards: mockDashboards,
+      };
+    },
+    template: `
+      <DashboardGrid :dashboards="dashboards" />
+    `,
+  };
+
+  const app = createApp(App);
+  app.mount('#dashboards-app');
+</script>

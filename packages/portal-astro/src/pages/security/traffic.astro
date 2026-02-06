@@ -1,0 +1,183 @@
+---
+import PortalLayout from '../../layouts/PortalLayout.astro';
+
+// Redirect to sign-in if not authenticated
+if (!Astro.locals.user) {
+  return Astro.redirect('/sign-in');
+}
+---
+
+<PortalLayout title="Traffic Logs - NGFW.sh">
+  <div class="space-y-6">
+    <div>
+      <h2 class="text-2xl font-semibold text-[--color-text-primary] mb-1">
+        Traffic Logs
+      </h2>
+      <p class="text-[--color-text-secondary]">
+        Monitor network traffic and connection logs
+      </p>
+    </div>
+
+    <div id="traffic-app"></div>
+  </div>
+</PortalLayout>
+
+<script>
+  import { createApp } from 'vue';
+  import Card from '../../components/ui/Card.vue';
+  import Table from '../../components/ui/Table.vue';
+  import Badge from '../../components/ui/Badge.vue';
+  import Input from '../../components/ui/Input.vue';
+  import Select from '../../components/ui/Select.vue';
+
+  // Mock data - will be replaced by composables
+  const mockLogs = [
+    {
+      id: '1',
+      timestamp: '2026-02-06T14:35:22Z',
+      source_ip: '192.168.1.105',
+      destination_ip: '172.217.164.110',
+      protocol: 'tcp',
+      port: 443,
+      action: 'accept',
+      bytes: 15624,
+    },
+    {
+      id: '2',
+      timestamp: '2026-02-06T14:35:18Z',
+      source_ip: '192.168.1.50',
+      destination_ip: '1.1.1.1',
+      protocol: 'udp',
+      port: 53,
+      action: 'accept',
+      bytes: 89,
+    },
+    {
+      id: '3',
+      timestamp: '2026-02-06T14:35:10Z',
+      source_ip: '203.0.113.45',
+      destination_ip: '192.168.1.1',
+      protocol: 'tcp',
+      port: 22,
+      action: 'reject',
+      bytes: 0,
+    },
+  ];
+
+  const columns = [
+    { key: 'timestamp', label: 'Time' },
+    { key: 'source_ip', label: 'Source IP' },
+    { key: 'destination_ip', label: 'Destination IP' },
+    { key: 'protocol', label: 'Protocol' },
+    { key: 'port', label: 'Port' },
+    { key: 'action', label: 'Action' },
+    { key: 'bytes', label: 'Bytes' },
+  ];
+
+  const App = {
+    components: { Card, Table, Badge, Input, Select },
+    data() {
+      return {
+        logs: mockLogs,
+        columns,
+        filterIp: '',
+        filterAction: 'all',
+      };
+    },
+    computed: {
+      filteredLogs() {
+        let filtered = this.logs;
+
+        if (this.filterIp) {
+          filtered = filtered.filter(log =>
+            log.source_ip.includes(this.filterIp) ||
+            log.destination_ip.includes(this.filterIp)
+          );
+        }
+
+        if (this.filterAction !== 'all') {
+          filtered = filtered.filter(log => log.action === this.filterAction);
+        }
+
+        return filtered;
+      },
+    },
+    methods: {
+      formatTime(timestamp) {
+        const date = new Date(timestamp);
+        return date.toLocaleTimeString();
+      },
+      formatBytes(bytes) {
+        if (bytes === 0) return '0 B';
+        const k = 1024;
+        const sizes = ['B', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+      },
+    },
+    template: `
+      <Card title="Traffic Logs">
+        <div class="mb-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+          <Input
+            v-model="filterIp"
+            label="Filter by IP"
+            placeholder="192.168.1.105"
+          />
+          <Select
+            v-model="filterAction"
+            label="Filter by Action"
+            :options="[
+              { value: 'all', label: 'All Actions' },
+              { value: 'accept', label: 'Accept' },
+              { value: 'reject', label: 'Reject' },
+              { value: 'drop', label: 'Drop' },
+            ]"
+          />
+        </div>
+
+        <Table :columns="columns" :data="filteredLogs">
+          <template #cell-timestamp="{ row }">
+            <span class="text-sm text-[--color-text-secondary]">
+              {{ formatTime(row.timestamp) }}
+            </span>
+          </template>
+
+          <template #cell-source_ip="{ row }">
+            <code class="text-xs bg-[--color-surface-secondary] px-2 py-1 rounded">
+              {{ row.source_ip }}
+            </code>
+          </template>
+
+          <template #cell-destination_ip="{ row }">
+            <code class="text-xs bg-[--color-surface-secondary] px-2 py-1 rounded">
+              {{ row.destination_ip }}
+            </code>
+          </template>
+
+          <template #cell-protocol="{ row }">
+            <span class="text-sm text-[--color-text-secondary] uppercase">{{ row.protocol }}</span>
+          </template>
+
+          <template #cell-port="{ row }">
+            <span class="text-sm text-[--color-text-secondary]">{{ row.port }}</span>
+          </template>
+
+          <template #cell-action="{ row }">
+            <Badge :variant="row.action === 'accept' ? 'success' : 'error'">
+              {{ row.action }}
+            </Badge>
+          </template>
+
+          <template #cell-bytes="{ row }">
+            <span class="text-sm text-[--color-text-secondary]">
+              {{ formatBytes(row.bytes) }}
+            </span>
+          </template>
+        </Table>
+      </Card>
+    `,
+  };
+
+  const app = createApp(App);
+  app.mount('#traffic-app');
+</script>

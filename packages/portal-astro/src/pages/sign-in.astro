@@ -1,0 +1,38 @@
+---
+import AuthLayout from '../layouts/AuthLayout.astro';
+
+// Redirect to dashboard if already authenticated
+if (Astro.locals.user) {
+  return Astro.redirect('/dashboard');
+}
+---
+
+<AuthLayout title="Sign In - NGFW.sh">
+  <div class="text-center mb-8">
+    <h1 class="text-2xl font-bold text-[--color-text-primary] mb-2">
+      Sign in to your account
+    </h1>
+    <p class="text-[--color-text-secondary]">
+      Welcome back to NGFW.sh
+    </p>
+  </div>
+
+  <div class="bg-[--color-surface] rounded-lg border border-[--color-border] p-8">
+    <p class="text-center text-[--color-text-secondary] py-8">
+      Clerk authentication will be integrated here
+    </p>
+    <a
+      href="/dashboard"
+      class="block w-full px-4 py-3 bg-[--color-primary] text-white text-center rounded-lg font-medium hover:bg-[--color-primary-dark] transition-colors"
+    >
+      Continue to Dashboard (Dev)
+    </a>
+  </div>
+
+  <p class="text-center text-sm text-[--color-text-secondary] mt-6">
+    Don't have an account?
+    <a href="/sign-up" class="text-[--color-primary] hover:underline">
+      Sign up
+    </a>
+  </p>
+</AuthLayout>

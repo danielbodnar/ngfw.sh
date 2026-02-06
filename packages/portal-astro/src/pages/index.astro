@@ -1,0 +1,41 @@
+---
+import AuthLayout from '../layouts/AuthLayout.astro';
+
+// Redirect to dashboard if already authenticated
+if (Astro.locals.user) {
+  return Astro.redirect('/dashboard');
+}
+---
+
+<AuthLayout title="Welcome to NGFW.sh">
+  <div class="text-center mb-8">
+    <div class="inline-flex items-center justify-center w-16 h-16 bg-[--color-primary] rounded-2xl mb-4">
+      <span class="text-3xl font-bold text-white">N</span>
+    </div>
+    <h1 class="text-3xl font-bold text-[--color-text-primary] mb-2">
+      Welcome to NGFW.sh
+    </h1>
+    <p class="text-[--color-text-secondary]">
+      Cloud-managed Next-Generation Firewall
+    </p>
+  </div>
+
+  <div class="space-y-4">
+    <a
+      href="/sign-in"
+      class="block w-full px-4 py-3 bg-[--color-primary] text-white text-center rounded-lg font-medium hover:bg-[--color-primary-dark] transition-colors"
+    >
+      Sign In
+    </a>
+    <a
+      href="/sign-up"
+      class="block w-full px-4 py-3 bg-[--color-surface] text-[--color-text-primary] text-center rounded-lg font-medium hover:bg-[--color-surface-hover] transition-colors border border-[--color-border]"
+    >
+      Sign Up
+    </a>
+  </div>
+
+  <p class="text-center text-sm text-[--color-text-muted] mt-8">
+    Manage your router from anywhere with cloud-based administration
+  </p>
+</AuthLayout>

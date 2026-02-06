@@ -1,0 +1,118 @@
+---
+import PortalLayout from '../../layouts/PortalLayout.astro';
+import RoutingTable from '../../components/network/RoutingTable.vue';
+import RoutingForm from '../../components/network/RoutingForm.vue';
+
+// Redirect to sign-in if not authenticated
+if (!Astro.locals.user) {
+  return Astro.redirect('/sign-in');
+}
+---
+
+<PortalLayout title="Routing - NGFW.sh">
+  <div class="space-y-6">
+    <div>
+      <h2 class="text-2xl font-semibold text-[--color-text-primary] mb-1">
+        Routing
+      </h2>
+      <p class="text-[--color-text-secondary]">
+        Manage static routes and policy-based routing
+      </p>
+    </div>
+
+    <div id="routing-app"></div>
+  </div>
+</PortalLayout>
+
+<script>
+  import { createApp } from 'vue';
+  import RoutingTable from '../../components/network/RoutingTable.vue';
+  import RoutingForm from '../../components/network/RoutingForm.vue';
+
+  // Mock data - will be replaced by composables
+  const mockRoutes = [
+    {
+      id: '1',
+      destination: '192.168.100.0/24',
+      gateway: '192.168.1.254',
+      interface: 'eth1',
+      metric: 10,
+      description: 'Remote office network',
+    },
+    {
+      id: '2',
+      destination: '10.10.0.0/16',
+      gateway: '192.168.1.1',
+      interface: 'eth0',
+      metric: 20,
+      description: 'VPN subnet',
+    },
+    {
+      id: '3',
+      destination: '172.16.0.0/12',
+      gateway: '192.168.1.250',
+      interface: 'eth2',
+      metric: 30,
+      description: 'Data center network',
+    },
+  ];
+
+  const App = {
+    components: { RoutingTable, RoutingForm },
+    data() {
+      return {
+        routes: mockRoutes,
+        showForm: false,
+        editingRoute: null,
+      };
+    },
+    methods: {
+      handleAdd() {
+        this.editingRoute = null;
+        this.showForm = true;
+      },
+      handleEdit(route) {
+        this.editingRoute = route;
+        this.showForm = true;
+      },
+      handleDelete(routeId) {
+        if (confirm('Are you sure you want to delete this route?')) {
+          this.routes = this.routes.filter(r => r.id !== routeId);
+        }
+      },
+      handleSave(route) {
+        if (this.editingRoute) {
+          const index = this.routes.findIndex(r => r.id === this.editingRoute.id);
+          this.routes[index] = route;
+        } else {
+          this.routes.push({ ...route, id: Date.now().toString() });
+        }
+        this.showForm = false;
+        this.editingRoute = null;
+      },
+      handleCancel() {
+        this.showForm = false;
+        this.editingRoute = null;
+      },
+    },
+    template: `
+      <div class="space-y-6">
+        <RoutingTable
+          :routes="routes"
+          @add="handleAdd"
+          @edit="handleEdit"
+          @delete="handleDelete"
+        />
+        <RoutingForm
+          v-if="showForm"
+          :route="editingRoute"
+          @save="handleSave"
+          @cancel="handleCancel"
+        />
+      </div>
+    `,
+  };
+
+  const app = createApp(App);
+  app.mount('#routing-app');
+</script>

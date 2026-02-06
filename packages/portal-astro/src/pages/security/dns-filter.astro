@@ -1,0 +1,209 @@
+---
+import PortalLayout from '../../layouts/PortalLayout.astro';
+
+// Redirect to sign-in if not authenticated
+if (!Astro.locals.user) {
+  return Astro.redirect('/sign-in');
+}
+---
+
+<PortalLayout title="DNS Filter - NGFW.sh">
+  <div class="space-y-6">
+    <div>
+      <h2 class="text-2xl font-semibold text-[--color-text-primary] mb-1">
+        DNS Filter
+      </h2>
+      <p class="text-[--color-text-secondary]">
+        Configure DNS filtering and blocklists
+      </p>
+    </div>
+
+    <div id="dns-filter-app"></div>
+  </div>
+</PortalLayout>
+
+<script>
+  import { createApp } from 'vue';
+  import Card from '../../components/ui/Card.vue';
+  import Toggle from '../../components/ui/Toggle.vue';
+  import Select from '../../components/ui/Select.vue';
+  import Button from '../../components/ui/Button.vue';
+  import Table from '../../components/ui/Table.vue';
+  import Badge from '../../components/ui/Badge.vue';
+
+  // Mock data - will be replaced by composables
+  const mockConfig = {
+    enabled: true,
+    mode: 'blocklist', // blocklist, allowlist
+    default_action: 'allow',
+  };
+
+  const mockBlocklists = [
+    { id: '1', name: 'Ads & Trackers', enabled: true, domains: 125847 },
+    { id: '2', name: 'Malware', enabled: true, domains: 45623 },
+    { id: '3', name: 'Adult Content', enabled: false, domains: 89234 },
+    { id: '4', name: 'Social Media', enabled: false, domains: 1247 },
+  ];
+
+  const mockQueries = [
+    {
+      id: '1',
+      timestamp: '2026-02-06T14:40:15Z',
+      domain: 'api.ngfw.sh',
+      client: '192.168.1.105',
+      action: 'allowed',
+      blocklist: null,
+    },
+    {
+      id: '2',
+      timestamp: '2026-02-06T14:40:10Z',
+      domain: 'ads.doubleclick.net',
+      client: '192.168.1.50',
+      action: 'blocked',
+      blocklist: 'Ads & Trackers',
+    },
+    {
+      id: '3',
+      timestamp: '2026-02-06T14:40:05Z',
+      domain: 'malware-site.example',
+      client: '192.168.1.105',
+      action: 'blocked',
+      blocklist: 'Malware',
+    },
+  ];
+
+  const columns = [
+    { key: 'timestamp', label: 'Time' },
+    { key: 'domain', label: 'Domain' },
+    { key: 'client', label: 'Client' },
+    { key: 'action', label: 'Action' },
+    { key: 'blocklist', label: 'Blocklist' },
+  ];
+
+  const App = {
+    components: { Card, Toggle, Select, Button, Table, Badge },
+    data() {
+      return {
+        config: mockConfig,
+        blocklists: mockBlocklists,
+        queries: mockQueries,
+        columns,
+      };
+    },
+    methods: {
+      handleSaveConfig() {
+        console.log('Saving DNS filter config:', this.config);
+        // TODO: Call API composable
+      },
+      handleToggleBlocklist(blocklistId) {
+        const blocklist = this.blocklists.find(b => b.id === blocklistId);
+        if (blocklist) {
+          blocklist.enabled = !blocklist.enabled;
+          console.log('Toggled blocklist:', blocklist);
+          // TODO: Call API composable
+        }
+      },
+      formatTime(timestamp) {
+        const date = new Date(timestamp);
+        return date.toLocaleTimeString();
+      },
+    },
+    template: `
+      <div class="space-y-6">
+        <Card title="DNS Filter Configuration">
+          <div class="space-y-4">
+            <Toggle
+              v-model="config.enabled"
+              label="Enable DNS Filtering"
+            />
+
+            <Select
+              v-model="config.mode"
+              label="Filter Mode"
+              :options="[
+                { value: 'blocklist', label: 'Blocklist (Block specific domains)' },
+                { value: 'allowlist', label: 'Allowlist (Only allow specific domains)' },
+              ]"
+            />
+
+            <Select
+              v-model="config.default_action"
+              label="Default Action"
+              :options="[
+                { value: 'allow', label: 'Allow' },
+                { value: 'block', label: 'Block' },
+              ]"
+            />
+
+            <div class="flex gap-3 pt-4">
+              <Button @click="handleSaveConfig">Save Configuration</Button>
+            </div>
+          </div>
+        </Card>
+
+        <Card title="Blocklists">
+          <div class="space-y-3">
+            <div
+              v-for="blocklist in blocklists"
+              :key="blocklist.id"
+              class="flex items-center justify-between p-3 bg-[--color-surface-secondary] rounded-lg"
+            >
+              <div class="flex-1">
+                <div class="flex items-center gap-3">
+                  <span class="font-medium text-[--color-text-primary]">{{ blocklist.name }}</span>
+                  <Badge :variant="blocklist.enabled ? 'success' : 'secondary'">
+                    {{ blocklist.enabled ? 'Enabled' : 'Disabled' }}
+                  </Badge>
+                </div>
+                <span class="text-sm text-[--color-text-secondary]">
+                  {{ blocklist.domains.toLocaleString() }} domains
+                </span>
+              </div>
+              <Toggle
+                :model-value="blocklist.enabled"
+                @update:model-value="handleToggleBlocklist(blocklist.id)"
+              />
+            </div>
+          </div>
+        </Card>
+
+        <Card title="Recent DNS Queries">
+          <Table :columns="columns" :data="queries">
+            <template #cell-timestamp="{ row }">
+              <span class="text-sm text-[--color-text-secondary]">
+                {{ formatTime(row.timestamp) }}
+              </span>
+            </template>
+
+            <template #cell-domain="{ row }">
+              <code class="text-sm bg-[--color-surface-secondary] px-2 py-1 rounded">
+                {{ row.domain }}
+              </code>
+            </template>
+
+            <template #cell-client="{ row }">
+              <code class="text-xs bg-[--color-surface-secondary] px-2 py-1 rounded">
+                {{ row.client }}
+              </code>
+            </template>
+
+            <template #cell-action="{ row }">
+              <Badge :variant="row.action === 'allowed' ? 'success' : 'error'">
+                {{ row.action }}
+              </Badge>
+            </template>
+
+            <template #cell-blocklist="{ row }">
+              <span class="text-sm text-[--color-text-secondary]">
+                {{ row.blocklist || '—' }}
+              </span>
+            </template>
+          </Table>
+        </Card>
+      </div>
+    `,
+  };
+
+  const app = createApp(App);
+  app.mount('#dns-filter-app');
+</script>

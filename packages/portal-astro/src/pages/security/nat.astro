@@ -1,0 +1,129 @@
+---
+import PortalLayout from '../../layouts/PortalLayout.astro';
+import NATRuleList from '../../components/security/NATRuleList.vue';
+import NATRuleForm from '../../components/security/NATRuleForm.vue';
+
+// Redirect to sign-in if not authenticated
+if (!Astro.locals.user) {
+  return Astro.redirect('/sign-in');
+}
+---
+
+<PortalLayout title="NAT - NGFW.sh">
+  <div class="space-y-6">
+    <div>
+      <h2 class="text-2xl font-semibold text-[--color-text-primary] mb-1">
+        Network Address Translation
+      </h2>
+      <p class="text-[--color-text-secondary]">
+        Configure port forwarding and NAT rules
+      </p>
+    </div>
+
+    <div id="nat-app"></div>
+  </div>
+</PortalLayout>
+
+<script>
+  import { createApp } from 'vue';
+  import NATRuleList from '../../components/security/NATRuleList.vue';
+  import NATRuleForm from '../../components/security/NATRuleForm.vue';
+
+  // Mock data - will be replaced by composables
+  const mockRules = [
+    {
+      id: '1',
+      name: 'Web Server',
+      type: 'port_forward',
+      protocol: 'tcp',
+      external_port: 80,
+      internal_ip: '192.168.1.100',
+      internal_port: 80,
+      enabled: true,
+    },
+    {
+      id: '2',
+      name: 'SSH Access',
+      type: 'port_forward',
+      protocol: 'tcp',
+      external_port: 2222,
+      internal_ip: '192.168.1.50',
+      internal_port: 22,
+      enabled: true,
+    },
+    {
+      id: '3',
+      name: 'SNAT for VPN',
+      type: 'snat',
+      source_ip: '10.0.0.0/24',
+      target_ip: '192.168.1.1',
+      enabled: true,
+    },
+  ];
+
+  const App = {
+    components: { NATRuleList, NATRuleForm },
+    data() {
+      return {
+        rules: mockRules,
+        showForm: false,
+        editingRule: null,
+      };
+    },
+    methods: {
+      handleAdd() {
+        this.editingRule = null;
+        this.showForm = true;
+      },
+      handleEdit(rule) {
+        this.editingRule = rule;
+        this.showForm = true;
+      },
+      handleDelete(ruleId) {
+        if (confirm('Are you sure you want to delete this NAT rule?')) {
+          this.rules = this.rules.filter(r => r.id !== ruleId);
+        }
+      },
+      handleToggle(ruleId) {
+        const rule = this.rules.find(r => r.id === ruleId);
+        if (rule) {
+          rule.enabled = !rule.enabled;
+        }
+      },
+      handleSave(rule) {
+        if (this.editingRule) {
+          const index = this.rules.findIndex(r => r.id === this.editingRule.id);
+          this.rules[index] = rule;
+        } else {
+          this.rules.push({ ...rule, id: Date.now().toString() });
+        }
+        this.showForm = false;
+        this.editingRule = null;
+      },
+      handleCancel() {
+        this.showForm = false;
+        this.editingRule = null;
+      },
+    },
+    template: `
+      <div class="space-y-6">
+        <NATRuleList
+          :rules="rules"
+          @add="handleAdd"
+          @edit="handleEdit"
+          @delete="handleDelete"
+          @toggle="handleToggle"
+        />
+        <NATRuleForm
+          v-if="showForm"
+          :rule="editingRule"
+          @save="handleSave"
+          @cancel="handleCancel"
+        />
+      </div>
+    `,
+  };
+
+  const app = createApp(App);
+  app.mount('#nat-app');
+</script>

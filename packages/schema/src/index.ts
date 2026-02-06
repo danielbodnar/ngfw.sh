@@ -3,6 +3,17 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { billingRouter } from "./endpoints/billing/router";
 import { fleetRouter } from "./endpoints/fleet/router";
+import { routingRouter } from "./endpoints/routing/router";
+import { natRouter } from "./endpoints/nat/router";
+import { ipsRouter } from "./endpoints/ips/router";
+import { vpnServerRouter } from "./endpoints/vpn-server/router";
+import { vpnClientRouter } from "./endpoints/vpn-client/router";
+import { qosRouter } from "./endpoints/qos/router";
+import { ddnsRouter } from "./endpoints/ddns/router";
+import { reportsRouter } from "./endpoints/reports/router";
+import { logsRouter } from "./endpoints/logs/router";
+import { onboardingRouter } from "./endpoints/onboarding/router";
+import { dashboardsRouter } from "./endpoints/dashboards/router";
 import type { ContentfulStatusCode } from "hono/utils/http-status";
 
 // Start a Hono app
@@ -66,11 +77,12 @@ const openapi = fromHono(app, {
 			{ name: "LAN", description: "LAN and VLAN configuration" },
 			{ name: "WiFi", description: "Wireless network and radio configuration" },
 			{ name: "DHCP", description: "DHCP server, leases, and reservations" },
+			{ name: "Routing", description: "Static routes and policy-based routing" },
 			{ name: "Firewall", description: "Firewall rules, zones, and policies" },
 			{ name: "NAT", description: "NAT rules and UPnP management" },
 			{ name: "Traffic", description: "Traffic logs and statistics" },
 			{ name: "DNS", description: "DNS filtering and blocklists" },
-			{ name: "IDS", description: "Intrusion detection and prevention" },
+			{ name: "IPS", description: "Intrusion prevention system configuration and alerts" },
 			{ name: "VPN Server", description: "WireGuard VPN server configuration" },
 			{ name: "VPN Client", description: "VPN client profiles and connections" },
 			{ name: "QoS", description: "Quality of Service and traffic shaping" },
@@ -80,6 +92,9 @@ const openapi = fromHono(app, {
 			{ name: "Fleet", description: "Multi-device fleet management" },
 			{ name: "User", description: "User profile and authentication" },
 			{ name: "Billing", description: "Subscription plans and payments" },
+			{ name: "Reports", description: "Report generation and management" },
+			{ name: "Logs", description: "System and security log queries" },
+			{ name: "Onboarding", description: "Router selection and initial setup" },
 		],
 	},
 });
@@ -89,6 +104,39 @@ openapi.route("/billing", billingRouter);
 
 // Register Fleet Sub router (protected by Clerk JWT auth)
 openapi.route("/fleet", fleetRouter);
+
+// Register Routing Sub router (protected by Clerk JWT auth)
+openapi.route("/routing", routingRouter);
+
+// Register NAT Sub router (protected by Clerk JWT auth)
+openapi.route("/nat", natRouter);
+
+// Register IPS Sub router (protected by Clerk JWT auth)
+openapi.route("/ips", ipsRouter);
+
+// Register VPN Server Sub router (protected by Clerk JWT auth)
+openapi.route("/vpn/server", vpnServerRouter);
+
+// Register VPN Client Sub router (protected by Clerk JWT auth)
+openapi.route("/vpn/client", vpnClientRouter);
+
+// Register QoS Sub router (protected by Clerk JWT auth)
+openapi.route("/qos", qosRouter);
+
+// Register DDNS Sub router (protected by Clerk JWT auth)
+openapi.route("/ddns", ddnsRouter);
+
+// Register Reports Sub router (protected by Clerk JWT auth)
+openapi.route("/reports", reportsRouter);
+
+// Register Logs Sub router (protected by Clerk JWT auth)
+openapi.route("/logs", logsRouter);
+
+// Register Onboarding Sub router (protected by Clerk JWT auth)
+openapi.route("/onboarding", onboardingRouter);
+
+// Register Dashboards Sub router (protected by Clerk JWT auth)
+openapi.route("/dashboards", dashboardsRouter);
 
 // Export the Hono app
 export default app;
