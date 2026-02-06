@@ -32,7 +32,7 @@
     "deploy": "bun run deploy:www && bun run deploy:portal && bun run deploy:schema && bun run deploy:docs",
     "deploy:all": "bun run deploy:www && bun run deploy:portal && bun run deploy:schema && bun run deploy:api && bun run deploy:docs",
     "deploy:www": "bun run --cwd packages/www deploy",
-    "deploy:portal": "bun run --cwd packages/portal deploy",
+    "deploy:portal": "bun run --cwd packages/portal-astro deploy",
     "deploy:schema": "bun run --cwd packages/schema deploy",
     "deploy:api": "wrangler deploy --cwd packages/api",
     "deploy:docs": "bun run --cwd docs deploy"

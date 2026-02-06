@@ -1,67 +1,26 @@
 {
   "name": "ngfw-portal-astro",
-  "$schema": "https://raw.githubusercontent.com/cloudflare/wrangler/main/config-schema.json",
-
-  // Cloudflare Pages configuration
-  "pages_build_output_dir": "./dist",
-
-  // Environment variables (set via Cloudflare dashboard or wrangler secrets)
-  "vars": {
-    "ENVIRONMENT": "production"
-  },
-
-  // Bindings
-  "d1_databases": [
-    {
-      "binding": "DB",
-      "database_name": "ngfw-db",
-      "database_id": "YOUR_DATABASE_ID"
-    }
-  ],
-
-  "kv_namespaces": [
-    {
-      "binding": "DEVICES",
-      "id": "YOUR_KV_ID"
-    },
-    {
-      "binding": "CONFIGS",
-      "id": "YOUR_KV_ID"
-    },
-    {
-      "binding": "SESSIONS",
-      "id": "YOUR_KV_ID"
-    },
-    {
-      "binding": "CACHE",
-      "id": "YOUR_KV_ID"
-    }
-  ],
-
-  "r2_buckets": [
-    {
-      "binding": "FIRMWARE",
-      "bucket_name": "ngfw-firmware"
-    },
-    {
-      "binding": "BACKUPS",
-      "bucket_name": "ngfw-backups"
-    },
-    {
-      "binding": "REPORTS",
-      "bucket_name": "ngfw-reports"
-    }
-  ],
-
-  // Compatibility settings
-  "compatibility_date": "2026-01-10",
+  "main": "dist/_worker.js/index.js",
+  "account_id": "5dae265f74e6077ad674a3d855bf9853",
+  "compatibility_date": "2026-02-03",
   "compatibility_flags": ["nodejs_compat"],
-
-  // Workers dev settings
   "workers_dev": true,
   "preview_urls": true,
 
-  // Observability
+  "routes": [
+    { "pattern": "app.ngfw.sh", "custom_domain": true },
+    { "pattern": "dash.ngfw.sh", "custom_domain": true }
+  ],
+
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS"
+  },
+
+  "vars": {
+    "VITE_CLERK_PUBLISHABLE_KEY": "pk_test_dG91Z2gtdW5pY29ybi0yNS5jbGVyay5hY2NvdW50cy5kZXYk"
+  },
+
   "observability": {
     "enabled": true,
     "head_sampling_rate": 1,
