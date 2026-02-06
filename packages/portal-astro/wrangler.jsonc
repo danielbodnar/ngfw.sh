@@ -2,14 +2,12 @@
   "name": "ngfw-portal-astro",
   "main": "dist/_worker.js/index.js",
   "account_id": "5dae265f74e6077ad674a3d855bf9853",
-  "compatibility_date": "2026-02-03",
+  "compatibility_date": "2026-01-20",
   "compatibility_flags": ["nodejs_compat"],
   "workers_dev": true,
-  "preview_urls": true,
 
   "routes": [
-    { "pattern": "app.ngfw.sh", "custom_domain": true },
-    { "pattern": "dash.ngfw.sh", "custom_domain": true }
+    { "pattern": "beta.ngfw.sh", "custom_domain": true }
   ],
 
   "assets": {
