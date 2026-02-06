@@ -1,5 +1,5 @@
-import React, { useState, useMemo, useEffect } from 'react';
-import { Activity, Shield, Wifi, Globe, Server, Database, Settings, Monitor, FileText, ChevronDown, ChevronRight, Search, Bell, User, Power, HardDrive, Network, Radio, Lock, Eye, EyeOff, Filter, Download, Upload, RefreshCw, Plus, Trash2, Edit, Copy, Check, X, AlertTriangle, Zap, Clock, TrendingUp, TrendingDown, BarChart3, PieChart, Layers, Route, ShieldAlert, ShieldCheck, ShieldOff, Cpu, Thermometer, MemoryStick, ArrowUpDown, ExternalLink, Terminal, Key, Users, Map, List, Grid, Play, Pause, Square, ChevronLeft, Home, Menu, Maximize2, Minimize2, CreditCard, LogOut, Mail, Building, Crown, Sparkles, Router, CircuitBoard, Loader2 } from 'lucide-react';
+import React, { useState, useMemo } from 'react';
+import { Activity, Shield, Wifi, Globe, Server, Database, Settings, Monitor, FileText, ChevronDown, ChevronRight, Bell, User, Power, HardDrive, Network, Lock, Filter, Download, Upload, RefreshCw, Plus, Trash2, Edit, Copy, Check, X, AlertTriangle, Zap, Clock, TrendingUp, TrendingDown, BarChart3, PieChart, Layers, Route, ShieldAlert, ShieldCheck, ShieldOff, Cpu, Thermometer, MemoryStick, ArrowUpDown, Terminal, Key, Users, Play, Pause, ChevronLeft, Menu, CreditCard, LogOut, Crown, Sparkles, Router, Loader2 } from 'lucide-react';
 import {
   SignedIn,
   SignedOut,
@@ -321,7 +321,19 @@ const Table = ({ columns, data, onRowClick }: { columns: { key: string; label: s
       <thead><tr className="border-b border-zinc-800">{columns.map(c => <th key={c.key} className="px-3 py-2 text-left text-xs font-medium text-zinc-500 uppercase tracking-wide">{c.label}</th>)}</tr></thead>
       <tbody className="divide-y divide-zinc-800/50">
         {data.map((row, i) => (
-          <tr key={i} className={cn('hover:bg-zinc-800/30 transition-colors', onRowClick && 'cursor-pointer')} onClick={() => onRowClick?.(row)}>
+          <tr
+            key={i}
+            className={cn('hover:bg-zinc-800/30 transition-colors', onRowClick && 'cursor-pointer')}
+            onClick={() => onRowClick?.(row)}
+            onKeyDown={(e) => {
+              if (onRowClick && (e.key === 'Enter' || e.key === ' ')) {
+                e.preventDefault();
+                onRowClick(row);
+              }
+            }}
+            tabIndex={onRowClick ? 0 : undefined}
+            role={onRowClick ? 'button' : undefined}
+          >
             {columns.map(c => <td key={c.key} className="px-3 py-2 font-mono text-zinc-300 whitespace-nowrap">{c.render ? c.render(row[c.key], row) : row[c.key]}</td>)}
           </tr>
         ))}
@@ -490,7 +502,7 @@ const ProfilePage = () => {
 // Billing Page
 const BillingPage = () => {
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('monthly');
-  const [selectedPlan, setSelectedPlan] = useState('starter');
+  const [_selectedPlan, _setSelectedPlan] = useState('starter');
   const currentPlan = 'starter';
 
   return (
@@ -1176,7 +1188,7 @@ const DHCPPage = () => (
           { key: 'vendor', label: 'Vendor' },
           { key: 'expires', label: 'Expires', render: (v, r) => r.static ? <Badge variant="info">Static</Badge> : v },
           { key: 'online', label: 'Status', render: v => <Badge variant={v ? 'success' : 'default'}>{v ? 'Online' : 'Offline'}</Badge> },
-          { key: 'actions', label: '', render: (_, r) => <div className="flex gap-1"><Button size="sm" variant="ghost" title="Make Static"><Lock className="w-3 h-3" /></Button><Button size="sm" variant="ghost" title="Wake"><Power className="w-3 h-3" /></Button></div> },
+          { key: 'actions', label: '', render: () => <div className="flex gap-1"><Button size="sm" variant="ghost" title="Make Static"><Lock className="w-3 h-3" /></Button><Button size="sm" variant="ghost" title="Wake"><Power className="w-3 h-3" /></Button></div> },
         ]}
         data={dhcpLeases}
       />

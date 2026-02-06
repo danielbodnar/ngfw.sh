@@ -61,7 +61,7 @@ function response(type: string, payload: Record<string, unknown>, id?: string): 
   return JSON.stringify(msg);
 }
 
-const server = Bun.serve<ConnectionState>({
+const _server = Bun.serve<ConnectionState>({
   port: PORT,
 
   fetch(req, server) {

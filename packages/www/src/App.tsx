@@ -1,13 +1,9 @@
 import { useState } from 'react'
 import {
   Shield,
-  Wifi,
-  Globe,
-  Activity,
   Lock,
   Eye,
   Zap,
-  Server,
   Users,
   ChevronDown,
   ChevronRight,
