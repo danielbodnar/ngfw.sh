@@ -14,6 +14,7 @@ import { reportsRouter } from "./endpoints/reports/router";
 import { logsRouter } from "./endpoints/logs/router";
 import { onboardingRouter } from "./endpoints/onboarding/router";
 import { dashboardsRouter } from "./endpoints/dashboards/router";
+// import { tasksRouter } from "./endpoints/tasks/router"; // DISABLED: Template example causing OpenAPI generation errors
 import type { ContentfulStatusCode } from "hono/utils/http-status";
 
 // Start a Hono app

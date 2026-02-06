@@ -6,7 +6,7 @@ export const task = z.object({
 	slug: z.string(),
 	description: z.string(),
 	completed: z.boolean(),
-	due_date: z.string().datetime(),
+	due_date: z.string(), // TODO: Add datetime validation with z.string().regex() in Zod 4
 });
 
 export const TaskModel = {
