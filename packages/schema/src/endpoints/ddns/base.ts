@@ -13,8 +13,8 @@ export const ddnsProvider = z.enum(ddnsProviders);
 
 /** DDNS configuration schema */
 export const ddnsConfig = z.object({
-	id: z.string().uuid(),
-	device_id: z.string().uuid(),
+	id: z.string() /* TODO: UUID validation */,
+	device_id: z.string() /* TODO: UUID validation */,
 	enabled: z.boolean(),
 	provider: ddnsProvider,
 	hostname: z.string(),

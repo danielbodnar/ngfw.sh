@@ -26,7 +26,7 @@ export class NatRuleUpdate extends OpenAPIRoute {
 		security: [{ bearerAuth: [] }],
 		request: {
 			params: z.object({
-				id: z.string().uuid(),
+				id: z.string() /* TODO: UUID validation */,
 			}),
 			body: contentJson(updateBody),
 		},

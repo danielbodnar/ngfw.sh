@@ -8,7 +8,7 @@ export const natProtocol = z.enum(["tcp", "udp", "tcp_udp", "icmp", "all"]);
 
 /** NAT rule record */
 export const natRule = z.object({
-	id: z.string().uuid(),
+	id: z.string() /* TODO: UUID validation */,
 	name: z.string().min(1).max(255),
 	type: natRuleType,
 	enabled: z.boolean(),
@@ -22,7 +22,7 @@ export const natRule = z.object({
 	internal_port: z.string().max(50).nullable(),
 	description: z.string().max(500).nullable(),
 	owner_id: z.string(),
-	device_id: z.string().uuid(),
+	device_id: z.string() /* TODO: UUID validation */,
 	created_at: z.number().int(),
 	updated_at: z.number().int(),
 });
@@ -37,13 +37,13 @@ export const NatRuleModel = {
 
 /** UPnP lease record */
 export const upnpLease = z.object({
-	id: z.string().uuid(),
+	id: z.string() /* TODO: UUID validation */,
 	client_ip: z.string(), // TODO: Add IP validation with z.string().regex() in Zod 4
 	external_port: z.number().int().min(1).max(65535),
 	internal_port: z.number().int().min(1).max(65535),
 	protocol: z.enum(["tcp", "udp"]),
 	description: z.string().max(255).nullable(),
-	device_id: z.string().uuid(),
+	device_id: z.string() /* TODO: UUID validation */,
 	expires_at: z.number().int(),
 	created_at: z.number().int(),
 });

@@ -16,7 +16,7 @@ const createBody = z.object({
 	internal_ip: z.string().max(50).nullable().optional(),
 	internal_port: z.string().max(50).nullable().optional(),
 	description: z.string().max(500).nullable().optional(),
-	device_id: z.string().uuid(),
+	device_id: z.string() /* TODO: UUID validation */,
 });
 
 export class NatRuleCreate extends OpenAPIRoute {

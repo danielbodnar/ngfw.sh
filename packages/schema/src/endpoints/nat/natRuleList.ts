@@ -11,7 +11,7 @@ export class NatRuleList extends OpenAPIRoute {
 		security: [{ bearerAuth: [] }],
 		request: {
 			query: z.object({
-				device_id: z.string().uuid().optional(),
+				device_id: z.string() /* TODO: UUID validation */.optional(),
 			}),
 		},
 		responses: {

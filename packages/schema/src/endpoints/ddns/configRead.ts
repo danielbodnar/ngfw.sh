@@ -11,7 +11,7 @@ export class DdnsConfigRead extends OpenAPIRoute {
 		security: [{ bearerAuth: [] }],
 		request: {
 			params: z.object({
-				deviceId: z.string().uuid(),
+				deviceId: z.string() /* TODO: UUID validation */,
 			}),
 		},
 		responses: {

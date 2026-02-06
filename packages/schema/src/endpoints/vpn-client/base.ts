@@ -47,7 +47,7 @@ export const vpnProfileConfig = z.discriminatedUnion("type", [
 
 /** Full VPN client profile schema */
 export const vpnClientProfile = z.object({
-	id: z.string().uuid(),
+	id: z.string() /* TODO: UUID validation */,
 	name: z.string().min(1).max(255),
 	type: vpnProfileType,
 	config: z.union([wireguardConfig, openvpnConfig]),

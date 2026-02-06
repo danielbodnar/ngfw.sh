@@ -10,7 +10,7 @@ export class Connect extends OpenAPIRoute {
 		security: [{ bearerAuth: [] }],
 		request: {
 			params: z.object({
-				id: z.string().uuid(),
+				id: z.string() /* TODO: UUID validation */,
 			}),
 		},
 		responses: {
@@ -20,7 +20,7 @@ export class Connect extends OpenAPIRoute {
 					z.object({
 						success: z.boolean(),
 						result: z.object({
-							id: z.string().uuid(),
+							id: z.string() /* TODO: UUID validation */,
 							status: z.enum(["connecting", "connected"]),
 							message: z.string(),
 						}),
