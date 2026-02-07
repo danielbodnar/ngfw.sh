@@ -4,7 +4,8 @@ import LanConfig from '../../components/network/LanConfig.vue';
 import VlanTable from '../../components/network/VlanTable.vue';
 
 // Redirect to sign-in if not authenticated
-const { userId } = Astro.locals.auth();\nif (!userId) {
+const { userId } = Astro.locals.auth();
+if (!userId) {
   return Astro.redirect('/sign-in');
 }
 ---

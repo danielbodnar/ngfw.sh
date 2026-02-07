@@ -4,7 +4,8 @@ import DhcpConfig from '../../components/network/DhcpConfig.vue';
 import DhcpLeases from '../../components/network/DhcpLeases.vue';
 
 // Redirect to sign-in if not authenticated
-const { userId } = Astro.locals.auth();\nif (!userId) {
+const { userId } = Astro.locals.auth();
+if (!userId) {
   return Astro.redirect('/sign-in');
 }
 ---

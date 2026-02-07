@@ -3,7 +3,8 @@ import PortalLayout from '../../../layouts/PortalLayout.astro';
 import DashboardGrid from '../../../components/monitoring/DashboardGrid.vue';
 
 // Redirect to sign-in if not authenticated
-const { userId } = Astro.locals.auth();\nif (!userId) {
+const { userId } = Astro.locals.auth();
+if (!userId) {
   return Astro.redirect('/sign-in');
 }
 ---

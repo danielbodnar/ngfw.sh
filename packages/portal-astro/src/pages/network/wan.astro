@@ -4,7 +4,8 @@ import WanStatus from '../../components/network/WanStatus.vue';
 import WanConfig from '../../components/network/WanConfig.vue';
 
 // Redirect to sign-in if not authenticated
-const { userId } = Astro.locals.auth();\nif (!userId) {
+const { userId } = Astro.locals.auth();
+if (!userId) {
   return Astro.redirect('/sign-in');
 }
 ---
