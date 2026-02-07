@@ -4,7 +4,7 @@ import NATRuleList from '../../components/security/NATRuleList.vue';
 import NATRuleForm from '../../components/security/NATRuleForm.vue';
 
 // Redirect to sign-in if not authenticated
-if (!Astro.locals.user) {
+const { userId } = Astro.locals.auth();\nif (!userId) {
   return Astro.redirect('/sign-in');
 }
 ---

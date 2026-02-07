@@ -5,7 +5,7 @@ import VPNPeerList from '../../components/services/VPNPeerList.vue';
 import VPNPeerForm from '../../components/services/VPNPeerForm.vue';
 
 // Redirect to sign-in if not authenticated
-if (!Astro.locals.user) {
+const { userId } = Astro.locals.auth();\nif (!userId) {
   return Astro.redirect('/sign-in');
 }
 ---

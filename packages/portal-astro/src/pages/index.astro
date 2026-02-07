@@ -2,7 +2,7 @@
 import AuthLayout from '../layouts/AuthLayout.astro';
 
 // Redirect to dashboard if already authenticated
-if (Astro.locals.user) {
+const { userId } = Astro.locals.auth();\nif (userId) {
   return Astro.redirect('/dashboard');
 }
 ---

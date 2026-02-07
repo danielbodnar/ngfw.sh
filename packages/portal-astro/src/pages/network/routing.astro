@@ -4,7 +4,7 @@ import RoutingTable from '../../components/network/RoutingTable.vue';
 import RoutingForm from '../../components/network/RoutingForm.vue';
 
 // Redirect to sign-in if not authenticated
-if (!Astro.locals.user) {
+const { userId } = Astro.locals.auth();\nif (!userId) {
   return Astro.redirect('/sign-in');
 }
 ---

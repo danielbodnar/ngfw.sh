@@ -4,7 +4,7 @@ import ReportList from '../../components/monitoring/ReportList.vue';
 import ReportGenerator from '../../components/monitoring/ReportGenerator.vue';
 
 // Redirect to sign-in if not authenticated
-if (!Astro.locals.user) {
+const { userId } = Astro.locals.auth();\nif (!userId) {
   return Astro.redirect('/sign-in');
 }
 ---
