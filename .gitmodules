@@ -1,3 +1,6 @@
 [submodule "packages/awrtconf"]
 	path = packages/awrtconf
 	url = https://github.com/danielbodnar/awrtconf
+[submodule "packages/firmware/asus-merlin-toolchain-docker"]
+	path = packages/firmware/asus-merlin-toolchain-docker
+	url = https://github.com/gnuton/Asuswrt-Merlin-Toolchains-Docker
