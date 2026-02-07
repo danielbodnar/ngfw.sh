@@ -377,12 +377,13 @@ bun run lint           # Lint with oxlint
 
 ## 📚 Documentation
 
-| Resource | Link |
+| Resource | Description |
 |:---|:---|
-| User Documentation | [docs.ngfw.sh](https://docs.ngfw.sh) |
-| API Reference | [specs.ngfw.sh](https://specs.ngfw.sh) |
-| API Specification | [AGENTS.md](./AGENTS.md) |
-| Market Research | [RESEARCH.md](./RESEARCH.md) |
+| [ARCHITECTURE.md](./ARCHITECTURE.md) | Full technical specification — API endpoints, schemas, RPC protocol |
+| [PROJECT.md](./PROJECT.md) | Task tracking, roadmap, and development status |
+| [RESEARCH.md](./RESEARCH.md) | Market research and competitive analysis |
+| [docs.ngfw.sh](https://docs.ngfw.sh) | User documentation |
+| [specs.ngfw.sh](https://specs.ngfw.sh) | Interactive API reference (Swagger/ReDoc) |
 
 ---
 

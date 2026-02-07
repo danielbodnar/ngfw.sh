@@ -1,5 +1,6 @@
 ---
 import PortalLayout from '../layouts/PortalLayout.astro';
+import DashboardApp from '../components/dashboard/DashboardApp.vue';
 
 // Redirect to sign-in if not authenticated
 const { userId } = Astro.locals.auth();
@@ -19,50 +20,6 @@ if (!userId) {
       </p>
     </div>
 
-    <!-- Stats Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-      <div class="bg-[--color-surface] rounded-lg p-6 border border-[--color-border]">
-        <div class="flex items-center justify-between mb-2">
-          <span class="text-sm text-[--color-text-secondary]">Active Devices</span>
-          <span class="text-[--color-success]">●</span>
-        </div>
-        <p class="text-3xl font-semibold text-[--color-text-primary]">3</p>
-      </div>
-
-      <div class="bg-[--color-surface] rounded-lg p-6 border border-[--color-border]">
-        <div class="flex items-center justify-between mb-2">
-          <span class="text-sm text-[--color-text-secondary]">Bandwidth</span>
-        </div>
-        <p class="text-3xl font-semibold text-[--color-text-primary]">42.3 Mbps</p>
-      </div>
-
-      <div class="bg-[--color-surface] rounded-lg p-6 border border-[--color-border]">
-        <div class="flex items-center justify-between mb-2">
-          <span class="text-sm text-[--color-text-secondary]">Connected Clients</span>
-        </div>
-        <p class="text-3xl font-semibold text-[--color-text-primary]">18</p>
-      </div>
-
-      <div class="bg-[--color-surface] rounded-lg p-6 border border-[--color-border]">
-        <div class="flex items-center justify-between mb-2">
-          <span class="text-sm text-[--color-text-secondary]">Threats Blocked</span>
-        </div>
-        <p class="text-3xl font-semibold text-[--color-text-primary]">127</p>
-      </div>
-    </div>
-
-    <!-- Recent Activity -->
-    <div class="bg-[--color-surface] rounded-lg border border-[--color-border]">
-      <div class="p-6 border-b border-[--color-border]">
-        <h3 class="text-lg font-semibold text-[--color-text-primary]">
-          Recent Activity
-        </h3>
-      </div>
-      <div class="p-6">
-        <p class="text-[--color-text-secondary] text-center py-8">
-          No recent activity to display
-        </p>
-      </div>
-    </div>
+    <DashboardApp client:load />
   </div>
 </PortalLayout>
