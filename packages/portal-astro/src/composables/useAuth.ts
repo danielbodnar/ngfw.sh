@@ -4,18 +4,18 @@
  * @module composables/useAuth
  */
 
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, type Ref, type ComputedRef } from 'vue';
 
 /**
  * Authentication state and helpers.
  */
 export interface UseAuthReturn {
   /** Current authenticated user object */
-  user: ReturnType<typeof ref<any>>;
+  user: Ref<any>;
   /** Whether Clerk has finished loading */
-  isLoaded: ReturnType<typeof ref<boolean>>;
+  isLoaded: Ref<boolean>;
   /** Whether user is signed in */
-  isSignedIn: ReturnType<typeof computed<boolean>>;
+  isSignedIn: ComputedRef<boolean>;
   /** Gets the current session JWT token */
   getToken: () => Promise<string | null>;
   /** Signs out the current user */
@@ -25,8 +25,8 @@ export interface UseAuthReturn {
 /**
  * Provides access to Clerk authentication state and helpers.
  *
- * This composable wraps Clerk's authentication state in a Vue-friendly API.
- * It should be used in components that need to access user information or tokens.
+ * This composable fetches user info and tokens from server-side API endpoints
+ * that have access to Clerk's server SDK.
  *
  * @returns Authentication state and methods
  *
@@ -47,43 +47,62 @@ export interface UseAuthReturn {
 export function useAuth(): UseAuthReturn {
   const user = ref<any>(null);
   const isLoaded = ref(false);
+  const tokenCache = ref<{ token: string; expires: number } | null>(null);
 
   const isSignedIn = computed(() => !!user.value);
 
   onMounted(async () => {
-    // @ts-expect-error - Clerk global is injected by Clerk script
-    if (window.Clerk) {
-      // @ts-expect-error
-      await window.Clerk.load();
-      // @ts-expect-error
-      user.value = window.Clerk.user;
+    try {
+      // Fetch user info from server-side API
+      const response = await fetch('/api/user');
+      if (response.ok) {
+        user.value = await response.json();
+      }
+    } catch (error) {
+      console.error('Failed to load user:', error);
+    } finally {
       isLoaded.value = true;
-
-      // Listen for user changes
-      // @ts-expect-error
-      window.Clerk.addListener((clerk: any) => {
-        user.value = clerk.user;
-      });
     }
   });
 
   async function getToken(): Promise<string | null> {
-    // @ts-expect-error
-    if (!window.Clerk?.session) return null;
+    // Check if cached token is still valid (cache for 5 minutes)
+    const now = Date.now();
+    if (tokenCache.value && tokenCache.value.expires > now) {
+      return tokenCache.value.token;
+    }
+
     try {
-      // @ts-expect-error
-      return await window.Clerk.session.getToken();
-    } catch {
+      // Fetch token from server-side API
+      const response = await fetch('/api/session-token');
+      if (!response.ok) {
+        console.error('Failed to get session token:', response.statusText);
+        return null;
+      }
+
+      const data = await response.json() as { token: string };
+
+      // Cache token for 5 minutes (tokens typically expire in 60 minutes)
+      tokenCache.value = {
+        token: data.token,
+        expires: now + 5 * 60 * 1000,
+      };
+
+      return data.token;
+    } catch (error) {
+      console.error('Error fetching session token:', error);
       return null;
     }
   }
 
   async function signOut(): Promise<void> {
-    // @ts-expect-error
-    if (window.Clerk) {
-      // @ts-expect-error
-      await window.Clerk.signOut();
+    try {
+      await fetch('/api/sign-out', { method: 'POST' });
       user.value = null;
+      tokenCache.value = null;
+      window.location.href = '/sign-in';
+    } catch (error) {
+      console.error('Error signing out:', error);
     }
   }
 

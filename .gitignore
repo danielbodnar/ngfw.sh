@@ -208,3 +208,7 @@ dist
 
 ### QEMU VM images ###
 tests/integration/qemu/.images/
+
+.claude
+
+
