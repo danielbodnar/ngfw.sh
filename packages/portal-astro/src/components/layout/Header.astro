@@ -1,5 +1,5 @@
 ---
-const user = Astro.locals.user;
+import UserMenu from './UserMenu.vue';
 ---
 
 <header class="bg-[--color-surface] border-b border-[--color-border] px-6 py-4">
@@ -25,25 +25,7 @@ const user = Astro.locals.user;
       </button>
 
       <!-- User Menu -->
-      <div class="flex items-center gap-3">
-        {user && (
-          <div class="text-right hidden sm:block">
-            <p class="text-sm font-medium text-[--color-text-primary]">
-              {user.email || 'User'}
-            </p>
-            <p class="text-xs text-[--color-text-muted]">
-              {user.userId}
-            </p>
-          </div>
-        )}
-        <button
-          type="button"
-          class="w-9 h-9 rounded-full bg-[--color-primary] flex items-center justify-center text-white font-medium hover:opacity-80 transition-opacity"
-          aria-label="User menu"
-        >
-          {user?.email ? user.email.charAt(0).toUpperCase() : 'U'}
-        </button>
-      </div>
+      <UserMenu client:load />
     </div>
   </div>
 </header>

@@ -1,8 +1,10 @@
 ---
 import AuthLayout from '../layouts/AuthLayout.astro';
+import { SignIn } from '@clerk/astro/components';
 
 // Redirect to dashboard if already authenticated
-if (Astro.locals.user) {
+const { userId } = Astro.locals.auth();
+if (userId) {
   return Astro.redirect('/dashboard');
 }
 ---
@@ -17,22 +19,16 @@ if (Astro.locals.user) {
     </p>
   </div>
 
-  <div class="bg-[--color-surface] rounded-lg border border-[--color-border] p-8">
-    <p class="text-center text-[--color-text-secondary] py-8">
-      Clerk authentication will be integrated here
-    </p>
-    <a
-      href="/dashboard"
-      class="block w-full px-4 py-3 bg-[--color-primary] text-white text-center rounded-lg font-medium hover:bg-[--color-primary-dark] transition-colors"
-    >
-      Continue to Dashboard (Dev)
-    </a>
+  <div class="flex justify-center">
+    <SignIn
+      signUpUrl="/sign-up"
+      redirectUrl="/dashboard"
+      appearance={{
+        elements: {
+          rootBox: 'w-full',
+          card: 'bg-[--color-surface] border border-[--color-border]',
+        },
+      }}
+    />
   </div>
-
-  <p class="text-center text-sm text-[--color-text-secondary] mt-6">
-    Don't have an account?
-    <a href="/sign-up" class="text-[--color-primary] hover:underline">
-      Sign up
-    </a>
-  </p>
 </AuthLayout>

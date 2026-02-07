@@ -1,24 +1,21 @@
-import { defineMiddleware } from 'astro/middleware';
+import { clerkMiddleware, createRouteMatcher } from '@clerk/astro/server';
 
 // Define public routes that don't require authentication
-const publicRoutes = ['/', '/sign-in', '/sign-up'];
+const isPublicRoute = createRouteMatcher([
+  '/',
+  '/sign-in(.*)',
+  '/sign-up(.*)',
+]);
 
-export const onRequest = defineMiddleware(async (context, next) => {
-  const { pathname } = new URL(context.request.url);
-
+export const onRequest = clerkMiddleware(async (auth, context, next) => {
   // Check if route is public
-  const isPublic = publicRoutes.some(route => pathname.startsWith(route));
+  if (!isPublicRoute(context.request)) {
+    const { userId } = auth();
 
-  if (!isPublic) {
-    // Mock user for development
-    // TODO: Implement Clerk authentication
-    context.locals.user = {
-      userId: 'dev-user-id',
-      sessionId: 'dev-session-id',
-      email: 'dev@ngfw.sh',
-    };
-  } else {
-    context.locals.user = null;
+    // Redirect to sign-in if not authenticated
+    if (!userId) {
+      return context.redirect('/sign-in');
+    }
   }
 
   return next();

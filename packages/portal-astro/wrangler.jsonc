@@ -16,7 +16,7 @@
   },
 
   "vars": {
-    "VITE_CLERK_PUBLISHABLE_KEY": "pk_test_dG91Z2gtdW5pY29ybi0yNS5jbGVyay5hY2NvdW50cy5kZXYk"
+    "PUBLIC_CLERK_PUBLISHABLE_KEY": "pk_test_dG91Z2gtdW5pY29ybi0yNS5jbGVyay5hY2NvdW50cy5kZXYk"
   },
 
   "observability": {
