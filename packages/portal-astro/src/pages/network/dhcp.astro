@@ -1,7 +1,6 @@
 ---
 import PortalLayout from '../../layouts/PortalLayout.astro';
-import DhcpConfig from '../../components/network/DhcpConfig.vue';
-import DhcpLeases from '../../components/network/DhcpLeases.vue';
+import DHCPApp from '../../components/network/DHCPApp.vue';
 
 // Redirect to sign-in if not authenticated
 const { userId } = Astro.locals.auth();
@@ -21,105 +20,6 @@ if (!userId) {
       </p>
     </div>
 
-    <div id="dhcp-app"></div>
+    <DHCPApp client:load />
   </div>
 </PortalLayout>
-
-<script>
-  import { createApp } from 'vue';
-  import DhcpConfig from '../../components/network/DhcpConfig.vue';
-  import DhcpLeases from '../../components/network/DhcpLeases.vue';
-
-  // Mock data - will be replaced by composables
-  const mockConfig = {
-    enabled: true,
-    interface: 'br0',
-    start_ip: '192.168.1.100',
-    end_ip: '192.168.1.200',
-    lease_time: 86400,
-    dns_servers: ['192.168.1.1', '1.1.1.1'],
-    domain_name: 'home.local',
-    gateway: '192.168.1.1',
-  };
-
-  const mockLeases = [
-    {
-      id: '1',
-      hostname: 'iPhone-John',
-      ip_address: '192.168.1.105',
-      mac_address: '00:1A:2B:3C:4D:5E',
-      expires: '2026-02-07T14:30:00Z',
-      static: false,
-    },
-    {
-      id: '2',
-      hostname: 'Smart-TV',
-      ip_address: '192.168.1.150',
-      mac_address: 'AA:BB:CC:DD:EE:FF',
-      expires: 'Never',
-      static: true,
-    },
-    {
-      id: '3',
-      hostname: 'Laptop-Work',
-      ip_address: '192.168.1.112',
-      mac_address: '11:22:33:44:55:66',
-      expires: '2026-02-06T22:15:00Z',
-      static: false,
-    },
-    {
-      id: '4',
-      hostname: 'NAS',
-      ip_address: '192.168.1.10',
-      mac_address: 'DE:AD:BE:EF:CA:FE',
-      expires: 'Never',
-      static: true,
-    },
-  ];
-
-  const App = {
-    components: { DhcpConfig, DhcpLeases },
-    data() {
-      return {
-        config: mockConfig,
-        leases: mockLeases,
-      };
-    },
-    methods: {
-      handleSaveConfig(newConfig) {
-        this.config = newConfig;
-        console.log('Saving DHCP config:', newConfig);
-        // TODO: Call API composable
-      },
-      handleMakeStatic(leaseId) {
-        const lease = this.leases.find(l => l.id === leaseId);
-        if (lease) {
-          lease.static = true;
-          lease.expires = 'Never';
-          console.log('Making lease static:', lease);
-          // TODO: Call API composable
-        }
-      },
-      handleReleaseLease(leaseId) {
-        if (confirm('Are you sure you want to release this lease?')) {
-          this.leases = this.leases.filter(l => l.id !== leaseId);
-          console.log('Released lease:', leaseId);
-          // TODO: Call API composable
-        }
-      },
-    },
-    template: `
-      <div class="space-y-6">
-        <DhcpConfig :config="config" @save="handleSaveConfig" />
-        <DhcpLeases
-          :leases="leases"
-          @make-static="handleMakeStatic"
-          @release="handleReleaseLease"
-        />
-      </div>
-    `,
-  };
-
-  const app = createApp(App);
-  app.mount('#dhcp-app');
-</script>

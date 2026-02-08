@@ -1,7 +1,6 @@
 ---
 import PortalLayout from '../../layouts/PortalLayout.astro';
-import WanStatus from '../../components/network/WanStatus.vue';
-import WanConfig from '../../components/network/WanConfig.vue';
+import WANApp from '../../components/network/WANApp.vue';
 
 // Redirect to sign-in if not authenticated
 const { userId } = Astro.locals.auth();
@@ -21,72 +20,6 @@ if (!userId) {
       </p>
     </div>
 
-    <div id="wan-app"></div>
+    <WANApp client:load />
   </div>
 </PortalLayout>
-
-<script>
-  import { createApp } from 'vue';
-  import WanStatus from '../../components/network/WanStatus.vue';
-  import WanConfig from '../../components/network/WanConfig.vue';
-
-  // Mock data - will be replaced by composables
-  const mockStatus = {
-    connected: true,
-    uptime: '7d 14h 32m',
-    interface: 'eth0',
-    ip_address: '203.0.113.45',
-    gateway: '203.0.113.1',
-    dns_servers: ['1.1.1.1', '8.8.8.8'],
-    rx_bytes: 45678912345,
-    tx_bytes: 12345678901,
-    rx_packets: 34567890,
-    tx_packets: 23456789,
-  };
-
-  const mockConfig = {
-    type: 'dhcp', // dhcp, static, pppoe, lte
-    hostname: 'ngfw-router',
-    mac_clone: '',
-    mtu: 1500,
-    // Static IP fields
-    ip_address: '',
-    netmask: '',
-    gateway: '',
-    dns_primary: '',
-    dns_secondary: '',
-    // PPPoE fields
-    username: '',
-    password: '',
-    service_name: '',
-    // LTE fields
-    apn: '',
-    pin: '',
-  };
-
-  const App = {
-    components: { WanStatus, WanConfig },
-    data() {
-      return {
-        status: mockStatus,
-        config: mockConfig,
-      };
-    },
-    methods: {
-      handleSave(newConfig) {
-        this.config = newConfig;
-        console.log('Saving WAN config:', newConfig);
-        // TODO: Call API composable
-      },
-    },
-    template: `
-      <div class="space-y-6">
-        <WanStatus :status="status" />
-        <WanConfig :config="config" @save="handleSave" />
-      </div>
-    `,
-  };
-
-  const app = createApp(App);
-  app.mount('#wan-app');
-</script>

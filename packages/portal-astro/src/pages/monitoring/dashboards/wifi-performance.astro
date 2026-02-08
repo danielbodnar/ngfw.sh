@@ -1,5 +1,6 @@
 ---
 import PortalLayout from '../../../layouts/PortalLayout.astro';
+import DashboardViewerApp from '../../../components/monitoring/DashboardViewerApp.vue';
 
 const { userId } = Astro.locals.auth();
 if (!userId) {
@@ -14,27 +15,15 @@ if (!userId) {
         WiFi Performance
       </h2>
       <p class="text-[--color-text-secondary]">
-        Wireless network metrics and client statistics
+        Wireless network performance metrics
       </p>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-      <div class="bg-[--color-surface-secondary] p-6 rounded-lg">
-        <p class="text-sm text-[--color-text-secondary] mb-2">Connected Clients</p>
-        <p class="text-2xl font-semibold text-[--color-text-primary]">23</p>
-      </div>
-      <div class="bg-[--color-surface-secondary] p-6 rounded-lg">
-        <p class="text-sm text-[--color-text-secondary] mb-2">2.4GHz Signal</p>
-        <p class="text-2xl font-semibold text-[--color-text-primary]">-45 dBm</p>
-      </div>
-      <div class="bg-[--color-surface-secondary] p-6 rounded-lg">
-        <p class="text-sm text-[--color-text-secondary] mb-2">5GHz Signal</p>
-        <p class="text-2xl font-semibold text-[--color-text-primary]">-38 dBm</p>
-      </div>
-      <div class="bg-[--color-surface-secondary] p-6 rounded-lg">
-        <p class="text-sm text-[--color-text-secondary] mb-2">Channel Utilization</p>
-        <p class="text-2xl font-semibold text-[--color-text-primary]">42%</p>
-      </div>
-    </div>
+    <DashboardViewerApp
+      dashboard-id="wifi-performance"
+      title="WiFi Performance"
+      description="Wireless network performance metrics"
+      client:load
+    />
   </div>
 </PortalLayout>

@@ -1,5 +1,6 @@
 ---
 import PortalLayout from '../../../layouts/PortalLayout.astro';
+import DashboardViewerApp from '../../../components/monitoring/DashboardViewerApp.vue';
 
 const { userId } = Astro.locals.auth();
 if (!userId) {
@@ -14,27 +15,15 @@ if (!userId) {
         VPN Metrics
       </h2>
       <p class="text-[--color-text-secondary]">
-        VPN server and client connection statistics
+        VPN connections and performance
       </p>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-      <div class="bg-[--color-surface-secondary] p-6 rounded-lg">
-        <p class="text-sm text-[--color-text-secondary] mb-2">Active Peers</p>
-        <p class="text-2xl font-semibold text-[--color-text-primary]">5</p>
-      </div>
-      <div class="bg-[--color-surface-secondary] p-6 rounded-lg">
-        <p class="text-sm text-[--color-text-secondary] mb-2">Data Transferred</p>
-        <p class="text-2xl font-semibold text-[--color-text-primary]">2.4 GB</p>
-      </div>
-      <div class="bg-[--color-surface-secondary] p-6 rounded-lg">
-        <p class="text-sm text-[--color-text-secondary] mb-2">Avg Latency</p>
-        <p class="text-2xl font-semibold text-[--color-text-primary]">45 ms</p>
-      </div>
-      <div class="bg-[--color-surface-secondary] p-6 rounded-lg">
-        <p class="text-sm text-[--color-text-secondary] mb-2">Throughput</p>
-        <p class="text-2xl font-semibold text-[--color-text-primary]">15 Mbps</p>
-      </div>
-    </div>
+    <DashboardViewerApp
+      dashboard-id="vpn-metrics"
+      title="VPN Metrics"
+      description="VPN connections and performance"
+      client:load
+    />
   </div>
 </PortalLayout>

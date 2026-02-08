@@ -1,5 +1,6 @@
 ---
 import PortalLayout from '../../../layouts/PortalLayout.astro';
+import DashboardViewerApp from '../../../components/monitoring/DashboardViewerApp.vue';
 
 const { userId } = Astro.locals.auth();
 if (!userId) {
@@ -14,23 +15,15 @@ if (!userId) {
         Security Events
       </h2>
       <p class="text-[--color-text-secondary]">
-        IPS alerts and firewall logs
+        Intrusion detection and security alerts
       </p>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-      <div class="bg-[--color-surface-secondary] p-6 rounded-lg">
-        <p class="text-sm text-[--color-text-secondary] mb-2">Threats Blocked Today</p>
-        <p class="text-2xl font-semibold text-red-500">127</p>
-      </div>
-      <div class="bg-[--color-surface-secondary] p-6 rounded-lg">
-        <p class="text-sm text-[--color-text-secondary] mb-2">Firewall Blocks</p>
-        <p class="text-2xl font-semibold text-[--color-text-primary]">3,245</p>
-      </div>
-      <div class="bg-[--color-surface-secondary] p-6 rounded-lg">
-        <p class="text-sm text-[--color-text-secondary] mb-2">IPS Rules Active</p>
-        <p class="text-2xl font-semibold text-green-500">1,092</p>
-      </div>
-    </div>
+    <DashboardViewerApp
+      dashboard-id="security-events"
+      title="Security Events"
+      description="Intrusion detection and security alerts"
+      client:load
+    />
   </div>
 </PortalLayout>

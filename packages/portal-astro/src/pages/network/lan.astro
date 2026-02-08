@@ -1,7 +1,6 @@
 ---
 import PortalLayout from '../../layouts/PortalLayout.astro';
-import LanConfig from '../../components/network/LanConfig.vue';
-import VlanTable from '../../components/network/VlanTable.vue';
+import LANApp from '../../components/network/LANApp.vue';
 
 // Redirect to sign-in if not authenticated
 const { userId } = Astro.locals.auth();
@@ -17,104 +16,10 @@ if (!userId) {
         LAN Configuration
       </h2>
       <p class="text-[--color-text-secondary]">
-        Configure Local Area Network and VLANs
+        Configure your Local Area Network settings and VLANs
       </p>
     </div>
 
-    <div id="lan-app"></div>
+    <LANApp client:load />
   </div>
 </PortalLayout>
-
-<script>
-  import { createApp } from 'vue';
-  import LanConfig from '../../components/network/LanConfig.vue';
-  import VlanTable from '../../components/network/VlanTable.vue';
-
-  // Mock data - will be replaced by composables
-  const mockLanConfig = {
-    interface: 'br0',
-    ip_address: '192.168.1.1',
-    netmask: '255.255.255.0',
-    dhcp_enabled: true,
-    dhcp_start: '192.168.1.100',
-    dhcp_end: '192.168.1.200',
-    lease_time: 86400,
-  };
-
-  const mockVlans = [
-    {
-      id: '1',
-      vlan_id: 10,
-      name: 'Guest',
-      interface: 'br0.10',
-      ip_address: '192.168.10.1',
-      netmask: '255.255.255.0',
-      dhcp_enabled: true,
-      isolated: true,
-    },
-    {
-      id: '2',
-      vlan_id: 20,
-      name: 'IoT',
-      interface: 'br0.20',
-      ip_address: '192.168.20.1',
-      netmask: '255.255.255.0',
-      dhcp_enabled: true,
-      isolated: true,
-    },
-    {
-      id: '3',
-      vlan_id: 30,
-      name: 'Management',
-      interface: 'br0.30',
-      ip_address: '192.168.30.1',
-      netmask: '255.255.255.0',
-      dhcp_enabled: false,
-      isolated: false,
-    },
-  ];
-
-  const App = {
-    components: { LanConfig, VlanTable },
-    data() {
-      return {
-        lanConfig: mockLanConfig,
-        vlans: mockVlans,
-      };
-    },
-    methods: {
-      handleSaveLan(config) {
-        this.lanConfig = config;
-        console.log('Saving LAN config:', config);
-        // TODO: Call API composable
-      },
-      handleAddVlan() {
-        console.log('Add VLAN clicked');
-        // TODO: Show VLAN form
-      },
-      handleEditVlan(vlan) {
-        console.log('Edit VLAN:', vlan);
-        // TODO: Show VLAN form with data
-      },
-      handleDeleteVlan(vlanId) {
-        if (confirm('Are you sure you want to delete this VLAN?')) {
-          this.vlans = this.vlans.filter(v => v.id !== vlanId);
-        }
-      },
-    },
-    template: `
-      <div class="space-y-6">
-        <LanConfig :config="lanConfig" @save="handleSaveLan" />
-        <VlanTable
-          :vlans="vlans"
-          @add="handleAddVlan"
-          @edit="handleEditVlan"
-          @delete="handleDeleteVlan"
-        />
-      </div>
-    `,
-  };
-
-  const app = createApp(App);
-  app.mount('#lan-app');
-</script>

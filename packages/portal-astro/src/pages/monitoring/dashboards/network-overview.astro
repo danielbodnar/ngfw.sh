@@ -1,5 +1,6 @@
 ---
 import PortalLayout from '../../../layouts/PortalLayout.astro';
+import DashboardViewerApp from '../../../components/monitoring/DashboardViewerApp.vue';
 
 const { userId } = Astro.locals.auth();
 if (!userId) {
@@ -14,27 +15,15 @@ if (!userId) {
         Network Overview
       </h2>
       <p class="text-[--color-text-secondary]">
-        Overall network health and performance metrics
+        Overall network status and performance
       </p>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-      <div class="bg-[--color-surface-secondary] p-6 rounded-lg">
-        <p class="text-sm text-[--color-text-secondary] mb-2">WAN Uptime</p>
-        <p class="text-2xl font-semibold text-[--color-text-primary]">99.9%</p>
-      </div>
-      <div class="bg-[--color-surface-secondary] p-6 rounded-lg">
-        <p class="text-sm text-[--color-text-secondary] mb-2">Active Devices</p>
-        <p class="text-2xl font-semibold text-[--color-text-primary]">47</p>
-      </div>
-      <div class="bg-[--color-surface-secondary] p-6 rounded-lg">
-        <p class="text-sm text-[--color-text-secondary] mb-2">Download</p>
-        <p class="text-2xl font-semibold text-[--color-text-primary]">125 Mbps</p>
-      </div>
-      <div class="bg-[--color-surface-secondary] p-6 rounded-lg">
-        <p class="text-sm text-[--color-text-secondary] mb-2">Upload</p>
-        <p class="text-2xl font-semibold text-[--color-text-primary]">45 Mbps</p>
-      </div>
-    </div>
+    <DashboardViewerApp
+      dashboard-id="network-overview"
+      title="Network Overview"
+      description="Overall network status and performance"
+      client:load
+    />
   </div>
 </PortalLayout>

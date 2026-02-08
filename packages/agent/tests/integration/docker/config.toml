@@ -1,0 +1,9 @@
+[connection]
+device_id = "test-device-001"
+api_key = "test-api-key-secret-001"
+owner_id = "test-owner-001"
+websocket_url = "ws://mock-api:8787/agent/ws"
+
+[agent]
+metrics_interval = 5
+log_level = "debug"

@@ -1,5 +1,6 @@
 ---
 import UserMenu from './UserMenu.vue';
+import DeviceSelector from '../ui/DeviceSelector.vue';
 ---
 
 <header class="bg-[--color-surface] border-b border-[--color-border] px-6 py-4">
@@ -9,6 +10,11 @@ import UserMenu from './UserMenu.vue';
       <h1 class="text-xl font-semibold text-[--color-text-primary]">
         <slot name="title">Dashboard</slot>
       </h1>
+    </div>
+
+    <!-- Device Selector -->
+    <div class="flex-1 flex justify-center max-w-md">
+      <DeviceSelector client:load />
     </div>
 
     <!-- Actions -->

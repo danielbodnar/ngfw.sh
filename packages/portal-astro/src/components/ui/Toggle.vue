@@ -4,6 +4,7 @@ import { computed } from 'vue';
 export interface ToggleProps {
   modelValue: boolean;
   label?: string;
+  description?: string;
   disabled?: boolean;
   id?: string;
 }
@@ -46,7 +47,7 @@ const handleToggle = () => {
 </script>
 
 <template>
-  <div class="flex items-center gap-3">
+  <div class="flex items-start gap-3">
     <button
       :id="toggleId"
       type="button"
@@ -58,13 +59,18 @@ const handleToggle = () => {
     >
       <span :class="thumbClasses" />
     </button>
-    <label
-      v-if="label"
-      :for="toggleId"
-      class="text-sm font-medium text-slate-900 dark:text-slate-100 cursor-pointer"
-      @click="handleToggle"
-    >
-      {{ label }}
-    </label>
+    <div v-if="label || description" class="flex-1">
+      <label
+        v-if="label"
+        :for="toggleId"
+        class="text-sm font-medium text-slate-900 dark:text-slate-100 cursor-pointer block"
+        @click="handleToggle"
+      >
+        {{ label }}
+      </label>
+      <p v-if="description" class="text-xs text-slate-600 dark:text-slate-400 mt-0.5">
+        {{ description }}
+      </p>
+    </div>
   </div>
 </template>

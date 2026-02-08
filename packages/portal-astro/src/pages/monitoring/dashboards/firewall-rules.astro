@@ -1,5 +1,6 @@
 ---
 import PortalLayout from '../../../layouts/PortalLayout.astro';
+import DashboardViewerApp from '../../../components/monitoring/DashboardViewerApp.vue';
 
 const { userId } = Astro.locals.auth();
 if (!userId) {
@@ -14,23 +15,15 @@ if (!userId) {
         Firewall Rules
       </h2>
       <p class="text-[--color-text-secondary]">
-        Rule hits and block statistics
+        Active firewall rules and blocked connections
       </p>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-      <div class="bg-[--color-surface-secondary] p-6 rounded-lg">
-        <p class="text-sm text-[--color-text-secondary] mb-2">Total Rules</p>
-        <p class="text-2xl font-semibold text-[--color-text-primary]">47</p>
-      </div>
-      <div class="bg-[--color-surface-secondary] p-6 rounded-lg">
-        <p class="text-sm text-[--color-text-secondary] mb-2">Rules Hit Today</p>
-        <p class="text-2xl font-semibold text-[--color-text-primary]">8,942</p>
-      </div>
-      <div class="bg-[--color-surface-secondary] p-6 rounded-lg">
-        <p class="text-sm text-[--color-text-secondary] mb-2">Blocks Today</p>
-        <p class="text-2xl font-semibold text-red-500">3,245</p>
-      </div>
-    </div>
+    <DashboardViewerApp
+      dashboard-id="firewall-rules"
+      title="Firewall Rules"
+      description="Active firewall rules and blocked connections"
+      client:load
+    />
   </div>
 </PortalLayout>

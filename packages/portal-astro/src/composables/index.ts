@@ -8,6 +8,8 @@
 export { useApi } from './useApi';
 export { useAuth } from './useAuth';
 export { usePolling } from './usePolling';
+export { useToast } from './useToast';
+export { useSelectedDevice } from './useSelectedDevice';
 
 // Fleet / Device Management
 export { useDevices } from './useDevices';
