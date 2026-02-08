@@ -14,6 +14,10 @@ import { reportsRouter } from "./endpoints/reports/router";
 import { logsRouter } from "./endpoints/logs/router";
 import { onboardingRouter } from "./endpoints/onboarding/router";
 import { dashboardsRouter } from "./endpoints/dashboards/router";
+import { wanRouter } from "./endpoints/wan/router";
+import { lanRouter } from "./endpoints/lan/router";
+import { wifiRouter } from "./endpoints/wifi/router";
+import { dhcpRouter } from "./endpoints/dhcp/router";
 // import { tasksRouter } from "./endpoints/tasks/router"; // DISABLED: Template example causing OpenAPI generation errors
 import type { ContentfulStatusCode } from "hono/utils/http-status";
 
@@ -105,6 +109,18 @@ openapi.route("/billing", billingRouter);
 
 // Register Fleet Sub router (protected by Clerk JWT auth)
 openapi.route("/fleet", fleetRouter);
+
+// Register WAN Sub router (protected by Clerk JWT auth)
+openapi.route("/wan", wanRouter);
+
+// Register LAN Sub router (protected by Clerk JWT auth)
+openapi.route("/lan", lanRouter);
+
+// Register WiFi Sub router (protected by Clerk JWT auth)
+openapi.route("/wifi", wifiRouter);
+
+// Register DHCP Sub router (protected by Clerk JWT auth)
+openapi.route("/dhcp", dhcpRouter);
 
 // Register Routing Sub router (protected by Clerk JWT auth)
 openapi.route("/routing", routingRouter);

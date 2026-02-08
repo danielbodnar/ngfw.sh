@@ -1,5 +1,6 @@
 ---
 import PortalLayout from '../../../layouts/PortalLayout.astro';
+import DashboardViewerApp from '../../../components/monitoring/DashboardViewerApp.vue';
 
 const { userId } = Astro.locals.auth();
 if (!userId) {
@@ -14,27 +15,15 @@ if (!userId) {
         System Resources
       </h2>
       <p class="text-[--color-text-secondary]">
-        CPU, memory, and disk usage metrics
+        CPU, memory, and storage utilization
       </p>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-      <div class="bg-[--color-surface-secondary] p-6 rounded-lg">
-        <p class="text-sm text-[--color-text-secondary] mb-2">CPU Usage</p>
-        <p class="text-2xl font-semibold text-[--color-text-primary]">32%</p>
-      </div>
-      <div class="bg-[--color-surface-secondary] p-6 rounded-lg">
-        <p class="text-sm text-[--color-text-secondary] mb-2">Memory Usage</p>
-        <p class="text-2xl font-semibold text-[--color-text-primary]">58%</p>
-      </div>
-      <div class="bg-[--color-surface-secondary] p-6 rounded-lg">
-        <p class="text-sm text-[--color-text-secondary] mb-2">Disk Usage</p>
-        <p class="text-2xl font-semibold text-[--color-text-primary]">42%</p>
-      </div>
-      <div class="bg-[--color-surface-secondary] p-6 rounded-lg">
-        <p class="text-sm text-[--color-text-secondary] mb-2">Temperature</p>
-        <p class="text-2xl font-semibold text-[--color-text-primary]">45°C</p>
-      </div>
-    </div>
+    <DashboardViewerApp
+      dashboard-id="system-resources"
+      title="System Resources"
+      description="CPU, memory, and storage utilization"
+      client:load
+    />
   </div>
 </PortalLayout>

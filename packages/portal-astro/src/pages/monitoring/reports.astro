@@ -1,7 +1,6 @@
 ---
 import PortalLayout from '../../layouts/PortalLayout.astro';
-import ReportList from '../../components/monitoring/ReportList.vue';
-import ReportGenerator from '../../components/monitoring/ReportGenerator.vue';
+import ReportsApp from '../../components/monitoring/ReportsApp.vue';
 
 // Redirect to sign-in if not authenticated
 const { userId } = Astro.locals.auth();
@@ -21,92 +20,6 @@ if (!userId) {
       </p>
     </div>
 
-    <div id="reports-app"></div>
+    <ReportsApp client:load />
   </div>
 </PortalLayout>
-
-<script>
-  import { createApp } from 'vue';
-  import ReportList from '../../components/monitoring/ReportList.vue';
-  import ReportGenerator from '../../components/monitoring/ReportGenerator.vue';
-
-  // Mock data - will be replaced by composables
-  const mockReports = [
-    {
-      id: '1',
-      name: 'Weekly Security Summary',
-      type: 'security',
-      date: '2026-02-01',
-      status: 'completed',
-      fileUrl: '/reports/security-2026-02-01.pdf',
-      fileSize: 2457600,
-    },
-    {
-      id: '2',
-      name: 'Monthly Traffic Analysis',
-      type: 'traffic',
-      date: '2026-01-31',
-      status: 'completed',
-      fileUrl: '/reports/traffic-2026-01.pdf',
-      fileSize: 5242880,
-    },
-    {
-      id: '3',
-      name: 'WiFi Performance Report',
-      type: 'wifi',
-      date: '2026-02-06',
-      status: 'generating',
-      progress: 65,
-    },
-  ];
-
-  const App = {
-    components: { ReportList, ReportGenerator },
-    data() {
-      return {
-        reports: mockReports,
-        showGenerator: false,
-      };
-    },
-    methods: {
-      handleGenerate() {
-        this.showGenerator = true;
-      },
-      handleGenerateReport(config) {
-        console.log('Generating report:', config);
-        this.showGenerator = false;
-        // TODO: Call API composable
-      },
-      handleCancelGenerate() {
-        this.showGenerator = false;
-      },
-      handleDownload(reportId) {
-        console.log('Download report:', reportId);
-        // TODO: Implement download
-      },
-      handleDelete(reportId) {
-        if (confirm('Are you sure you want to delete this report?')) {
-          this.reports = this.reports.filter(r => r.id !== reportId);
-        }
-      },
-    },
-    template: `
-      <div class="space-y-6">
-        <ReportList
-          :reports="reports"
-          @generate="handleGenerate"
-          @download="handleDownload"
-          @delete="handleDelete"
-        />
-        <ReportGenerator
-          v-if="showGenerator"
-          @generate="handleGenerateReport"
-          @cancel="handleCancelGenerate"
-        />
-      </div>
-    `,
-  };
-
-  const app = createApp(App);
-  app.mount('#reports-app');
-</script>

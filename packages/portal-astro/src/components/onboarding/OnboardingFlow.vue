@@ -5,6 +5,7 @@ import RouterSelector from './RouterSelector.vue';
 import ConfigForm from './ConfigForm.vue';
 import OrderSummary from './OrderSummary.vue';
 import OrderComplete from './OrderComplete.vue';
+import { useRegisterDevice } from '../../composables/useRegisterDevice';
 import type { WizardStep } from './OnboardingWizard.vue';
 
 interface RouterOption {
@@ -49,6 +50,8 @@ const config = ref<OnboardingConfig | null>(null);
 const orderResponse = ref<OrderResponse | null>(null);
 const submitError = ref<string | null>(null);
 
+const { register, loading: registering, error: registerError } = useRegisterDevice();
+
 const currentView = computed(() => {
   const step = wizardRef.value?.currentStep;
 
@@ -78,33 +81,25 @@ const handleOrderSubmit = async () => {
   submitError.value = null;
 
   try {
-    const response = await fetch('https://specs.ngfw.sh/onboarding/order', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        // Add Authorization header in production
-        // 'Authorization': `Bearer ${token}`
-      },
-      body: JSON.stringify({
-        routerId: selectedRouter.value.id,
-        config: config.value,
-        subscriptionPlan: 'free',
-      }),
+    const registrationResponse = await register({
+      name: config.value.deviceName,
+      model: `${selectedRouter.value.manufacturer} ${selectedRouter.value.name}`,
     });
 
-    const data = await response.json();
+    orderResponse.value = {
+      orderId: registrationResponse.id,
+      deviceId: registrationResponse.id,
+      estimatedDelivery: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+      setupInstructions: 'https://docs.ngfw.sh/setup/quick-start',
+      status: 'provisioning',
+      createdAt: new Date().toISOString(),
+    };
 
-    if (data.success && response.ok) {
-      orderResponse.value = data.result;
-      wizardRef.value?.setOrderId(data.result.orderId);
-      wizardRef.value?.goToStep('complete');
-    } else {
-      throw new Error(data.errors?.[0]?.message || 'Failed to create order');
-    }
+    wizardRef.value?.setOrderId(registrationResponse.id);
+    wizardRef.value?.goToStep('complete');
   } catch (err) {
-    console.error('Order submission failed:', err);
-    submitError.value = err instanceof Error ? err.message : 'Failed to submit order';
-    // Go back to summary on error
+    console.error('Device registration failed:', err);
+    submitError.value = registerError.value || 'Failed to register device';
     wizardRef.value?.goToStep('summary');
   }
 };

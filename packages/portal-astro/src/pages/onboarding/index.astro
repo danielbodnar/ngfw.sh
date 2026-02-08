@@ -1,35 +1,16 @@
 ---
 import PortalLayout from '../../layouts/PortalLayout.astro';
+import OnboardingFlow from '../../components/onboarding/OnboardingFlow.vue';
 
 // Redirect to sign-in if not authenticated
 const { userId } = Astro.locals.auth();
 if (!userId) {
   return Astro.redirect('/sign-in');
 }
-
-// Check onboarding status - redirect to dashboard if already complete
-// This would normally query the API
-// const status = await fetch('https://specs.ngfw.sh/onboarding/status', {
-//   headers: { Authorization: `Bearer ${token}` }
-// }).then(r => r.json());
-// if (status.result.completed) {
-//   return Astro.redirect('/dashboard');
-// }
 ---
 
 <PortalLayout title="Get Started - NGFW.sh" description="Set up your new NGFW router">
   <div class="max-w-7xl mx-auto">
-    <div id="onboarding-app" data-hydrate-client>
-      <!-- Vue app will mount here -->
-    </div>
+    <OnboardingFlow client:load />
   </div>
 </PortalLayout>
-
-<script>
-  import { createApp } from 'vue';
-  import OnboardingFlow from '../../components/onboarding/OnboardingFlow.vue';
-
-  // Mount Vue app client-side
-  const app = createApp(OnboardingFlow);
-  app.mount('#onboarding-app');
-</script>

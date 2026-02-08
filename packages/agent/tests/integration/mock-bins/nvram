@@ -1,0 +1,16 @@
+#!/bin/sh
+# Mock NVRAM for RT-AX92U
+case "$1 $2" in
+  "get firmver")       echo "3.0.0.4" ;;
+  "get buildno")       echo "388" ;;
+  "get extendno")      echo "7" ;;
+  "get model")         echo "RT-AX92U" ;;
+  "get serial_no")     echo "MOCK-SN-001" ;;
+  "get lan_ipaddr")    echo "192.168.1.1" ;;
+  "get lan_netmask")   echo "255.255.255.0" ;;
+  "get wan0_ipaddr")   echo "203.0.113.42" ;;
+  "get wan0_gateway")  echo "203.0.113.1" ;;
+  "get wl0_ssid")      echo "NGFW-Test-2G" ;;
+  "get wl1_ssid")      echo "NGFW-Test-5G" ;;
+  *)                   echo "" ;;
+esac

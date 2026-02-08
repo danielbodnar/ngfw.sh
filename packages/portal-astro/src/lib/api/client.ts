@@ -137,7 +137,7 @@ export function createApiClient(
   getToken: () => Promise<string | null>,
 ): ApiClient {
   const baseUrl = (
-    import.meta.env.VITE_API_URL ?? 'https://specs.ngfw.sh'
+    import.meta.env.VITE_API_URL ?? 'https://api.ngfw.sh'
   ).replace(/\/+$/, '');
 
   async function request<T>(

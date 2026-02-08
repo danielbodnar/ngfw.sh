@@ -1,5 +1,6 @@
 ---
 import PortalLayout from '../../../layouts/PortalLayout.astro';
+import DashboardViewerApp from '../../../components/monitoring/DashboardViewerApp.vue';
 
 const { userId } = Astro.locals.auth();
 if (!userId) {
@@ -14,23 +15,15 @@ if (!userId) {
         Traffic Analysis
       </h2>
       <p class="text-[--color-text-secondary]">
-        Top talkers and protocol statistics
+        Network traffic patterns and statistics
       </p>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-      <div class="bg-[--color-surface-secondary] p-6 rounded-lg">
-        <p class="text-sm text-[--color-text-secondary] mb-2">Total Traffic Today</p>
-        <p class="text-2xl font-semibold text-[--color-text-primary]">127 GB</p>
-      </div>
-      <div class="bg-[--color-surface-secondary] p-6 rounded-lg">
-        <p class="text-sm text-[--color-text-secondary] mb-2">Peak Bandwidth</p>
-        <p class="text-2xl font-semibold text-[--color-text-primary]">250 Mbps</p>
-      </div>
-      <div class="bg-[--color-surface-secondary] p-6 rounded-lg">
-        <p class="text-sm text-[--color-text-secondary] mb-2">Active Connections</p>
-        <p class="text-2xl font-semibold text-[--color-text-primary]">1,547</p>
-      </div>
-    </div>
+    <DashboardViewerApp
+      dashboard-id="traffic-analysis"
+      title="Traffic Analysis"
+      description="Network traffic patterns and statistics"
+      client:load
+    />
   </div>
 </PortalLayout>

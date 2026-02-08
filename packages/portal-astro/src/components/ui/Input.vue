@@ -10,6 +10,7 @@ export interface InputProps {
   help?: string;
   disabled?: boolean;
   required?: boolean;
+  maxlength?: number;
   id?: string;
 }
 
@@ -59,6 +60,7 @@ const handleInput = (event: Event) => {
       :placeholder="placeholder"
       :disabled="disabled"
       :required="required"
+      :maxlength="maxlength"
       :class="inputClasses"
       @input="handleInput"
     />
