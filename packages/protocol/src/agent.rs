@@ -7,21 +7,16 @@ use serde::{Deserialize, Serialize};
 use crate::rpc::ConfigSection;
 
 /// Operating mode for the agent or a specific subsystem
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
 #[serde(rename_all = "lowercase")]
 pub enum AgentMode {
     /// Read-only: collect metrics, send logs/alerts, report config state
+    #[default]
     Observe,
     /// Validate and diff proposed configs without applying
     Shadow,
     /// Full control: validate, apply, rollback configurations
     Takeover,
-}
-
-impl Default for AgentMode {
-    fn default() -> Self {
-        Self::Observe
-    }
 }
 
 /// Mode configuration with optional per-section overrides
