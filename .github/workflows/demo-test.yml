@@ -1,0 +1,137 @@
+name: Demo Router E2E Test
+
+on:
+  # Run on demand
+  workflow_dispatch:
+
+  # Run on schedule (nightly)
+  schedule:
+    - cron: '0 2 * * *'  # 2 AM UTC daily
+
+  # Run on PR to main
+  pull_request:
+    branches: [main]
+    paths:
+      - 'packages/agent/**'
+      - 'packages/protocol/**'
+      - 'scripts/demo-lifecycle.nu'
+
+env:
+  VULTR_API_KEY: ${{ secrets.VULTR_API_KEY }}
+
+jobs:
+  kitchen-sync-test:
+    name: Full Lifecycle Test
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Nushell
+        uses: hustcer/setup-nu@v3
+        with:
+          version: '0.110.0'
+
+      - name: Install Vultr CLI
+        run: |
+          wget https://github.com/vultr/vultr-cli/releases/latest/download/vultr-cli_linux_amd64.tar.gz
+          tar -xzf vultr-cli_linux_amd64.tar.gz
+          sudo mv vultr-cli /usr/local/bin/
+
+          # Configure Vultr CLI
+          mkdir -p ~/.vultr-cli
+          echo "api-key: ${VULTR_API_KEY}" > ~/.vultr-cli/config.yaml
+
+      - name: Run full lifecycle test
+        id: lifecycle
+        run: |
+          nu scripts/demo-lifecycle.nu full
+        continue-on-error: true
+
+      - name: Collect logs on failure
+        if: failure()
+        run: |
+          echo "=== Instance Status ==="
+          nu scripts/demo-lifecycle.nu status || true
+
+          echo "=== Vultr Instance List ==="
+          vultr instance list || true
+
+      - name: Cleanup (always run)
+        if: always()
+        run: |
+          echo "🗑️ Cleaning up demo instance..."
+          nu scripts/demo-lifecycle.nu teardown || true
+
+      - name: Report results
+        if: always()
+        run: |
+          if [ "${{ steps.lifecycle.outcome }}" == "success" ]; then
+            echo "✅ Demo lifecycle test passed"
+            exit 0
+          else
+            echo "❌ Demo lifecycle test failed"
+            exit 1
+          fi
+
+  container-build-test:
+    name: Container Build Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build container
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: packages/agent/Dockerfile
+          platforms: linux/amd64
+          tags: ngfw-agent:test
+          load: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Test container
+        run: |
+          # Create test config
+          mkdir -p test-config
+          cat > test-config/config.toml <<EOF
+          [agent]
+          device_id = "test-device"
+          api_url = "wss://api.ngfw.sh/agent/ws"
+          api_key = "test-key"
+          owner_id = "test-owner"
+
+          [mode]
+          default = "shadow"
+          EOF
+
+          # Run container
+          docker run -d \
+            --name ngfw-agent-test \
+            -v $(pwd)/test-config/config.toml:/etc/ngfw/config.toml:ro \
+            ngfw-agent:test
+
+          # Wait for startup
+          sleep 5
+
+          # Check if running
+          docker ps | grep ngfw-agent-test
+
+          # Check logs
+          docker logs ngfw-agent-test
+
+          # Cleanup
+          docker stop ngfw-agent-test
+          docker rm ngfw-agent-test
+
+      - name: Report container size
+        run: |
+          docker images ngfw-agent:test --format "Size: {{.Size}}"
