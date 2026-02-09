@@ -34,8 +34,6 @@ fn setup_mock_bins() -> PathBuf {
 
 /// Setup mock sysfs directory for tests
 fn setup_mock_sysfs() -> PathBuf {
-    
-
     PathBuf::from(env!("CARGO_MANIFEST_DIR"))
         .join("tests")
         .join("integration")
@@ -380,10 +378,7 @@ async fn test_adapter_config_validation_timeout() {
     // Validate with timeout
     let result = timeout(Duration::from_secs(10), adapter.validate(&config)).await;
 
-    assert!(
-        result.is_ok(),
-        "Validation should complete within timeout"
-    );
+    assert!(result.is_ok(), "Validation should complete within timeout");
 }
 
 #[tokio::test]
@@ -397,7 +392,10 @@ async fn test_adapter_error_handling_invalid_json() {
 
     let result = adapter.validate(&invalid).await;
     // Should handle gracefully, not panic
-    assert!(result.is_ok() || result.is_err(), "Should handle invalid input");
+    assert!(
+        result.is_ok() || result.is_err(),
+        "Should handle invalid input"
+    );
 }
 
 #[tokio::test]

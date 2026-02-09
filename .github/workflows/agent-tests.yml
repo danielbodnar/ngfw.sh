@@ -192,13 +192,11 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
 
       - name: Run cargo audit
-        working-directory: packages/agent
         run: |
           cargo install cargo-audit
           cargo audit
 
       - name: Run cargo deny
-        working-directory: packages/agent
         run: |
           cargo install cargo-deny
           cargo deny check

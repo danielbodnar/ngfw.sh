@@ -33,7 +33,7 @@ export class DashboardRead extends OpenAPIRoute {
 		},
 	};
 
-	async handle(c: AppContext) {
+	async handle(_c: AppContext) {
 		const data = await this.getValidatedData<typeof this.schema>();
 		const { id } = data.params;
 

@@ -563,7 +563,7 @@ export class MockFirmwareAdapter {
 	/**
 	 * Handle wireless commands
 	 */
-	private handleWirelessCommand(args: string[]): CommandResult {
+	private handleWirelessCommand(_args: string[]): CommandResult {
 		return {
 			stdout: "wl mock output",
 			stderr: "",

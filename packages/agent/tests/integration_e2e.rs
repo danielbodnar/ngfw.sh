@@ -4,17 +4,17 @@
 //! authentication, command handling, metrics collection, mode transitions,
 //! and graceful shutdown. These tests verify the entire system working together.
 
-use ngfw_agent::config::{AgentConfig, AgentSection, ModeSection, AdaptersSection};
+use futures_util::{SinkExt, StreamExt};
+use ngfw_agent::config::{AdaptersSection, AgentConfig, AgentSection, ModeSection};
 use ngfw_protocol::{AgentMode, MessageType, ModeConfig, RpcMessage};
 use serde_json::json;
 use std::net::SocketAddr;
 use std::sync::Arc;
 use std::time::Duration;
 use tokio::net::TcpListener;
-use tokio::sync::{mpsc, watch, Mutex};
+use tokio::sync::{Mutex, mpsc, watch};
 use tokio::time::timeout;
 use tokio_tungstenite::{accept_async, tungstenite::Message};
-use futures_util::{SinkExt, StreamExt};
 
 /// Mock API server for E2E testing
 struct MockApiServer {
@@ -31,33 +31,36 @@ impl MockApiServer {
 
         tokio::spawn(async move {
             if let Ok((stream, _)) = listener.accept().await
-                && let Ok(mut ws) = accept_async(stream).await {
-                    // Handle AUTH
-                    if let Some(Ok(Message::Text(text))) = ws.next().await {
-                        let msg: RpcMessage = serde_json::from_str(&text).unwrap();
-                        received_clone.lock().await.push(msg.clone());
+                && let Ok(mut ws) = accept_async(stream).await
+            {
+                // Handle AUTH
+                if let Some(Ok(Message::Text(text))) = ws.next().await {
+                    let msg: RpcMessage = serde_json::from_str(&text).unwrap();
+                    received_clone.lock().await.push(msg.clone());
 
-                        if msg.msg_type == MessageType::Auth {
-                            let response = RpcMessage::new(MessageType::AuthOk, json!({}));
-                            ws.send(Message::Text(serde_json::to_string(&response).unwrap().into()))
-                                .await
-                                .ok();
-                        }
-                    }
-
-                    // Handle STATUS
-                    if let Some(Ok(Message::Text(text))) = ws.next().await {
-                        let msg: RpcMessage = serde_json::from_str(&text).unwrap();
-                        received_clone.lock().await.push(msg);
-                    }
-
-                    // Keep connection open for metrics
-                    while let Some(Ok(Message::Text(text))) = ws.next().await {
-                        if let Ok(msg) = serde_json::from_str::<RpcMessage>(&text) {
-                            received_clone.lock().await.push(msg);
-                        }
+                    if msg.msg_type == MessageType::Auth {
+                        let response = RpcMessage::new(MessageType::AuthOk, json!({}));
+                        ws.send(Message::Text(
+                            serde_json::to_string(&response).unwrap().into(),
+                        ))
+                        .await
+                        .ok();
                     }
                 }
+
+                // Handle STATUS
+                if let Some(Ok(Message::Text(text))) = ws.next().await {
+                    let msg: RpcMessage = serde_json::from_str(&text).unwrap();
+                    received_clone.lock().await.push(msg);
+                }
+
+                // Keep connection open for metrics
+                while let Some(Ok(Message::Text(text))) = ws.next().await {
+                    if let Ok(msg) = serde_json::from_str::<RpcMessage>(&text) {
+                        received_clone.lock().await.push(msg);
+                    }
+                }
+            }
         });
 
         Self {
@@ -112,8 +115,7 @@ async fn test_e2e_agent_startup_and_shutdown() {
         let config = config.clone();
         let shutdown = shutdown_rx.clone();
         async move {
-            ngfw_agent::connection::connection_loop(config, outbound_rx, inbound_tx, shutdown)
-                .await
+            ngfw_agent::connection::connection_loop(config, outbound_rx, inbound_tx, shutdown).await
         }
     });
 
@@ -137,9 +139,7 @@ async fn test_e2e_agent_startup_and_shutdown() {
     let coll_task = tokio::spawn({
         let config = config.clone();
         let shutdown = shutdown_rx.clone();
-        async move {
-            ngfw_agent::collector::metrics_loop(config, outbound_tx, shutdown).await
-        }
+        async move { ngfw_agent::collector::metrics_loop(config, outbound_tx, shutdown).await }
     });
 
     // Wait for agent to connect and send initial messages
@@ -150,9 +150,7 @@ async fn test_e2e_agent_startup_and_shutdown() {
     assert!(messages.len() >= 2, "Should have AUTH and STATUS");
 
     let has_auth = messages.iter().any(|m| m.msg_type == MessageType::Auth);
-    let has_status = messages
-        .iter()
-        .any(|m| m.msg_type == MessageType::Status);
+    let has_status = messages.iter().any(|m| m.msg_type == MessageType::Status);
 
     assert!(has_auth, "Should have sent AUTH");
     assert!(has_status, "Should have sent STATUS");
@@ -161,10 +159,9 @@ async fn test_e2e_agent_startup_and_shutdown() {
     shutdown_tx.send(true).unwrap();
 
     // All tasks should exit cleanly
-    let results = timeout(
-        Duration::from_secs(3),
-        async { tokio::join!(conn_task, disp_task, coll_task) },
-    )
+    let results = timeout(Duration::from_secs(3), async {
+        tokio::join!(conn_task, disp_task, coll_task)
+    })
     .await;
 
     assert!(results.is_ok(), "All tasks should shut down cleanly");
@@ -203,17 +200,14 @@ async fn test_e2e_metrics_collection_flow() {
         let config = config.clone();
         let shutdown = shutdown_rx.clone();
         async move {
-            ngfw_agent::connection::connection_loop(config, outbound_rx, inbound_tx, shutdown)
-                .await
+            ngfw_agent::connection::connection_loop(config, outbound_rx, inbound_tx, shutdown).await
         }
     });
 
     tokio::spawn({
         let config = config.clone();
         let shutdown = shutdown_rx.clone();
-        async move {
-            ngfw_agent::collector::metrics_loop(config, outbound_tx, shutdown).await
-        }
+        async move { ngfw_agent::collector::metrics_loop(config, outbound_tx, shutdown).await }
     });
 
     // Wait for metrics to be collected and sent
@@ -515,8 +509,7 @@ async fn test_e2e_concurrent_operations() {
         let config = config.clone();
         let shutdown = shutdown_rx.clone();
         async move {
-            ngfw_agent::connection::connection_loop(config, outbound_rx, inbound_tx, shutdown)
-                .await
+            ngfw_agent::connection::connection_loop(config, outbound_rx, inbound_tx, shutdown).await
         }
     });
 
@@ -540,9 +533,7 @@ async fn test_e2e_concurrent_operations() {
     tokio::spawn({
         let config = config.clone();
         let shutdown = shutdown_rx.clone();
-        async move {
-            ngfw_agent::collector::metrics_loop(config, outbound_tx, shutdown).await
-        }
+        async move { ngfw_agent::collector::metrics_loop(config, outbound_tx, shutdown).await }
     });
 
     // Wait for system to stabilize
@@ -552,12 +543,8 @@ async fn test_e2e_concurrent_operations() {
     let messages = server.get_messages().await;
 
     let has_auth = messages.iter().any(|m| m.msg_type == MessageType::Auth);
-    let has_status = messages
-        .iter()
-        .any(|m| m.msg_type == MessageType::Status);
-    let has_metrics = messages
-        .iter()
-        .any(|m| m.msg_type == MessageType::Metrics);
+    let has_status = messages.iter().any(|m| m.msg_type == MessageType::Status);
+    let has_metrics = messages.iter().any(|m| m.msg_type == MessageType::Metrics);
 
     assert!(has_auth, "Should have AUTH");
     assert!(has_status, "Should have STATUS");

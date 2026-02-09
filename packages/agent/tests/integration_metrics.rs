@@ -10,7 +10,7 @@ use tokio::sync::{mpsc, watch};
 use tokio::time::timeout;
 
 fn test_config() -> AgentConfig {
-    use ngfw_agent::config::{AgentSection, ModeSection, AdaptersSection};
+    use ngfw_agent::config::{AdaptersSection, AgentSection, ModeSection};
 
     AgentConfig {
         agent: AgentSection {
@@ -60,7 +60,10 @@ async fn test_metrics_loop_basic_operation() {
 
     let metrics = metrics.unwrap();
     assert!(metrics.timestamp > 0, "Timestamp should be set");
-    assert!(metrics.cpu >= 0.0 && metrics.cpu <= 100.0, "CPU should be 0-100%");
+    assert!(
+        metrics.cpu >= 0.0 && metrics.cpu <= 100.0,
+        "CPU should be 0-100%"
+    );
     assert!(
         metrics.memory >= 0.0 && metrics.memory <= 100.0,
         "Memory should be 0-100%"
@@ -68,9 +71,7 @@ async fn test_metrics_loop_basic_operation() {
 
     // Cleanup
     drop(outbound_rx);
-    timeout(Duration::from_secs(1), collector_task)
-        .await
-        .ok();
+    timeout(Duration::from_secs(1), collector_task).await.ok();
 }
 
 #[tokio::test]
@@ -90,9 +91,10 @@ async fn test_metrics_loop_interval_timing() {
 
     for _ in 0..3 {
         if let Ok(Some(msg)) = timeout(Duration::from_secs(5), outbound_rx.recv()).await
-            && let Ok(metrics) = serde_json::from_value::<MetricsPayload>(msg.payload) {
-                timestamps.push(metrics.timestamp);
-            }
+            && let Ok(metrics) = serde_json::from_value::<MetricsPayload>(msg.payload)
+        {
+            timestamps.push(metrics.timestamp);
+        }
     }
 
     assert_eq!(timestamps.len(), 3, "Should receive 3 metrics");
@@ -287,10 +289,7 @@ async fn test_metrics_dns_structure() {
             metrics.dns.blocked >= 0,
             "DNS blocked should be non-negative"
         );
-        assert!(
-            metrics.dns.cached >= 0,
-            "DNS cached should be non-negative"
-        );
+        assert!(metrics.dns.cached >= 0, "DNS cached should be non-negative");
     }
 }
 
@@ -356,20 +355,17 @@ async fn test_metrics_multiple_collections() {
     let mut collected = Vec::new();
     for _ in 0..5 {
         if let Ok(Some(msg)) = timeout(Duration::from_secs(3), outbound_rx.recv()).await
-            && let Ok(metrics) = serde_json::from_value::<MetricsPayload>(msg.payload) {
-                collected.push(metrics);
-            }
+            && let Ok(metrics) = serde_json::from_value::<MetricsPayload>(msg.payload)
+        {
+            collected.push(metrics);
+        }
     }
 
     assert_eq!(collected.len(), 5, "Should collect 5 metrics");
 
     // Verify all metrics are valid
     for (i, metrics) in collected.iter().enumerate() {
-        assert!(
-            metrics.timestamp > 0,
-            "Metric {} should have timestamp",
-            i
-        );
+        assert!(metrics.timestamp > 0, "Metric {} should have timestamp", i);
         assert!(
             metrics.cpu >= 0.0 && metrics.cpu <= 100.0,
             "Metric {} CPU should be valid",
@@ -412,8 +408,7 @@ async fn test_metrics_serialization_roundtrip() {
 
         // Should match original (with some floating point tolerance)
         assert_eq!(
-            reserialized["timestamp"],
-            msg.payload["timestamp"],
+            reserialized["timestamp"], msg.payload["timestamp"],
             "Timestamp should survive roundtrip"
         );
     }

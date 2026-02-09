@@ -10,10 +10,10 @@ use std::net::SocketAddr;
 use std::sync::Arc;
 use std::time::Duration;
 use tokio::net::TcpListener;
-use tokio::sync::{mpsc, watch, Mutex};
+use tokio::sync::{Mutex, mpsc, watch};
 use tokio::time::timeout;
 use tokio_tungstenite::tungstenite::Message;
-use tokio_tungstenite::{accept_async, WebSocketStream};
+use tokio_tungstenite::{WebSocketStream, accept_async};
 
 /// Mock WebSocket server for testing
 struct MockApiServer {
@@ -94,9 +94,11 @@ async fn test_connection_auth_handshake_success() {
 
             // Send AUTH_OK
             let response = RpcMessage::new(MessageType::AuthOk, json!({}));
-            ws.send(Message::Text(serde_json::to_string(&response).unwrap().into()))
-                .await
-                .unwrap();
+            ws.send(Message::Text(
+                serde_json::to_string(&response).unwrap().into(),
+            ))
+            .await
+            .unwrap();
         }
 
         // Wait for STATUS message after auth
@@ -149,9 +151,11 @@ async fn test_connection_auth_handshake_failure() {
                 MessageType::AuthFail,
                 json!({ "error": "Invalid credentials" }),
             );
-            ws.send(Message::Text(serde_json::to_string(&response).unwrap().into()))
-                .await
-                .unwrap();
+            ws.send(Message::Text(
+                serde_json::to_string(&response).unwrap().into(),
+            ))
+            .await
+            .unwrap();
         }
     });
 
@@ -189,9 +193,11 @@ async fn test_ping_pong_keepalive() {
         // Handle AUTH
         if let Some(Ok(Message::Text(_text))) = ws.next().await {
             let response = RpcMessage::new(MessageType::AuthOk, json!({}));
-            ws.send(Message::Text(serde_json::to_string(&response).unwrap().into()))
-                .await
-                .unwrap();
+            ws.send(Message::Text(
+                serde_json::to_string(&response).unwrap().into(),
+            ))
+            .await
+            .unwrap();
         }
 
         // Receive STATUS
@@ -225,9 +231,7 @@ async fn test_ping_pong_keepalive() {
 
     // In real scenario, pings are sent every 30s
     // For testing, we just verify the mechanism exists
-    timeout(Duration::from_secs(3), server_task)
-        .await
-        .ok();
+    timeout(Duration::from_secs(3), server_task).await.ok();
 
     shutdown_tx.send(true).unwrap();
 }
@@ -266,9 +270,11 @@ async fn test_reconnection_with_backoff() {
             // Send AUTH_OK
             if let Some(Ok(Message::Text(_))) = ws.next().await {
                 let response = RpcMessage::new(MessageType::AuthOk, json!({}));
-                ws.send(Message::Text(serde_json::to_string(&response).unwrap().into()))
-                    .await
-                    .unwrap();
+                ws.send(Message::Text(
+                    serde_json::to_string(&response).unwrap().into(),
+                ))
+                .await
+                .unwrap();
             }
         }
     });
@@ -305,9 +311,11 @@ async fn test_message_routing_inbound_to_dispatcher() {
         // Handle AUTH
         if let Some(Ok(Message::Text(_))) = ws.next().await {
             let response = RpcMessage::new(MessageType::AuthOk, json!({}));
-            ws.send(Message::Text(serde_json::to_string(&response).unwrap().into()))
-                .await
-                .unwrap();
+            ws.send(Message::Text(
+                serde_json::to_string(&response).unwrap().into(),
+            ))
+            .await
+            .unwrap();
         }
 
         // Receive STATUS
@@ -323,9 +331,11 @@ async fn test_message_routing_inbound_to_dispatcher() {
                 "timeout_secs": 10
             }),
         );
-        ws.send(Message::Text(serde_json::to_string(&exec_cmd).unwrap().into()))
-            .await
-            .unwrap();
+        ws.send(Message::Text(
+            serde_json::to_string(&exec_cmd).unwrap().into(),
+        ))
+        .await
+        .unwrap();
 
         tokio::time::sleep(Duration::from_secs(2)).await;
     });
@@ -363,9 +373,11 @@ async fn test_graceful_shutdown() {
         // Handle AUTH
         if let Some(Ok(Message::Text(_))) = ws.next().await {
             let response = RpcMessage::new(MessageType::AuthOk, json!({}));
-            ws.send(Message::Text(serde_json::to_string(&response).unwrap().into()))
-                .await
-                .unwrap();
+            ws.send(Message::Text(
+                serde_json::to_string(&response).unwrap().into(),
+            ))
+            .await
+            .unwrap();
         }
 
         // Wait for close
@@ -394,7 +406,7 @@ async fn test_graceful_shutdown() {
 
 // Helper function to create test config
 fn create_test_config(ws_url: &str) -> ngfw_agent::config::AgentConfig {
-    use ngfw_agent::config::{AgentSection, AgentConfig, ModeSection, AdaptersSection};
+    use ngfw_agent::config::{AdaptersSection, AgentConfig, AgentSection, ModeSection};
 
     AgentConfig {
         agent: AgentSection {

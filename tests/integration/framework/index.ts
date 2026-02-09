@@ -57,7 +57,7 @@ export class TestScenarios {
   /**
    * Create a complete API<->Agent integration test environment
    */
-  static apiAgentTest() {
+  static async apiAgentTest() {
     const { IntegrationTestBuilder: Builder } = await import('./core/test-builder');
     return new Builder()
       .withMockApi()
@@ -69,7 +69,7 @@ export class TestScenarios {
   /**
    * Create a complete Agent<->Firmware integration test environment
    */
-  static agentFirmwareTest() {
+  static async agentFirmwareTest() {
     const { IntegrationTestBuilder: Builder } = await import('./core/test-builder');
     return new Builder()
       .withMockFirmware()
@@ -80,7 +80,7 @@ export class TestScenarios {
   /**
    * Create a complete UI<->API integration test environment
    */
-  static uiApiTest() {
+  static async uiApiTest() {
     const { IntegrationTestBuilder: Builder } = await import('./core/test-builder');
     return new Builder()
       .withMockApi()
@@ -92,7 +92,7 @@ export class TestScenarios {
   /**
    * Create a storage layer integration test environment
    */
-  static storageTest() {
+  static async storageTest() {
     const { IntegrationTestBuilder: Builder } = await import('./core/test-builder');
     return new Builder()
       .withMockStorage()
@@ -104,7 +104,7 @@ export class TestScenarios {
   /**
    * Create an end-to-end test environment
    */
-  static e2eTest() {
+  static async e2eTest() {
     const { IntegrationTestBuilder: Builder } = await import('./core/test-builder');
     return new Builder()
       .withMocks({

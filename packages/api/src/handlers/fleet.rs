@@ -140,7 +140,8 @@ pub async fn get_templates(req: Request, ctx: RouteContext<()>) -> Result<Respon
     let auth = authenticate(&req, &ctx.env)
         .await
         .map_err(|e| Error::from(e.error.message))?;
-    require_plan(&auth, &["business", "business_plus"]).map_err(|e| Error::from(e.error.message))?;
+    require_plan(&auth, &["business", "business_plus"])
+        .map_err(|e| Error::from(e.error.message))?;
 
     let templates = storage::get_config_templates(&auth.user_id, &ctx.env).await;
     templates.into_api_response()
@@ -151,7 +152,8 @@ pub async fn create_template(mut req: Request, ctx: RouteContext<()>) -> Result<
     let auth = authenticate(&req, &ctx.env)
         .await
         .map_err(|e| Error::from(e.error.message))?;
-    require_plan(&auth, &["business", "business_plus"]).map_err(|e| Error::from(e.error.message))?;
+    require_plan(&auth, &["business", "business_plus"])
+        .map_err(|e| Error::from(e.error.message))?;
 
     let template: CreateTemplateRequest =
         req.json().await.map_err(|_| Error::from("Invalid JSON"))?;
@@ -164,7 +166,8 @@ pub async fn apply_template(mut req: Request, ctx: RouteContext<()>) -> Result<R
     let auth = authenticate(&req, &ctx.env)
         .await
         .map_err(|e| Error::from(e.error.message))?;
-    require_plan(&auth, &["business", "business_plus"]).map_err(|e| Error::from(e.error.message))?;
+    require_plan(&auth, &["business", "business_plus"])
+        .map_err(|e| Error::from(e.error.message))?;
 
     let template_id = ctx
         .param("id")

@@ -514,7 +514,8 @@ pub async fn get_ids_config(req: Request, ctx: RouteContext<()>) -> Result<Respo
     let auth = authenticate(&req, &ctx.env)
         .await
         .map_err(|e| Error::from(e.error.message))?;
-    require_plan(&auth, &["pro", "business", "business_plus"]).map_err(|e| Error::from(e.error.message))?;
+    require_plan(&auth, &["pro", "business", "business_plus"])
+        .map_err(|e| Error::from(e.error.message))?;
     let device_id = get_device_id(&req)?;
     check_device_access(&auth, &device_id, &ctx.env)
         .await
@@ -529,7 +530,8 @@ pub async fn update_ids_config(mut req: Request, ctx: RouteContext<()>) -> Resul
     let auth = authenticate(&req, &ctx.env)
         .await
         .map_err(|e| Error::from(e.error.message))?;
-    require_plan(&auth, &["pro", "business", "business_plus"]).map_err(|e| Error::from(e.error.message))?;
+    require_plan(&auth, &["pro", "business", "business_plus"])
+        .map_err(|e| Error::from(e.error.message))?;
     let device_id = get_device_id(&req)?;
     check_device_access(&auth, &device_id, &ctx.env)
         .await
@@ -545,7 +547,8 @@ pub async fn get_ids_categories(req: Request, ctx: RouteContext<()>) -> Result<R
     let auth = authenticate(&req, &ctx.env)
         .await
         .map_err(|e| Error::from(e.error.message))?;
-    require_plan(&auth, &["pro", "business", "business_plus"]).map_err(|e| Error::from(e.error.message))?;
+    require_plan(&auth, &["pro", "business", "business_plus"])
+        .map_err(|e| Error::from(e.error.message))?;
     let device_id = get_device_id(&req)?;
     check_device_access(&auth, &device_id, &ctx.env)
         .await
@@ -560,7 +563,8 @@ pub async fn update_ids_category(mut req: Request, ctx: RouteContext<()>) -> Res
     let auth = authenticate(&req, &ctx.env)
         .await
         .map_err(|e| Error::from(e.error.message))?;
-    require_plan(&auth, &["pro", "business", "business_plus"]).map_err(|e| Error::from(e.error.message))?;
+    require_plan(&auth, &["pro", "business", "business_plus"])
+        .map_err(|e| Error::from(e.error.message))?;
     let device_id = get_device_id(&req)?;
     check_device_access(&auth, &device_id, &ctx.env)
         .await
@@ -579,7 +583,8 @@ pub async fn get_ids_rules(req: Request, ctx: RouteContext<()>) -> Result<Respon
     let auth = authenticate(&req, &ctx.env)
         .await
         .map_err(|e| Error::from(e.error.message))?;
-    require_plan(&auth, &["pro", "business", "business_plus"]).map_err(|e| Error::from(e.error.message))?;
+    require_plan(&auth, &["pro", "business", "business_plus"])
+        .map_err(|e| Error::from(e.error.message))?;
     let device_id = get_device_id(&req)?;
     check_device_access(&auth, &device_id, &ctx.env)
         .await
@@ -594,7 +599,8 @@ pub async fn create_ids_rule(mut req: Request, ctx: RouteContext<()>) -> Result<
     let auth = authenticate(&req, &ctx.env)
         .await
         .map_err(|e| Error::from(e.error.message))?;
-    require_plan(&auth, &["pro", "business", "business_plus"]).map_err(|e| Error::from(e.error.message))?;
+    require_plan(&auth, &["pro", "business", "business_plus"])
+        .map_err(|e| Error::from(e.error.message))?;
     let device_id = get_device_id(&req)?;
     check_device_access(&auth, &device_id, &ctx.env)
         .await
@@ -610,7 +616,8 @@ pub async fn delete_ids_rule(req: Request, ctx: RouteContext<()>) -> Result<Resp
     let auth = authenticate(&req, &ctx.env)
         .await
         .map_err(|e| Error::from(e.error.message))?;
-    require_plan(&auth, &["pro", "business", "business_plus"]).map_err(|e| Error::from(e.error.message))?;
+    require_plan(&auth, &["pro", "business", "business_plus"])
+        .map_err(|e| Error::from(e.error.message))?;
     let device_id = get_device_id(&req)?;
     check_device_access(&auth, &device_id, &ctx.env)
         .await
@@ -628,7 +635,8 @@ pub async fn get_ids_alerts(req: Request, ctx: RouteContext<()>) -> Result<Respo
     let auth = authenticate(&req, &ctx.env)
         .await
         .map_err(|e| Error::from(e.error.message))?;
-    require_plan(&auth, &["pro", "business", "business_plus"]).map_err(|e| Error::from(e.error.message))?;
+    require_plan(&auth, &["pro", "business", "business_plus"])
+        .map_err(|e| Error::from(e.error.message))?;
     let device_id = get_device_id(&req)?;
     check_device_access(&auth, &device_id, &ctx.env)
         .await
@@ -644,7 +652,8 @@ pub async fn stream_ids_alerts(req: Request, ctx: RouteContext<()>) -> Result<Re
     let auth = authenticate(&req, &ctx.env)
         .await
         .map_err(|e| Error::from(e.error.message))?;
-    require_plan(&auth, &["pro", "business", "business_plus"]).map_err(|e| Error::from(e.error.message))?;
+    require_plan(&auth, &["pro", "business", "business_plus"])
+        .map_err(|e| Error::from(e.error.message))?;
     let device_id = get_device_id(&req)?;
     check_device_access(&auth, &device_id, &ctx.env)
         .await

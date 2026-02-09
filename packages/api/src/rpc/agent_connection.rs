@@ -303,10 +303,7 @@ impl AgentConnection {
 
         // Verify the API key against DEVICES KV — borrow is dropped before await
         let kv = self.env.kv("DEVICES")?;
-        let kv_device_id = kv
-            .get(&format!("apikey:{}", auth.api_key))
-            .text()
-            .await?;
+        let kv_device_id = kv.get(&format!("apikey:{}", auth.api_key)).text().await?;
 
         let api_key_valid = kv_device_id
             .as_ref()
@@ -544,4 +541,3 @@ impl AgentConnection {
         Ok(())
     }
 }
-

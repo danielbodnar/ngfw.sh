@@ -53,12 +53,11 @@ export const handlers = [
 		return HttpResponse.json(devices);
 	}),
 
-	http.post(`${API_BASE}/fleet/devices`, async ({ request }) => {
-		const body = await request.json();
+	http.post(`${API_BASE}/fleet/devices`, async () => {
 		return HttpResponse.json(deviceRegistration, { status: 201 });
 	}),
 
-	http.get(`${API_BASE}/fleet/devices/:deviceId/status`, ({ params }) => {
+	http.get(`${API_BASE}/fleet/devices/:deviceId/status`, () => {
 		return HttpResponse.json(deviceStatus);
 	}),
 
@@ -69,9 +68,7 @@ export const handlers = [
 	// ---------------------------------------------------------------------------
 	// Routing
 	// ---------------------------------------------------------------------------
-	http.get(`${API_BASE}/routing/routes`, ({ request }) => {
-		const url = new URL(request.url);
-		const deviceId = url.searchParams.get("device_id");
+	http.get(`${API_BASE}/routing/routes`, () => {
 		return HttpResponse.json(routes);
 	}),
 
@@ -82,7 +79,7 @@ export const handlers = [
 
 	http.put(
 		`${API_BASE}/routing/routes/:routeId`,
-		async ({ params, request }) => {
+		async ({ request }) => {
 			const body = await request.json();
 			return HttpResponse.json({ ...routes[0], ...body });
 		},
@@ -95,9 +92,7 @@ export const handlers = [
 	// ---------------------------------------------------------------------------
 	// NAT
 	// ---------------------------------------------------------------------------
-	http.get(`${API_BASE}/nat/rules`, ({ request }) => {
-		const url = new URL(request.url);
-		const deviceId = url.searchParams.get("device_id");
+	http.get(`${API_BASE}/nat/rules`, () => {
 		return HttpResponse.json(natRules);
 	}),
 
@@ -106,7 +101,7 @@ export const handlers = [
 		return HttpResponse.json({ ...natRules[0], ...body }, { status: 201 });
 	}),
 
-	http.put(`${API_BASE}/nat/rules/:ruleId`, async ({ params, request }) => {
+	http.put(`${API_BASE}/nat/rules/:ruleId`, async ({ request }) => {
 		const body = await request.json();
 		return HttpResponse.json({ ...natRules[0], ...body });
 	}),
@@ -118,9 +113,7 @@ export const handlers = [
 	// ---------------------------------------------------------------------------
 	// IPS
 	// ---------------------------------------------------------------------------
-	http.get(`${API_BASE}/ips/config`, ({ request }) => {
-		const url = new URL(request.url);
-		const deviceId = url.searchParams.get("device_id");
+	http.get(`${API_BASE}/ips/config`, () => {
 		return HttpResponse.json(ipsConfig);
 	}),
 
@@ -129,24 +122,18 @@ export const handlers = [
 		return HttpResponse.json({ ...ipsConfig, ...body });
 	}),
 
-	http.get(`${API_BASE}/ips/rules`, ({ request }) => {
-		const url = new URL(request.url);
-		const deviceId = url.searchParams.get("device_id");
+	http.get(`${API_BASE}/ips/rules`, () => {
 		return HttpResponse.json(ipsRules);
 	}),
 
-	http.get(`${API_BASE}/ips/alerts`, ({ request }) => {
-		const url = new URL(request.url);
-		const deviceId = url.searchParams.get("device_id");
+	http.get(`${API_BASE}/ips/alerts`, () => {
 		return HttpResponse.json(ipsAlerts);
 	}),
 
 	// ---------------------------------------------------------------------------
 	// VPN Server
 	// ---------------------------------------------------------------------------
-	http.get(`${API_BASE}/vpn/server/config`, ({ request }) => {
-		const url = new URL(request.url);
-		const deviceId = url.searchParams.get("device_id");
+	http.get(`${API_BASE}/vpn/server/config`, () => {
 		return HttpResponse.json(vpnServerConfig);
 	}),
 
@@ -155,9 +142,7 @@ export const handlers = [
 		return HttpResponse.json({ ...vpnServerConfig, ...body });
 	}),
 
-	http.get(`${API_BASE}/vpn/server/peers`, ({ request }) => {
-		const url = new URL(request.url);
-		const deviceId = url.searchParams.get("device_id");
+	http.get(`${API_BASE}/vpn/server/peers`, () => {
 		return HttpResponse.json(vpnServerPeers);
 	}),
 
@@ -176,9 +161,7 @@ export const handlers = [
 	// ---------------------------------------------------------------------------
 	// VPN Client
 	// ---------------------------------------------------------------------------
-	http.get(`${API_BASE}/vpn/client/profiles`, ({ request }) => {
-		const url = new URL(request.url);
-		const deviceId = url.searchParams.get("device_id");
+	http.get(`${API_BASE}/vpn/client/profiles`, () => {
 		return HttpResponse.json(vpnClientProfiles);
 	}),
 
@@ -192,7 +175,7 @@ export const handlers = [
 
 	http.put(
 		`${API_BASE}/vpn/client/profiles/:profileId`,
-		async ({ params, request }) => {
+		async ({ request }) => {
 			const body = await request.json();
 			return HttpResponse.json({ ...vpnClientProfiles[0], ...body });
 		},
@@ -204,7 +187,7 @@ export const handlers = [
 
 	http.get(
 		`${API_BASE}/vpn/client/profiles/:profileId/status`,
-		({ params }) => {
+		() => {
 			return HttpResponse.json(vpnClientStatus);
 		},
 	),
@@ -220,9 +203,7 @@ export const handlers = [
 	// ---------------------------------------------------------------------------
 	// QoS
 	// ---------------------------------------------------------------------------
-	http.get(`${API_BASE}/qos/rules`, ({ request }) => {
-		const url = new URL(request.url);
-		const deviceId = url.searchParams.get("device_id");
+	http.get(`${API_BASE}/qos/rules`, () => {
 		return HttpResponse.json(qosRules);
 	}),
 
@@ -231,7 +212,7 @@ export const handlers = [
 		return HttpResponse.json({ ...qosRules[0], ...body }, { status: 201 });
 	}),
 
-	http.put(`${API_BASE}/qos/rules/:ruleId`, async ({ params, request }) => {
+	http.put(`${API_BASE}/qos/rules/:ruleId`, async ({ request }) => {
 		const body = await request.json();
 		return HttpResponse.json({ ...qosRules[0], ...body });
 	}),
@@ -243,9 +224,7 @@ export const handlers = [
 	// ---------------------------------------------------------------------------
 	// DDNS
 	// ---------------------------------------------------------------------------
-	http.get(`${API_BASE}/ddns/configs`, ({ request }) => {
-		const url = new URL(request.url);
-		const deviceId = url.searchParams.get("device_id");
+	http.get(`${API_BASE}/ddns/configs`, () => {
 		return HttpResponse.json(ddnsConfigs);
 	}),
 
@@ -256,7 +235,7 @@ export const handlers = [
 
 	http.put(
 		`${API_BASE}/ddns/configs/:configId`,
-		async ({ params, request }) => {
+		async ({ request }) => {
 			const body = await request.json();
 			return HttpResponse.json({ ...ddnsConfigs[0], ...body });
 		},
@@ -273,9 +252,7 @@ export const handlers = [
 	// ---------------------------------------------------------------------------
 	// Reports
 	// ---------------------------------------------------------------------------
-	http.get(`${API_BASE}/reports`, ({ request }) => {
-		const url = new URL(request.url);
-		const deviceId = url.searchParams.get("device_id");
+	http.get(`${API_BASE}/reports`, () => {
 		return HttpResponse.json(reports);
 	}),
 
@@ -287,7 +264,7 @@ export const handlers = [
 		);
 	}),
 
-	http.get(`${API_BASE}/reports/:reportId`, ({ params }) => {
+	http.get(`${API_BASE}/reports/:reportId`, () => {
 		return HttpResponse.json(reports[0]);
 	}),
 
@@ -300,7 +277,6 @@ export const handlers = [
 	// ---------------------------------------------------------------------------
 	http.get(`${API_BASE}/logs`, ({ request }) => {
 		const url = new URL(request.url);
-		const deviceId = url.searchParams.get("device_id");
 		const level = url.searchParams.get("level");
 		const category = url.searchParams.get("category");
 
@@ -331,7 +307,7 @@ export const handlers = [
 
 	http.put(
 		`${API_BASE}/dashboards/:dashboardId`,
-		async ({ params, request }) => {
+		async ({ request }) => {
 			const body = await request.json();
 			return HttpResponse.json({ ...dashboards[0], ...body });
 		},

@@ -343,10 +343,10 @@ export const testSuites: TestSuite[] = [
           END_TIME=$(date +%s) && \
           DURATION=$((END_TIME - START_TIME)) && \
           if [ $DURATION -le 10 ]; then \
-            echo "✓ Startup time: ${DURATION}s" && \
+            echo "✓ Startup time: \${DURATION}s" && \
             exit 0; \
           else \
-            echo "✗ Startup time: ${DURATION}s (exceeds 10s)" && \
+            echo "✗ Startup time: \${DURATION}s (exceeds 10s)" && \
             exit 1; \
           fi; \
         fi; \

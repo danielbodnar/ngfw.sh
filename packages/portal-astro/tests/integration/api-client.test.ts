@@ -9,7 +9,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { createApiClient } from "../../src/lib/api/client";
 import { ApiError } from "../../src/lib/api/errors";
 import { devices, mockToken, natRules } from "../fixtures";
-import { mockFetch, setupMockServer } from "../utils/test-utils";
+import { setupMockServer } from "../utils/test-utils";
 
 setupMockServer();
 
