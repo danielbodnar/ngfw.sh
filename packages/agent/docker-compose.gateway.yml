@@ -1,0 +1,36 @@
+# NGFW Agent Gateway Mode - VPC/Cloud Deployment Override
+#
+# This extends docker-compose.yml for gateway/firewall use cases
+# where the agent needs full network access to manage iptables, routing, etc.
+#
+# Usage:
+#   docker-compose -f docker-compose.yml -f docker-compose.gateway.yml up -d
+#
+# Use cases:
+# - Cloud VPC gateway (Vultr, AWS, GCP)
+# - VyOS-style firewall deployment
+# - Network bridge/router mode
+
+services:
+  agent:
+    # Override network settings for gateway mode
+    network_mode: host
+
+    # Privileged mode for iptables/routing
+    privileged: true
+
+    # Additional capabilities
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+      - SYS_MODULE
+
+    # Mount host networking tools
+    volumes:
+      - ./config.toml:/etc/ngfw/config.toml:ro
+      - /proc:/proc:ro
+      - /sys:/sys:ro
+
+    # Higher resource limits for gateway mode
+    mem_limit: 512m
+    cpus: 1.0
