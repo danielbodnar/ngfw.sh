@@ -178,7 +178,7 @@ async fn test_ping_pong_keepalive() {
 
     let (_outbound_tx, _outbound_rx) = mpsc::channel::<RpcMessage>(10);
     let (_inbound_tx, _inbound_rx) = mpsc::channel::<RpcMessage>(10);
-    let (shutdown_tx, _shutdown_rx) = watch::channel(false);
+    let (shutdown_tx, shutdown_rx) = watch::channel(false);
 
     let received_pings = Arc::new(Mutex::new(Vec::new()));
     let pings_clone = received_pings.clone();
