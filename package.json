@@ -51,11 +51,16 @@
 		"deploy:docs": "bun run --cwd docs deploy"
 	},
 	"dependencies": {
-		"@openauthjs/openauth": "^0.4.3"
+		"@openauthjs/openauth": "^0.4.3",
+		"hono": "^4.11.7"
 	},
 	"devDependencies": {
 		"oxfmt": "^0.28.0",
 		"oxlint": "^1.43.0",
-		"wrangler": "^4.62.0"
+		"wrangler": "^4.63.0"
+	},
+	"overrides": {
+		"hono": ">=4.11.7",
+		"undici": ">=7.18.2"
 	}
 }

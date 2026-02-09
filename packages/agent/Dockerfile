@@ -54,7 +54,7 @@ RUN cargo build --release --manifest-path packages/agent/Cargo.toml && \
 # ============================================================================
 # Stage 2: Runtime
 # ============================================================================
-FROM alpine:latest
+FROM alpine:3.21
 
 # Install runtime dependencies
 RUN apk add --no-cache \
@@ -81,6 +81,10 @@ ENTRYPOINT ["/sbin/tini", "--"]
 
 # Run as non-root (can override with --user root if needed)
 USER ngfw
+
+# Health check - verify agent process is running
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+  CMD pgrep -f ngfw-agent || exit 1
 
 # Default command
 CMD ["/usr/local/bin/ngfw-agent", "--config", "/etc/ngfw/config.toml"]
