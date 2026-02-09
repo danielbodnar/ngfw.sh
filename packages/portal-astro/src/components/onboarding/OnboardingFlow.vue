@@ -2,8 +2,7 @@
 import { computed, ref } from "vue";
 import { useRegisterDevice } from "../../composables/useRegisterDevice";
 import ConfigForm from "./ConfigForm.vue";
-import OnboardingWizard from "./OnboardingWizard.vue";
-import type { WizardStep } from "./OnboardingWizard.vue";
+import OnboardingWizard, { type WizardStep } from "./OnboardingWizard.vue";
 import OrderComplete from "./OrderComplete.vue";
 import OrderSummary from "./OrderSummary.vue";
 import RouterSelector from "./RouterSelector.vue";

@@ -8,14 +8,6 @@ on:
   schedule:
     - cron: '0 2 * * *'  # 2 AM UTC daily
 
-  # Run on PR to main
-  pull_request:
-    branches: [main]
-    paths:
-      - 'packages/agent/**'
-      - 'packages/protocol/**'
-      - 'scripts/demo-lifecycle.nu'
-
 env:
   VULTR_API_KEY: ${{ secrets.VULTR_API_KEY }}
 
