@@ -49,7 +49,7 @@ COPY packages/agent ./packages/agent
 
 # Build agent (with static linking for portability)
 RUN cargo build --release --manifest-path packages/agent/Cargo.toml && \
-    strip packages/agent/target/release/ngfw-agent
+    strip target/release/ngfw-agent
 
 # ============================================================================
 # Stage 2: Runtime
@@ -67,7 +67,7 @@ RUN addgroup -g 1000 ngfw && \
     adduser -D -u 1000 -G ngfw ngfw
 
 # Copy agent binary from builder
-COPY --from=builder /build/packages/agent/target/release/ngfw-agent /usr/local/bin/ngfw-agent
+COPY --from=builder /build/target/release/ngfw-agent /usr/local/bin/ngfw-agent
 RUN chmod +x /usr/local/bin/ngfw-agent
 
 # Create config directory
