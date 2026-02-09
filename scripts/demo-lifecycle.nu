@@ -316,13 +316,7 @@ system = true
     echo $config | ^ssh -o StrictHostKeyChecking=no root@$instance.main_ip "cat > /etc/ngfw/config.toml"
 
     # Run container
-    ^ssh -o StrictHostKeyChecking=no root@$instance.main_ip "
-        docker run -d \
-            --name ngfw-agent \
-            --restart unless-stopped \
-            -v /etc/ngfw/config.toml:/etc/ngfw/config.toml:ro \
-            ghcr.io/danielbodnar/ngfw-agent:latest || true
-    "
+    ^ssh -o StrictHostKeyChecking=no root@$instance.main_ip "docker run -d --name ngfw-agent --restart unless-stopped -v /etc/ngfw/config.toml:/etc/ngfw/config.toml:ro ghcr.io/danielbodnar/ngfw-agent:latest || true"
 }
 
 def verify_deployment [instance: record] {

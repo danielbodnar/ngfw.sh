@@ -28,9 +28,19 @@ pub async fn load_persisted_mode() -> ModeConfig {
     }
 }
 
-/// Persist mode config to disk so it survives restarts
+/// Persist mode config to disk so it survives restarts.
+///
+/// Creates the parent directory if it does not already exist so that
+/// the write succeeds on first-boot and in test environments where
+/// `/jffs/ngfw/` has not been provisioned yet.
 pub async fn persist_mode(mode_config: &ModeConfig) -> Result<(), std::io::Error> {
     let json = serde_json::to_string_pretty(mode_config).map_err(std::io::Error::other)?;
+
+    // Ensure the parent directory exists (e.g. /jffs/ngfw/)
+    if let Some(parent) = std::path::Path::new(MODE_FILE).parent() {
+        tokio::fs::create_dir_all(parent).await?;
+    }
+
     tokio::fs::write(MODE_FILE, json).await?;
     info!("Persisted mode config to {}", MODE_FILE);
     Ok(())

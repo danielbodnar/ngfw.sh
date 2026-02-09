@@ -228,8 +228,10 @@ async fn test_metrics_interfaces_structure() {
 
         // If interfaces exist, verify structure
         for rates in metrics.interfaces.values() {
-            assert!(rates.rx_rate >= 0, "RX rate should be non-negative");
-            assert!(rates.tx_rate >= 0, "TX rate should be non-negative");
+            // rx_rate and tx_rate are u64, so they are inherently non-negative.
+            // Just verify the fields are accessible (type-checked at compile time).
+            let _ = rates.rx_rate;
+            let _ = rates.tx_rate;
         }
     }
 }
@@ -249,18 +251,16 @@ async fn test_metrics_connections_count() {
     if let Ok(Some(msg)) = timeout(Duration::from_secs(3), outbound_rx.recv()).await {
         let metrics: MetricsPayload = serde_json::from_value(msg.payload).unwrap();
 
-        // Connection counts should be non-negative
+        // Connection counts are u32, so inherently non-negative.
+        // Verify they are plausible (total >= tcp + udp would be ideal,
+        // but at minimum confirm the struct is populated).
         assert!(
-            metrics.connections.total >= 0,
-            "Total connections should be non-negative"
+            metrics.connections.total >= metrics.connections.tcp,
+            "Total connections should be >= TCP count"
         );
         assert!(
-            metrics.connections.tcp >= 0,
-            "TCP connections should be non-negative"
-        );
-        assert!(
-            metrics.connections.udp >= 0,
-            "UDP connections should be non-negative"
+            metrics.connections.total >= metrics.connections.udp,
+            "Total connections should be >= UDP count"
         );
     }
 }
@@ -280,16 +280,16 @@ async fn test_metrics_dns_structure() {
     if let Ok(Some(msg)) = timeout(Duration::from_secs(3), outbound_rx.recv()).await {
         let metrics: MetricsPayload = serde_json::from_value(msg.payload).unwrap();
 
-        // DNS metrics should be present
+        // DNS metrics are u64, so inherently non-negative.
+        // Verify blocked + cached do not exceed total queries.
         assert!(
-            metrics.dns.queries >= 0,
-            "DNS queries should be non-negative"
+            metrics.dns.queries >= metrics.dns.blocked,
+            "DNS queries should be >= blocked count"
         );
         assert!(
-            metrics.dns.blocked >= 0,
-            "DNS blocked should be non-negative"
+            metrics.dns.queries >= metrics.dns.cached,
+            "DNS queries should be >= cached count"
         );
-        assert!(metrics.dns.cached >= 0, "DNS cached should be non-negative");
     }
 }
 

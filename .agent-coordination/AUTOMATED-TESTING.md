@@ -114,8 +114,8 @@ export NGFW_OS_ID="1743"           # Default: Ubuntu 22.04
 ```json
 // .demo-state.json (auto-generated)
 {
-  "id": "89e10c79-a178-4dca-9606-741715b5b2c8",
-  "main_ip": "149.28.34.203",
+  "id": "<INSTANCE_ID>",
+  "main_ip": "<PUBLIC_IP>",
   "status": "active",
   "label": "ngfw-demo-router",
   "date_created": "2026-02-09T19:02:48+00:00",
@@ -137,7 +137,7 @@ nu scripts/demo-lifecycle.nu full
 # 🎬 Starting full demo lifecycle
 # 🚀 Setting up demo router
 # 📦 Creating Vultr instance...
-# ✅ Instance created: 149.28.34.203
+# ✅ Instance created: <PUBLIC_IP>
 # 🐳 Deploying NGFW agent container...
 # ✅ Demo router setup complete!
 #

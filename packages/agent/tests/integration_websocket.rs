@@ -178,7 +178,7 @@ async fn test_ping_pong_keepalive() {
 
     let (_outbound_tx, _outbound_rx) = mpsc::channel::<RpcMessage>(10);
     let (_inbound_tx, _inbound_rx) = mpsc::channel::<RpcMessage>(10);
-    let (shutdown_tx, shutdown_rx) = watch::channel(false);
+    let (shutdown_tx, _shutdown_rx) = watch::channel(false);
 
     let received_pings = Arc::new(Mutex::new(Vec::new()));
     let pings_clone = received_pings.clone();
@@ -231,7 +231,7 @@ async fn test_ping_pong_keepalive() {
     // For testing, we just verify the mechanism exists
     timeout(Duration::from_secs(3), server_task).await.ok();
 
-    shutdown_tx.send(true).unwrap();
+    shutdown_tx.send(true).ok();
 }
 
 #[tokio::test]
@@ -290,7 +290,7 @@ async fn test_reconnection_with_backoff() {
     let attempts = *connection_attempts.lock().await;
     assert!(attempts >= 2, "Should have attempted multiple connections");
 
-    shutdown_tx.send(true).unwrap();
+    shutdown_tx.send(true).ok();
 }
 
 #[tokio::test]
@@ -352,7 +352,7 @@ async fn test_message_routing_inbound_to_dispatcher() {
         assert_eq!(msg.msg_type, MessageType::Exec);
     }
 
-    shutdown_tx.send(true).unwrap();
+    shutdown_tx.send(true).ok();
 }
 
 #[tokio::test]
@@ -395,7 +395,7 @@ async fn test_graceful_shutdown() {
     tokio::time::sleep(Duration::from_millis(500)).await;
 
     // Trigger shutdown
-    shutdown_tx.send(true).unwrap();
+    shutdown_tx.send(true).ok();
 
     // Connection should exit gracefully
     let result = timeout(Duration::from_secs(2), conn_task).await;

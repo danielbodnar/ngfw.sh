@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # NGFW Demo Router Automated Setup Script
-# Instance: ngfw-demo-router (149.28.34.203)
+# Instance: ngfw-demo-router (<PUBLIC_IP>)
 #
 # This script automates the installation and configuration of the NGFW
 # router agent on a fresh Ubuntu 22.04 instance.

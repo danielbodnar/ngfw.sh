@@ -35,7 +35,7 @@ const columns = [
 ];
 
 const formatFileSize = (bytes?: number): string => {
-	if (!bytes) return "—";
+	if (bytes == null) return "—";
 	const units = ["B", "KB", "MB", "GB"];
 	let size = bytes;
 	let unitIndex = 0;

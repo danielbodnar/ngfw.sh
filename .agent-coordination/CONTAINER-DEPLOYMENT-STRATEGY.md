@@ -151,7 +151,7 @@ qemu-system-x86_64 -hda ngfw-vm.qcow2
 #### Current: Ubuntu + Docker
 
 ```bash
-# On Vultr instance (149.28.34.203)
+# On Vultr instance (<PUBLIC_IP>)
 apt update && apt install -y docker.io
 
 # Pull and run

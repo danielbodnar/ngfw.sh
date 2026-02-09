@@ -29,7 +29,7 @@ const emit = defineEmits<{
 }>();
 
 const formatBytes = (bytes?: number) => {
-	if (!bytes) return "N/A";
+	if (bytes == null) return "N/A";
 	if (bytes >= 1e9) return `${(bytes / 1e9).toFixed(2)} GB`;
 	if (bytes >= 1e6) return `${(bytes / 1e6).toFixed(2)} MB`;
 	if (bytes >= 1e3) return `${(bytes / 1e3).toFixed(2)} KB`;

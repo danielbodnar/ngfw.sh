@@ -9,10 +9,10 @@
 
 | Property | Value |
 |----------|-------|
-| **Instance ID** | `89e10c79-a178-4dca-9606-741715b5b2c8` |
+| **Instance ID** | `<INSTANCE_ID>` |
 | **Label** | `ngfw-demo-router` |
-| **IP Address** | `149.28.34.203` |
-| **IPv6** | `2001:19f0:1000:fecc::` |
+| **IP Address** | `<PUBLIC_IP>` |
+| **IPv6** | `<PUBLIC_IPV6>` |
 | **Region** | `ewr` (New Jersey, US) |
 | **OS** | Ubuntu 22.04 x64 |
 | **Plan** | vc2-1c-1gb (1 CPU, 1GB RAM, 25GB SSD) |
@@ -25,7 +25,7 @@
 
 ```bash
 # SSH Connection
-ssh root@149.28.34.203
+ssh root@<PUBLIC_IP>
 
 # Root Password
 # Retrieve from Vultr dashboard or secrets manager — never store in version control
@@ -43,7 +43,7 @@ passwd
 ### Step 1: Connect to Instance
 
 ```bash
-ssh root@149.28.34.203
+ssh root@<PUBLIC_IP>
 # Enter password from Vultr dashboard or secrets manager
 ```
 
@@ -239,7 +239,7 @@ systemctl daemon-reload
 ### Delete Instance
 ```bash
 # Via CLI
-vultr instance delete 89e10c79-a178-4dca-9606-741715b5b2c8
+vultr instance delete <INSTANCE_ID>
 
 # Or via Web UI
 # Go to https://my.vultr.com and delete from dashboard
