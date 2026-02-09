@@ -23,6 +23,9 @@ const TEST_CREDENTIALS: Record<string, string> = {
   "test-api-key-secret-001": "test-device-001",
 };
 
+/** API key for HTTP endpoint access (used for /status and test endpoints) */
+const HTTP_API_KEY = process.env.MOCK_API_KEY || "test-http-api-key-001";
+
 /** RPC message envelope */
 interface RpcMessage {
   id: string;
@@ -51,6 +54,19 @@ function log(msg_type: string, device_id: string | null, summary: string): void 
   console.log(`[${ts}] ${msg_type} from ${device}: ${summary}`);
 }
 
+/** Verify HTTP API key from Authorization header */
+function verifyHttpAuth(req: Request): boolean {
+  const authHeader = req.headers.get("Authorization");
+  if (!authHeader) return false;
+
+  // Support both "Bearer <key>" and raw key formats
+  const key = authHeader.startsWith("Bearer ")
+    ? authHeader.slice(7)
+    : authHeader;
+
+  return key === HTTP_API_KEY;
+}
+
 /** Build a response envelope */
 function response(type: string, payload: Record<string, unknown>, id?: string): string {
   const msg: RpcMessage = {
@@ -74,6 +90,14 @@ const _server = Bun.serve<ConnectionState>({
     }
 
     if (url.pathname === "/status") {
+      // Require authentication for status endpoint
+      if (!verifyHttpAuth(req)) {
+        return new Response("Unauthorized", {
+          status: 401,
+          headers: { "WWW-Authenticate": 'Bearer realm="Mock API"' }
+        });
+      }
+
       // Return the latest state for all connected devices
       const entries: Record<string, unknown>[] = [];
       for (const [, state] of device_states) {

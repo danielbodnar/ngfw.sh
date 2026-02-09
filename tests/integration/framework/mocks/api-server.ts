@@ -22,6 +22,8 @@ export interface MockApiServerConfig {
     apiKey: string;
     ownerId: string;
   }>;
+  /** HTTP API key for test endpoints (defaults to test-http-api-key-001) */
+  httpApiKey?: string;
 }
 
 /**
@@ -45,6 +47,7 @@ export class MockApiServer {
           ownerId: 'test-owner-001',
         },
       ],
+      httpApiKey: config.httpApiKey ?? 'test-http-api-key-001',
     };
 
     this.state = {
@@ -72,13 +75,25 @@ export class MockApiServer {
           return Response.json({ status: 'ok', timestamp: Date.now() });
         }
 
-        // Test inspection endpoint
+        // Test inspection endpoint (requires authentication)
         if (url.pathname === '/_test/state') {
+          if (!this.verifyHttpAuth(req)) {
+            return new Response('Unauthorized', {
+              status: 401,
+              headers: { 'WWW-Authenticate': 'Bearer realm="Mock API"' },
+            });
+          }
           return Response.json(this.getState());
         }
 
-        // Reset state endpoint
+        // Reset state endpoint (requires authentication)
         if (url.pathname === '/_test/reset' && req.method === 'POST') {
+          if (!this.verifyHttpAuth(req)) {
+            return new Response('Unauthorized', {
+              status: 401,
+              headers: { 'WWW-Authenticate': 'Bearer realm="Mock API"' },
+            });
+          }
           this.reset();
           return Response.json({ success: true });
         }
@@ -185,6 +200,19 @@ export class MockApiServer {
    */
   onMessage(type: string, handler: (msg: ProtocolMessage) => void): void {
     this.messageHandlers.set(type, handler);
+  }
+
+  /**
+   * Verify HTTP API key from Authorization header
+   */
+  private verifyHttpAuth(req: Request): boolean {
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) return false;
+
+    // Support both "Bearer <key>" and raw key formats
+    const key = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : authHeader;
+
+    return key === this.config.httpApiKey;
   }
 
   /**
