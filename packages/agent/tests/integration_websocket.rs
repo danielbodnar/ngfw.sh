@@ -73,7 +73,7 @@ impl MockApiServer {
 async fn test_connection_auth_handshake_success() {
     let config = create_test_config("ws://127.0.0.1:9999/ws");
 
-    let (_outbound_tx, outbound_rx) = mpsc::channel(10);
+    let (_outbound_tx, mut outbound_rx) = mpsc::channel(10);
     let (inbound_tx, _inbound_rx) = mpsc::channel::<RpcMessage>(10);
     let (shutdown_tx, shutdown_rx) = watch::channel(false);
 

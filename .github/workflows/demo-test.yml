@@ -36,8 +36,13 @@ jobs:
 
       - name: Install Vultr CLI
         run: |
-          wget https://github.com/vultr/vultr-cli/releases/latest/download/vultr-cli_linux_amd64.tar.gz
-          tar -xzf vultr-cli_linux_amd64.tar.gz
+          VULTR_CLI_VERSION="v3.8.0"
+          VULTR_CLI_SHA256="72da8beec8a27c78193f2931f281cc3853113c99bfe8dc2aa21b5fb5e6f08c6b"
+          VULTR_CLI_TAR="vultr-cli_${VULTR_CLI_VERSION}_linux_amd64.tar.gz"
+
+          wget -q "https://github.com/vultr/vultr-cli/releases/download/${VULTR_CLI_VERSION}/${VULTR_CLI_TAR}"
+          echo "${VULTR_CLI_SHA256}  ${VULTR_CLI_TAR}" | sha256sum -c -
+          tar -xzf "${VULTR_CLI_TAR}"
           sudo mv vultr-cli /usr/local/bin/
 
           # Configure Vultr CLI

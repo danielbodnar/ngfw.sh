@@ -28,10 +28,10 @@
 ssh root@149.28.34.203
 
 # Root Password
-H_j825Q,KmcCK2fU
+# Retrieve from Vultr dashboard or secrets manager — never store in version control
 ```
 
-⚠️ **SECURITY NOTE:** Change the root password immediately after first login:
+⚠️ **SECURITY NOTE:** Credentials must be retrieved from the Vultr dashboard or a secrets manager. Change the root password immediately after first login:
 ```bash
 passwd
 ```
@@ -44,14 +44,19 @@ passwd
 
 ```bash
 ssh root@149.28.34.203
-# Enter password: H_j825Q,KmcCK2fU
+# Enter password from Vultr dashboard or secrets manager
 ```
 
 ### Step 2: Run Automated Setup
 
 ```bash
-# Download and run setup script
-curl -fsSL https://raw.githubusercontent.com/danielbodnar/ngfw.sh/main/.agent-coordination/setup-demo-router.sh | bash
+# Download, inspect, and run setup script
+VERSION="v0.1.0"
+curl -fsSLo setup-demo-router.sh \
+  "https://raw.githubusercontent.com/danielbodnar/ngfw.sh/${VERSION}/.agent-coordination/setup-demo-router.sh"
+chmod +x setup-demo-router.sh
+less setup-demo-router.sh   # Inspect before running
+sudo ./setup-demo-router.sh
 
 # Or manually:
 apt update && apt upgrade -y

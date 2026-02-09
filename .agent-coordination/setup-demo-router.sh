@@ -7,13 +7,13 @@ set -euo pipefail
 # This script automates the installation and configuration of the NGFW
 # router agent on a fresh Ubuntu 22.04 instance.
 #
-# Usage:
-#   curl -fsSL https://raw.githubusercontent.com/danielbodnar/ngfw.sh/main/.agent-coordination/setup-demo-router.sh | bash
-#
-#   Or download and run locally:
-#   wget https://raw.githubusercontent.com/danielbodnar/ngfw.sh/main/.agent-coordination/setup-demo-router.sh
+# Usage (recommended — download, inspect, then execute):
+#   VERSION="v0.1.0"  # Pin to a specific release tag
+#   curl -fsSLo setup-demo-router.sh \
+#     "https://raw.githubusercontent.com/danielbodnar/ngfw.sh/${VERSION}/.agent-coordination/setup-demo-router.sh"
 #   chmod +x setup-demo-router.sh
-#   ./setup-demo-router.sh
+#   less setup-demo-router.sh   # Inspect before running
+#   sudo ./setup-demo-router.sh
 
 NGFW_VERSION="v0.1.0"
 AGENT_USER="root"
