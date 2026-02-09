@@ -4,7 +4,7 @@
 //! proper formatting of telemetry data sent to the API.
 
 use ngfw_agent::config::AgentConfig;
-use ngfw_protocol::{MessageType, MetricsPayload, RpcMessage};
+use ngfw_protocol::{MessageType, MetricsPayload};
 use std::time::Duration;
 use tokio::sync::{mpsc, watch};
 use tokio::time::timeout;

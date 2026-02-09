@@ -24,7 +24,9 @@ fn setup_mock_bins() -> PathBuf {
 
     // Add mock bin directory to PATH for subprocess calls
     if let Ok(path) = env::var("PATH") {
-        env::set_var("PATH", format!("{}:{}", mock_dir.display(), path));
+        unsafe {
+            env::set_var("PATH", format!("{}:{}", mock_dir.display(), path));
+        }
     }
 
     mock_dir
@@ -286,7 +288,7 @@ async fn test_adapter_diff_no_changes() {
     // Read current config
     let current = adapter.read_config().await.ok();
 
-    if let Some(Ok(config)) = current {
+    if let Some(config) = current {
         // Diff against same config should show no changes
         let diff_result = adapter.diff(&config).await;
         assert!(diff_result.is_ok(), "Diff should succeed");

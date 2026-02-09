@@ -121,11 +121,12 @@ async fn test_e2e_agent_startup_and_shutdown() {
     let disp_task = tokio::spawn({
         let config = config.clone();
         let shutdown = shutdown_rx.clone();
+        let outbound_tx_disp = outbound_tx.clone();
         async move {
             ngfw_agent::dispatcher::dispatcher_loop(
                 config,
                 inbound_rx,
-                outbound_tx.clone(),
+                outbound_tx_disp,
                 mode_tx,
                 mode_rx,
                 shutdown,
@@ -163,7 +164,7 @@ async fn test_e2e_agent_startup_and_shutdown() {
     // All tasks should exit cleanly
     let results = timeout(
         Duration::from_secs(3),
-        tokio::join!(conn_task, disp_task, coll_task),
+        async { tokio::join!(conn_task, disp_task, coll_task) },
     )
     .await;
 
@@ -523,11 +524,12 @@ async fn test_e2e_concurrent_operations() {
     tokio::spawn({
         let config = config.clone();
         let shutdown = shutdown_rx.clone();
+        let outbound_tx_disp = outbound_tx.clone();
         async move {
             ngfw_agent::dispatcher::dispatcher_loop(
                 config,
                 inbound_rx,
-                outbound_tx.clone(),
+                outbound_tx_disp,
                 mode_tx,
                 mode_rx,
                 shutdown,

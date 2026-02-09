@@ -55,7 +55,7 @@ impl MockApiServer {
         let json = serde_json::to_string(&msg)?;
         let mut clients = self.clients.lock().await;
         for client in clients.iter_mut() {
-            client.send(Message::Text(json.clone())).await?;
+            client.send(Message::Text(json.clone().into())).await?;
         }
         Ok(())
     }
@@ -74,7 +74,7 @@ async fn test_connection_auth_handshake_success() {
     let config = create_test_config("ws://127.0.0.1:9999/ws");
 
     let (outbound_tx, mut outbound_rx) = mpsc::channel(10);
-    let (inbound_tx, _inbound_rx) = mpsc::channel(10);
+    let (inbound_tx, _inbound_rx) = mpsc::channel::<RpcMessage>(10);
     let (shutdown_tx, shutdown_rx) = watch::channel(false);
 
     // Spawn a mock WebSocket server that accepts auth
@@ -132,8 +132,8 @@ async fn test_connection_auth_handshake_success() {
 async fn test_connection_auth_handshake_failure() {
     let config = create_test_config("ws://127.0.0.1:9998/ws");
 
-    let (_outbound_tx, outbound_rx) = mpsc::channel(10);
-    let (inbound_tx, _inbound_rx) = mpsc::channel(10);
+    let (_outbound_tx, outbound_rx) = mpsc::channel::<RpcMessage>(10);
+    let (inbound_tx, _inbound_rx) = mpsc::channel::<RpcMessage>(10);
     let (_shutdown_tx, shutdown_rx) = watch::channel(false);
 
     // Spawn mock server that rejects auth
@@ -172,8 +172,8 @@ async fn test_connection_auth_handshake_failure() {
 async fn test_ping_pong_keepalive() {
     let config = create_test_config("ws://127.0.0.1:9997/ws");
 
-    let (_outbound_tx, outbound_rx) = mpsc::channel(10);
-    let (inbound_tx, _inbound_rx) = mpsc::channel(10);
+    let (_outbound_tx, outbound_rx) = mpsc::channel::<RpcMessage>(10);
+    let (inbound_tx, _inbound_rx) = mpsc::channel::<RpcMessage>(10);
     let (shutdown_tx, shutdown_rx) = watch::channel(false);
 
     let received_pings = Arc::new(Mutex::new(Vec::new()));
@@ -234,8 +234,8 @@ async fn test_ping_pong_keepalive() {
 async fn test_reconnection_with_backoff() {
     let config = create_test_config("ws://127.0.0.1:9996/ws");
 
-    let (_outbound_tx, outbound_rx) = mpsc::channel(10);
-    let (inbound_tx, _inbound_rx) = mpsc::channel(10);
+    let (_outbound_tx, outbound_rx) = mpsc::channel::<RpcMessage>(10);
+    let (inbound_tx, _inbound_rx) = mpsc::channel::<RpcMessage>(10);
     let (shutdown_tx, shutdown_rx) = watch::channel(false);
 
     let connection_attempts = Arc::new(Mutex::new(0));
@@ -291,8 +291,8 @@ async fn test_reconnection_with_backoff() {
 async fn test_message_routing_inbound_to_dispatcher() {
     let config = create_test_config("ws://127.0.0.1:9995/ws");
 
-    let (_outbound_tx, outbound_rx) = mpsc::channel(10);
-    let (inbound_tx, mut inbound_rx) = mpsc::channel(10);
+    let (_outbound_tx, outbound_rx) = mpsc::channel::<RpcMessage>(10);
+    let (inbound_tx, mut inbound_rx) = mpsc::channel::<RpcMessage>(10);
     let (shutdown_tx, shutdown_rx) = watch::channel(false);
 
     let server_task = tokio::spawn(async move {
@@ -321,7 +321,7 @@ async fn test_message_routing_inbound_to_dispatcher() {
                 "timeout_secs": 10
             }),
         );
-        ws.send(Message::Text(serde_json::to_string(&exec_cmd).unwrap()))
+        ws.send(Message::Text(serde_json::to_string(&exec_cmd).unwrap().into()))
             .await
             .unwrap();
 
@@ -349,8 +349,8 @@ async fn test_message_routing_inbound_to_dispatcher() {
 async fn test_graceful_shutdown() {
     let config = create_test_config("ws://127.0.0.1:9994/ws");
 
-    let (_outbound_tx, outbound_rx) = mpsc::channel(10);
-    let (inbound_tx, _inbound_rx) = mpsc::channel(10);
+    let (_outbound_tx, outbound_rx) = mpsc::channel::<RpcMessage>(10);
+    let (inbound_tx, _inbound_rx) = mpsc::channel::<RpcMessage>(10);
     let (shutdown_tx, shutdown_rx) = watch::channel(false);
 
     let server_task = tokio::spawn(async move {
