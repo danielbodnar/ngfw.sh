@@ -11,7 +11,6 @@ use ngfw_agent::adapters::{
 use ngfw_protocol::ConfigSection;
 use serde_json::json;
 use std::env;
-use std::fs;
 use std::path::PathBuf;
 use std::time::Duration;
 use tokio::time::timeout;

@@ -4,7 +4,7 @@
 //! keepalive, reconnection, and protocol compliance.
 
 use futures_util::{SinkExt, StreamExt};
-use ngfw_protocol::{AuthRequest, ExecCommand, MessageType, ModeConfig, ModeUpdatePayload, RpcMessage};
+use ngfw_protocol::{AuthRequest, MessageType, RpcMessage};
 use serde_json::json;
 use std::net::SocketAddr;
 use std::sync::Arc;

@@ -5,8 +5,7 @@
 
 use ngfw_agent::config::AgentConfig;
 use ngfw_protocol::{
-    AgentMode, ConfigPush, ConfigSection, ExecCommand, MessageType, ModeConfig,
-    ModeUpdatePayload, RpcMessage, UpgradeCommand,
+    AgentMode, MessageType, ModeConfig, RpcMessage,
 };
 use serde_json::json;
 use std::time::Duration;

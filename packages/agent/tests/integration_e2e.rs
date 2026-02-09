@@ -13,7 +13,8 @@ use std::time::Duration;
 use tokio::net::TcpListener;
 use tokio::sync::{mpsc, watch, Mutex};
 use tokio::time::timeout;
-use tokio_tungstenite::{accept_async, tungstenite::Message, WebSocketStream};
+use tokio_tungstenite::{accept_async, tungstenite::Message};
+use futures_util::{SinkExt, StreamExt};
 
 /// Mock API server for E2E testing
 struct MockApiServer {
@@ -38,7 +39,7 @@ impl MockApiServer {
 
                         if msg.msg_type == MessageType::Auth {
                             let response = RpcMessage::new(MessageType::AuthOk, json!({}));
-                            ws.send(Message::Text(serde_json::to_string(&response).unwrap()))
+                            ws.send(Message::Text(serde_json::to_string(&response).unwrap().into()))
                                 .await
                                 .ok();
                         }
