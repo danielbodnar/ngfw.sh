@@ -46,7 +46,11 @@ export class IpsConfigUpdate extends OpenAPIRoute {
 					enabled: false,
 					mode: "detect",
 					home_networks: ["192.168.0.0/16", "10.0.0.0/8", "172.16.0.0/12"],
-					external_networks: ["!192.168.0.0/16", "!10.0.0.0/8", "!172.16.0.0/12"],
+					external_networks: [
+						"!192.168.0.0/16",
+						"!10.0.0.0/8",
+						"!172.16.0.0/12",
+					],
 					excluded_networks: [],
 					max_pending_packets: 1024,
 					update_interval: 86400,

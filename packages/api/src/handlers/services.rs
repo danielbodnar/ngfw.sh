@@ -276,7 +276,8 @@ pub async fn get_qos_config(req: Request, ctx: RouteContext<()>) -> Result<Respo
     let auth = authenticate(&req, &ctx.env)
         .await
         .map_err(|e| Error::from(e.error.message))?;
-    require_plan(&auth, &["pro", "business", "business_plus"]).map_err(|e| Error::from(e.error.message))?;
+    require_plan(&auth, &["pro", "business", "business_plus"])
+        .map_err(|e| Error::from(e.error.message))?;
     let device_id = get_device_id(&req)?;
     check_device_access(&auth, &device_id, &ctx.env)
         .await
@@ -291,7 +292,8 @@ pub async fn update_qos_config(mut req: Request, ctx: RouteContext<()>) -> Resul
     let auth = authenticate(&req, &ctx.env)
         .await
         .map_err(|e| Error::from(e.error.message))?;
-    require_plan(&auth, &["pro", "business", "business_plus"]).map_err(|e| Error::from(e.error.message))?;
+    require_plan(&auth, &["pro", "business", "business_plus"])
+        .map_err(|e| Error::from(e.error.message))?;
     let device_id = get_device_id(&req)?;
     check_device_access(&auth, &device_id, &ctx.env)
         .await
@@ -307,7 +309,8 @@ pub async fn get_traffic_classes(req: Request, ctx: RouteContext<()>) -> Result<
     let auth = authenticate(&req, &ctx.env)
         .await
         .map_err(|e| Error::from(e.error.message))?;
-    require_plan(&auth, &["pro", "business", "business_plus"]).map_err(|e| Error::from(e.error.message))?;
+    require_plan(&auth, &["pro", "business", "business_plus"])
+        .map_err(|e| Error::from(e.error.message))?;
     let device_id = get_device_id(&req)?;
     check_device_access(&auth, &device_id, &ctx.env)
         .await
@@ -322,7 +325,8 @@ pub async fn create_traffic_class(mut req: Request, ctx: RouteContext<()>) -> Re
     let auth = authenticate(&req, &ctx.env)
         .await
         .map_err(|e| Error::from(e.error.message))?;
-    require_plan(&auth, &["pro", "business", "business_plus"]).map_err(|e| Error::from(e.error.message))?;
+    require_plan(&auth, &["pro", "business", "business_plus"])
+        .map_err(|e| Error::from(e.error.message))?;
     let device_id = get_device_id(&req)?;
     check_device_access(&auth, &device_id, &ctx.env)
         .await
@@ -338,7 +342,8 @@ pub async fn update_traffic_class(mut req: Request, ctx: RouteContext<()>) -> Re
     let auth = authenticate(&req, &ctx.env)
         .await
         .map_err(|e| Error::from(e.error.message))?;
-    require_plan(&auth, &["pro", "business", "business_plus"]).map_err(|e| Error::from(e.error.message))?;
+    require_plan(&auth, &["pro", "business", "business_plus"])
+        .map_err(|e| Error::from(e.error.message))?;
     let device_id = get_device_id(&req)?;
     check_device_access(&auth, &device_id, &ctx.env)
         .await
@@ -357,7 +362,8 @@ pub async fn delete_traffic_class(req: Request, ctx: RouteContext<()>) -> Result
     let auth = authenticate(&req, &ctx.env)
         .await
         .map_err(|e| Error::from(e.error.message))?;
-    require_plan(&auth, &["pro", "business", "business_plus"]).map_err(|e| Error::from(e.error.message))?;
+    require_plan(&auth, &["pro", "business", "business_plus"])
+        .map_err(|e| Error::from(e.error.message))?;
     let device_id = get_device_id(&req)?;
     check_device_access(&auth, &device_id, &ctx.env)
         .await
@@ -375,7 +381,8 @@ pub async fn get_device_limits(req: Request, ctx: RouteContext<()>) -> Result<Re
     let auth = authenticate(&req, &ctx.env)
         .await
         .map_err(|e| Error::from(e.error.message))?;
-    require_plan(&auth, &["pro", "business", "business_plus"]).map_err(|e| Error::from(e.error.message))?;
+    require_plan(&auth, &["pro", "business", "business_plus"])
+        .map_err(|e| Error::from(e.error.message))?;
     let device_id = get_device_id(&req)?;
     check_device_access(&auth, &device_id, &ctx.env)
         .await
@@ -390,7 +397,8 @@ pub async fn set_device_limit(mut req: Request, ctx: RouteContext<()>) -> Result
     let auth = authenticate(&req, &ctx.env)
         .await
         .map_err(|e| Error::from(e.error.message))?;
-    require_plan(&auth, &["pro", "business", "business_plus"]).map_err(|e| Error::from(e.error.message))?;
+    require_plan(&auth, &["pro", "business", "business_plus"])
+        .map_err(|e| Error::from(e.error.message))?;
     let device_id = get_device_id(&req)?;
     check_device_access(&auth, &device_id, &ctx.env)
         .await
@@ -409,7 +417,8 @@ pub async fn remove_device_limit(req: Request, ctx: RouteContext<()>) -> Result<
     let auth = authenticate(&req, &ctx.env)
         .await
         .map_err(|e| Error::from(e.error.message))?;
-    require_plan(&auth, &["pro", "business", "business_plus"]).map_err(|e| Error::from(e.error.message))?;
+    require_plan(&auth, &["pro", "business", "business_plus"])
+        .map_err(|e| Error::from(e.error.message))?;
     let device_id = get_device_id(&req)?;
     check_device_access(&auth, &device_id, &ctx.env)
         .await

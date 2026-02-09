@@ -49,7 +49,10 @@ export class IpsRuleDelete extends OpenAPIRoute {
 			return c.json({ success: false, error: "Rule not found" }, 404);
 		}
 
-		await db.prepare("DELETE FROM ips_rules WHERE id = ? AND owner_id = ?").bind(id, userId).run();
+		await db
+			.prepare("DELETE FROM ips_rules WHERE id = ? AND owner_id = ?")
+			.bind(id, userId)
+			.run();
 
 		return {
 			success: true,

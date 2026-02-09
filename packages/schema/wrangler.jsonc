@@ -6,9 +6,7 @@
 	"name": "ngfw-specs",
 	"upload_source_maps": true,
 	"workers_dev": true,
-	"routes": [
-		{ "pattern": "specs.ngfw.sh", "custom_domain": true }
-	],
+	"routes": [{ "pattern": "specs.ngfw.sh", "custom_domain": true }],
 	"observability": {
 		"enabled": true,
 		"head_sampling_rate": 1,

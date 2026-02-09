@@ -1,99 +1,107 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { computed, ref } from "vue";
 
-export type WizardStep = 'welcome' | 'router' | 'config' | 'summary' | 'submitting' | 'complete';
+export type WizardStep =
+	| "welcome"
+	| "router"
+	| "config"
+	| "summary"
+	| "submitting"
+	| "complete";
 
 export interface WizardState {
-  currentStep: WizardStep;
-  selectedRouter: any | null;
-  config: any | null;
-  orderId: string | null;
+	currentStep: WizardStep;
+	selectedRouter: any | null;
+	config: any | null;
+	orderId: string | null;
 }
 
 const props = defineProps<{
-  initialStep?: WizardStep;
+	initialStep?: WizardStep;
 }>();
 
 const emit = defineEmits<{
-  stepChange: [step: WizardStep];
-  complete: [orderId: string];
+	stepChange: [step: WizardStep];
+	complete: [orderId: string];
 }>();
 
-const currentStep = ref<WizardStep>(props.initialStep || 'welcome');
+const currentStep = ref<WizardStep>(props.initialStep || "welcome");
 const selectedRouter = ref<any | null>(null);
 const config = ref<any | null>(null);
 const orderId = ref<string | null>(null);
 
 const steps: Array<{ id: WizardStep; label: string; icon: string }> = [
-  { id: 'welcome', label: 'Welcome', icon: '👋' },
-  { id: 'router', label: 'Select Router', icon: '📡' },
-  { id: 'config', label: 'Configure', icon: '⚙️' },
-  { id: 'summary', label: 'Review', icon: '📋' },
-  { id: 'complete', label: 'Complete', icon: '✅' },
+	{ id: "welcome", label: "Welcome", icon: "👋" },
+	{ id: "router", label: "Select Router", icon: "📡" },
+	{ id: "config", label: "Configure", icon: "⚙️" },
+	{ id: "summary", label: "Review", icon: "📋" },
+	{ id: "complete", label: "Complete", icon: "✅" },
 ];
 
 const stepIndex = computed(() => {
-  return steps.findIndex(s => s.id === currentStep.value);
+	return steps.findIndex((s) => s.id === currentStep.value);
 });
 
 const canGoBack = computed(() => {
-  return currentStep.value !== 'welcome' &&
-         currentStep.value !== 'submitting' &&
-         currentStep.value !== 'complete';
+	return (
+		currentStep.value !== "welcome" &&
+		currentStep.value !== "submitting" &&
+		currentStep.value !== "complete"
+	);
 });
 
 const canGoNext = computed(() => {
-  if (currentStep.value === 'welcome') return true;
-  if (currentStep.value === 'router') return selectedRouter.value !== null;
-  if (currentStep.value === 'config') return config.value !== null;
-  if (currentStep.value === 'summary') return true;
-  return false;
+	if (currentStep.value === "welcome") return true;
+	if (currentStep.value === "router") return selectedRouter.value !== null;
+	if (currentStep.value === "config") return config.value !== null;
+	if (currentStep.value === "summary") return true;
+	return false;
 });
 
 const goToStep = (step: WizardStep) => {
-  currentStep.value = step;
-  emit('stepChange', step);
+	currentStep.value = step;
+	emit("stepChange", step);
 };
 
 const goNext = () => {
-  const nextIndex = stepIndex.value + 1;
-  if (nextIndex < steps.length) {
-    goToStep(steps[nextIndex].id);
-  }
+	const nextIndex = stepIndex.value + 1;
+	if (nextIndex < steps.length) {
+		goToStep(steps[nextIndex].id);
+	}
 };
 
 const goBack = () => {
-  const prevIndex = stepIndex.value - 1;
-  if (prevIndex >= 0) {
-    goToStep(steps[prevIndex].id);
-  }
+	const prevIndex = stepIndex.value - 1;
+	if (prevIndex >= 0) {
+		goToStep(steps[prevIndex].id);
+	}
 };
 
 const setRouter = (router: any) => {
-  selectedRouter.value = router;
+	selectedRouter.value = router;
 };
 
 const setConfig = (newConfig: any) => {
-  config.value = newConfig;
+	config.value = newConfig;
 };
 
 const setOrderId = (id: string) => {
-  orderId.value = id;
-  emit('complete', id);
+	orderId.value = id;
+	emit("complete", id);
 };
 
 // Expose methods for parent components
 defineExpose({
-  currentStep,
-  goToStep,
-  goNext,
-  goBack,
-  setRouter,
-  setConfig,
-  setOrderId,
-  selectedRouter,
-  config,
-  orderId,
+	currentStep,
+	goToStep,
+	goNext,
+	goBack,
+	setRouter,
+	setConfig,
+	setOrderId,
+	selectedRouter,
+	config,
+	orderId,
 });
 </script>
 

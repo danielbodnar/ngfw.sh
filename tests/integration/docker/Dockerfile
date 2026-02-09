@@ -1,5 +1,13 @@
 # Stage 1: Build the agent binary for aarch64-unknown-linux-musl
-FROM ghcr.io/cross-rs/aarch64-unknown-linux-musl:main AS builder
+FROM rust:1.85-bookworm AS builder
+
+# Install cross-compilation toolchain for aarch64 musl
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    musl-tools \
+    gcc-aarch64-linux-gnu \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN rustup target add aarch64-unknown-linux-musl
 
 WORKDIR /build
 
@@ -7,6 +15,7 @@ WORKDIR /build
 COPY . .
 
 # Build the agent binary targeting aarch64 musl
+ENV CARGO_TARGET_AARCH64_UNKNOWN_LINUX_MUSL_LINKER=aarch64-linux-gnu-gcc
 RUN cargo build -p ngfw-agent --release --target aarch64-unknown-linux-musl
 
 # Copy the binary to a known location
@@ -34,5 +43,12 @@ COPY tests/integration/docker/entrypoint.sh /entrypoint.sh
 # Ensure executables have correct permissions
 RUN chmod +x /usr/local/bin/ngfw-agent /entrypoint.sh \
     && chmod -R +x /mock-bins
+
+# Create non-root user for test container
+RUN addgroup -g 1000 ngfw && adduser -D -u 1000 -G ngfw ngfw
+USER ngfw
+
+HEALTHCHECK --interval=10s --timeout=5s --start-period=10s --retries=3 \
+  CMD pgrep -f ngfw-agent || exit 1
 
 ENTRYPOINT ["/entrypoint.sh"]

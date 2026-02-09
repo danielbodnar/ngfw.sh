@@ -1,10 +1,10 @@
 ---
-import PortalLayout from '../../../layouts/PortalLayout.astro';
-import DashboardViewerApp from '../../../components/monitoring/DashboardViewerApp.vue';
+import DashboardViewerApp from "../../../components/monitoring/DashboardViewerApp.vue";
+import PortalLayout from "../../../layouts/PortalLayout.astro";
 
 const { userId } = Astro.locals.auth();
 if (!userId) {
-  return Astro.redirect('/sign-in');
+	return Astro.redirect("/sign-in");
 }
 ---
 

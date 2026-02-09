@@ -1,13 +1,13 @@
-import { Hono } from "hono";
 import { fromHono } from "chanfana";
+import { Hono } from "hono";
 import { clerkAuth } from "../../middleware/auth";
 import type { AppBindings, AppVariables } from "../../types";
-import { ProfileList } from "./profileList";
-import { ProfileCreate } from "./profileCreate";
-import { ProfileUpdate } from "./profileUpdate";
-import { ProfileDelete } from "./profileDelete";
 import { Connect } from "./connect";
 import { Disconnect } from "./disconnect";
+import { ProfileCreate } from "./profileCreate";
+import { ProfileDelete } from "./profileDelete";
+import { ProfileList } from "./profileList";
+import { ProfileUpdate } from "./profileUpdate";
 
 const app = new Hono<{ Bindings: AppBindings; Variables: AppVariables }>();
 

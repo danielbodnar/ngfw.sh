@@ -15,4 +15,11 @@ COPY tests/integration/docker/config.toml /etc/ngfw/config.toml
 COPY tests/integration/docker/entrypoint.sh /entrypoint.sh
 RUN chmod +x /mock-bins/* /entrypoint.sh /usr/local/bin/ngfw-agent
 
+# Create non-root user for test container
+RUN addgroup -g 1000 ngfw && adduser -D -u 1000 -G ngfw ngfw
+USER ngfw
+
+HEALTHCHECK --interval=10s --timeout=5s --start-period=10s --retries=3 \
+  CMD pgrep -f ngfw-agent || exit 1
+
 ENTRYPOINT ["/entrypoint.sh"]

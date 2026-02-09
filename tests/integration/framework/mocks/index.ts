@@ -3,18 +3,17 @@
  * @module mocks
  */
 
-export { MockApiServer, createMockApiServer } from './api-server';
-export { MockAgentClient, createMockAgentClient } from './agent-client';
+export type { MockAgentConfig } from "./agent-client";
+export { createMockAgentClient, MockAgentClient } from "./agent-client";
+export type { MockApiServerConfig } from "./api-server";
+export { createMockApiServer, MockApiServer } from "./api-server";
+export type { FirmwareAdapterConfig } from "./firmware-adapter";
 export {
-  MockFirmwareAdapter,
-  MockNVRAM,
-  MockIptables,
-  MockDnsmasq,
-  MockWireless,
-  MockSystem,
-  createMockFirmwareAdapter,
-} from './firmware-adapter';
-
-export type { MockApiServerConfig } from './api-server';
-export type { MockAgentConfig } from './agent-client';
-export type { FirmwareAdapterConfig } from './firmware-adapter';
+	createMockFirmwareAdapter,
+	MockDnsmasq,
+	MockFirmwareAdapter,
+	MockIptables,
+	MockNVRAM,
+	MockSystem,
+	MockWireless,
+} from "./firmware-adapter";

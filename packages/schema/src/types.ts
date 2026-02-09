@@ -11,5 +11,8 @@ export type AppVariables = {
 	userId: string;
 };
 
-export type AppContext = Context<{ Bindings: AppBindings; Variables: AppVariables }>;
+export type AppContext = Context<{
+	Bindings: AppBindings;
+	Variables: AppVariables;
+}>;
 export type HandleArgs = [AppContext];

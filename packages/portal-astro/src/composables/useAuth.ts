@@ -4,22 +4,22 @@
  * @module composables/useAuth
  */
 
-import { ref, computed, onMounted, type Ref, type ComputedRef } from 'vue';
+import { type ComputedRef, computed, onMounted, type Ref, ref } from "vue";
 
 /**
  * Authentication state and helpers.
  */
 export interface UseAuthReturn {
-  /** Current authenticated user object */
-  user: Ref<any>;
-  /** Whether Clerk has finished loading */
-  isLoaded: Ref<boolean>;
-  /** Whether user is signed in */
-  isSignedIn: ComputedRef<boolean>;
-  /** Gets the current session JWT token */
-  getToken: () => Promise<string | null>;
-  /** Signs out the current user */
-  signOut: () => Promise<void>;
+	/** Current authenticated user object */
+	user: Ref<any>;
+	/** Whether Clerk has finished loading */
+	isLoaded: Ref<boolean>;
+	/** Whether user is signed in */
+	isSignedIn: ComputedRef<boolean>;
+	/** Gets the current session JWT token */
+	getToken: () => Promise<string | null>;
+	/** Signs out the current user */
+	signOut: () => Promise<void>;
 }
 
 /**
@@ -45,72 +45,72 @@ export interface UseAuthReturn {
  * ```
  */
 export function useAuth(): UseAuthReturn {
-  const user = ref<any>(null);
-  const isLoaded = ref(false);
-  const tokenCache = ref<{ token: string; expires: number } | null>(null);
+	const user = ref<any>(null);
+	const isLoaded = ref(false);
+	const tokenCache = ref<{ token: string; expires: number } | null>(null);
 
-  const isSignedIn = computed(() => !!user.value);
+	const isSignedIn = computed(() => !!user.value);
 
-  onMounted(async () => {
-    try {
-      // Fetch user info from server-side API
-      const response = await fetch('/api/user');
-      if (response.ok) {
-        user.value = await response.json();
-      }
-    } catch (error) {
-      console.error('Failed to load user:', error);
-    } finally {
-      isLoaded.value = true;
-    }
-  });
+	onMounted(async () => {
+		try {
+			// Fetch user info from server-side API
+			const response = await fetch("/api/user");
+			if (response.ok) {
+				user.value = await response.json();
+			}
+		} catch (error) {
+			console.error("Failed to load user:", error);
+		} finally {
+			isLoaded.value = true;
+		}
+	});
 
-  async function getToken(): Promise<string | null> {
-    // Check if cached token is still valid (cache for 5 minutes)
-    const now = Date.now();
-    if (tokenCache.value && tokenCache.value.expires > now) {
-      return tokenCache.value.token;
-    }
+	async function getToken(): Promise<string | null> {
+		// Check if cached token is still valid (cache for 5 minutes)
+		const now = Date.now();
+		if (tokenCache.value && tokenCache.value.expires > now) {
+			return tokenCache.value.token;
+		}
 
-    try {
-      // Fetch token from server-side API
-      const response = await fetch('/api/session-token');
-      if (!response.ok) {
-        console.error('Failed to get session token:', response.statusText);
-        return null;
-      }
+		try {
+			// Fetch token from server-side API
+			const response = await fetch("/api/session-token");
+			if (!response.ok) {
+				console.error("Failed to get session token:", response.statusText);
+				return null;
+			}
 
-      const data = await response.json() as { token: string };
+			const data = (await response.json()) as { token: string };
 
-      // Cache token for 5 minutes (tokens typically expire in 60 minutes)
-      tokenCache.value = {
-        token: data.token,
-        expires: now + 5 * 60 * 1000,
-      };
+			// Cache token for 5 minutes (tokens typically expire in 60 minutes)
+			tokenCache.value = {
+				token: data.token,
+				expires: now + 5 * 60 * 1000,
+			};
 
-      return data.token;
-    } catch (error) {
-      console.error('Error fetching session token:', error);
-      return null;
-    }
-  }
+			return data.token;
+		} catch (error) {
+			console.error("Error fetching session token:", error);
+			return null;
+		}
+	}
 
-  async function signOut(): Promise<void> {
-    try {
-      await fetch('/api/sign-out', { method: 'POST' });
-      user.value = null;
-      tokenCache.value = null;
-      window.location.href = '/sign-in';
-    } catch (error) {
-      console.error('Error signing out:', error);
-    }
-  }
+	async function signOut(): Promise<void> {
+		try {
+			await fetch("/api/sign-out", { method: "POST" });
+			user.value = null;
+			tokenCache.value = null;
+			window.location.href = "/sign-in";
+		} catch (error) {
+			console.error("Error signing out:", error);
+		}
+	}
 
-  return {
-    user,
-    isLoaded,
-    isSignedIn,
-    getToken,
-    signOut,
-  };
+	return {
+		user,
+		isLoaded,
+		isSignedIn,
+		getToken,
+		signOut,
+	};
 }

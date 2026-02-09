@@ -321,11 +321,7 @@ pub async fn get_latest_metrics(req: Request, ctx: RouteContext<()>) -> Result<R
     let prefix = format!("metrics:{}:", device_id);
     let list_response = kv.list().prefix(prefix).execute().await?;
 
-    let latest_key = list_response
-        .keys
-        .iter()
-        .map(|k| k.name.clone())
-        .max();
+    let latest_key = list_response.keys.iter().map(|k| k.name.clone()).max();
 
     match latest_key {
         Some(key) => match kv.get(&key).text().await? {

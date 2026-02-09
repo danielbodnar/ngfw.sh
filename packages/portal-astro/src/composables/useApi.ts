@@ -4,8 +4,8 @@
  * @module composables/useApi
  */
 
-import { createApiClient, type ApiClient } from '../lib/api/client';
-import { useAuth } from './useAuth';
+import { type ApiClient, createApiClient } from "../lib/api/client";
+import { useAuth } from "./useAuth";
 
 /**
  * Returns an authenticated API client instance.
@@ -25,6 +25,6 @@ import { useAuth } from './useAuth';
  * ```
  */
 export function useApi(): ApiClient {
-  const { getToken } = useAuth();
-  return createApiClient(getToken);
+	const { getToken } = useAuth();
+	return createApiClient(getToken);
 }

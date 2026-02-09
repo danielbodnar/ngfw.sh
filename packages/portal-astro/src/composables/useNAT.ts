@@ -4,28 +4,28 @@
  * @module composables/useNAT
  */
 
-import { ref, onMounted } from 'vue';
-import { useApi } from './useApi';
-import type { NATRule, NATRuleCreate, NATRuleUpdate } from '../lib/api/types';
+import { onMounted, ref } from "vue";
+import type { NATRule, NATRuleCreate, NATRuleUpdate } from "../lib/api/types";
+import { useApi } from "./useApi";
 
 /**
  * Return value from useNAT.
  */
 export interface UseNATReturn {
-  /** List of NAT rules */
-  data: ReturnType<typeof ref<NATRule[]>>;
-  /** Loading state */
-  loading: ReturnType<typeof ref<boolean>>;
-  /** Error message if fetch fails */
-  error: ReturnType<typeof ref<string | null>>;
-  /** Manually refetch NAT rules */
-  refetch: () => Promise<void>;
-  /** Create a new NAT rule */
-  create: (data: NATRuleCreate) => Promise<NATRule>;
-  /** Update an existing NAT rule */
-  update: (ruleId: string, data: NATRuleUpdate) => Promise<NATRule>;
-  /** Delete a NAT rule */
-  remove: (ruleId: string) => Promise<void>;
+	/** List of NAT rules */
+	data: ReturnType<typeof ref<NATRule[]>>;
+	/** Loading state */
+	loading: ReturnType<typeof ref<boolean>>;
+	/** Error message if fetch fails */
+	error: ReturnType<typeof ref<string | null>>;
+	/** Manually refetch NAT rules */
+	refetch: () => Promise<void>;
+	/** Create a new NAT rule */
+	create: (data: NATRuleCreate) => Promise<NATRule>;
+	/** Update an existing NAT rule */
+	update: (ruleId: string, data: NATRuleUpdate) => Promise<NATRule>;
+	/** Delete a NAT rule */
+	remove: (ruleId: string) => Promise<void>;
 }
 
 /**
@@ -58,70 +58,75 @@ export interface UseNATReturn {
  * </script>
  * ```
  */
-export function useNAT(
-  deviceId: ReturnType<typeof ref<string>>,
-): UseNATReturn {
-  const api = useApi();
-  const data = ref<NATRule[]>([]);
-  const loading = ref(true);
-  const error = ref<string | null>(null);
+export function useNAT(deviceId: ReturnType<typeof ref<string>>): UseNATReturn {
+	const api = useApi();
+	const data = ref<NATRule[]>([]);
+	const loading = ref(true);
+	const error = ref<string | null>(null);
 
-  async function refetch(): Promise<void> {
-    if (!deviceId.value) return;
+	async function refetch(): Promise<void> {
+		if (!deviceId.value) return;
 
-    loading.value = true;
-    error.value = null;
+		loading.value = true;
+		error.value = null;
 
-    try {
-      data.value = await api.listNATRules(deviceId.value);
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to fetch NAT rules';
-    } finally {
-      loading.value = false;
-    }
-  }
+		try {
+			data.value = await api.listNATRules(deviceId.value);
+		} catch (err) {
+			error.value =
+				err instanceof Error ? err.message : "Failed to fetch NAT rules";
+		} finally {
+			loading.value = false;
+		}
+	}
 
-  async function create(ruleData: NATRuleCreate): Promise<NATRule> {
-    error.value = null;
-    try {
-      return await api.createNATRule(ruleData);
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to create NAT rule';
-      throw err;
-    }
-  }
+	async function create(ruleData: NATRuleCreate): Promise<NATRule> {
+		error.value = null;
+		try {
+			return await api.createNATRule(ruleData);
+		} catch (err) {
+			error.value =
+				err instanceof Error ? err.message : "Failed to create NAT rule";
+			throw err;
+		}
+	}
 
-  async function update(ruleId: string, ruleData: NATRuleUpdate): Promise<NATRule> {
-    error.value = null;
-    try {
-      return await api.updateNATRule(ruleId, ruleData);
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to update NAT rule';
-      throw err;
-    }
-  }
+	async function update(
+		ruleId: string,
+		ruleData: NATRuleUpdate,
+	): Promise<NATRule> {
+		error.value = null;
+		try {
+			return await api.updateNATRule(ruleId, ruleData);
+		} catch (err) {
+			error.value =
+				err instanceof Error ? err.message : "Failed to update NAT rule";
+			throw err;
+		}
+	}
 
-  async function remove(ruleId: string): Promise<void> {
-    error.value = null;
-    try {
-      await api.deleteNATRule(ruleId);
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to delete NAT rule';
-      throw err;
-    }
-  }
+	async function remove(ruleId: string): Promise<void> {
+		error.value = null;
+		try {
+			await api.deleteNATRule(ruleId);
+		} catch (err) {
+			error.value =
+				err instanceof Error ? err.message : "Failed to delete NAT rule";
+			throw err;
+		}
+	}
 
-  onMounted(() => {
-    void refetch();
-  });
+	onMounted(() => {
+		void refetch();
+	});
 
-  return {
-    data,
-    loading,
-    error,
-    refetch,
-    create,
-    update,
-    remove,
-  };
+	return {
+		data,
+		loading,
+		error,
+		refetch,
+		create,
+		update,
+		remove,
+	};
 }

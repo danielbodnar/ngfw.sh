@@ -4,9 +4,7 @@
 //! config validation/application, and protocol compliance.
 
 use ngfw_agent::config::AgentConfig;
-use ngfw_protocol::{
-    AgentMode, MessageType, ModeConfig, RpcMessage,
-};
+use ngfw_protocol::{AgentMode, MessageType, ModeConfig, RpcMessage};
 use serde_json::json;
 use std::time::Duration;
 use tokio::sync::{mpsc, watch};
@@ -14,7 +12,7 @@ use tokio::time::timeout;
 
 /// Helper to create test config
 fn test_config() -> AgentConfig {
-    use ngfw_agent::config::{AgentSection, ModeSection, AdaptersSection};
+    use ngfw_agent::config::{AdaptersSection, AgentSection, ModeSection};
 
     AgentConfig {
         agent: AgentSection {
@@ -72,9 +70,7 @@ async fn test_dispatcher_ping_pong() {
 
     // Cleanup
     drop(inbound_tx);
-    timeout(Duration::from_secs(1), dispatcher_task)
-        .await
-        .ok();
+    timeout(Duration::from_secs(1), dispatcher_task).await.ok();
 }
 
 #[tokio::test]
@@ -204,10 +200,12 @@ async fn test_dispatcher_exec_command_blocked_in_observe() {
     let result = &response.payload;
     assert_eq!(result["command_id"], "cmd-002");
     assert_eq!(result["exit_code"], -1);
-    assert!(result["stderr"]
-        .as_str()
-        .unwrap()
-        .contains("Diagnostics require at least shadow mode"));
+    assert!(
+        result["stderr"]
+            .as_str()
+            .unwrap()
+            .contains("Diagnostics require at least shadow mode")
+    );
 }
 
 #[tokio::test]
@@ -253,10 +251,12 @@ async fn test_dispatcher_exec_command_not_in_allowlist() {
     let result = &response.payload;
     assert_eq!(result["command_id"], "cmd-003");
     assert_eq!(result["exit_code"], -1);
-    assert!(result["stderr"]
-        .as_str()
-        .unwrap()
-        .contains("not in the allowlist"));
+    assert!(
+        result["stderr"]
+            .as_str()
+            .unwrap()
+            .contains("not in the allowlist")
+    );
 }
 
 #[tokio::test]
@@ -388,7 +388,7 @@ async fn test_dispatcher_config_push_shadow_mode_invalid() {
 
     assert_eq!(response.msg_type, MessageType::ConfigFail);
     assert_eq!(response.payload["success"], false);
-    assert!(response.payload["error"].as_str().unwrap().len() > 0);
+    assert!(!response.payload["error"].as_str().unwrap().is_empty());
 }
 
 #[tokio::test]
@@ -511,10 +511,12 @@ async fn test_dispatcher_reboot_denied_in_observe() {
         .expect("Channel should not be closed");
 
     assert_eq!(response.msg_type, MessageType::Error);
-    assert!(response.payload["error"]
-        .as_str()
-        .unwrap()
-        .contains("takeover mode"));
+    assert!(
+        response.payload["error"]
+            .as_str()
+            .unwrap()
+            .contains("takeover mode")
+    );
 }
 
 #[tokio::test]
@@ -555,17 +557,19 @@ async fn test_dispatcher_upgrade_denied_in_shadow() {
         .expect("Channel should not be closed");
 
     assert_eq!(response.msg_type, MessageType::Error);
-    assert!(response.payload["error"]
-        .as_str()
-        .unwrap()
-        .contains("takeover mode"));
+    assert!(
+        response.payload["error"]
+            .as_str()
+            .unwrap()
+            .contains("takeover mode")
+    );
 }
 
 #[tokio::test]
 async fn test_dispatcher_shutdown_cleanup() {
     let config = test_config();
-    let (inbound_tx, inbound_rx) = mpsc::channel(10);
-    let (outbound_tx, mut outbound_rx) = mpsc::channel(10);
+    let (_inbound_tx, inbound_rx) = mpsc::channel(10);
+    let (outbound_tx, _outbound_rx) = mpsc::channel(10);
     let (mode_tx, mode_rx) = watch::channel(ModeConfig {
         mode: AgentMode::Observe,
         section_overrides: Default::default(),

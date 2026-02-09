@@ -18,13 +18,13 @@
  * ```
  */
 export function formatDate(
-  timestamp: number,
-  options: Intl.DateTimeFormatOptions = {
-    dateStyle: 'medium',
-    timeStyle: 'short',
-  },
+	timestamp: number,
+	options: Intl.DateTimeFormatOptions = {
+		dateStyle: "medium",
+		timeStyle: "short",
+	},
 ): string {
-  return new Date(timestamp * 1000).toLocaleString(undefined, options);
+	return new Date(timestamp * 1000).toLocaleString(undefined, options);
 }
 
 /**
@@ -40,27 +40,27 @@ export function formatDate(
  * ```
  */
 export function formatRelativeTime(timestamp: number): string {
-  const now = Date.now() / 1000;
-  const diff = timestamp - now;
-  const absDiff = Math.abs(diff);
+	const now = Date.now() / 1000;
+	const diff = timestamp - now;
+	const absDiff = Math.abs(diff);
 
-  const rtf = new Intl.RelativeTimeFormat(undefined, { numeric: 'auto' });
+	const rtf = new Intl.RelativeTimeFormat(undefined, { numeric: "auto" });
 
-  if (absDiff < 60) {
-    return rtf.format(Math.round(diff), 'second');
-  } else if (absDiff < 3600) {
-    return rtf.format(Math.round(diff / 60), 'minute');
-  } else if (absDiff < 86400) {
-    return rtf.format(Math.round(diff / 3600), 'hour');
-  } else if (absDiff < 604800) {
-    return rtf.format(Math.round(diff / 86400), 'day');
-  } else if (absDiff < 2592000) {
-    return rtf.format(Math.round(diff / 604800), 'week');
-  } else if (absDiff < 31536000) {
-    return rtf.format(Math.round(diff / 2592000), 'month');
-  } else {
-    return rtf.format(Math.round(diff / 31536000), 'year');
-  }
+	if (absDiff < 60) {
+		return rtf.format(Math.round(diff), "second");
+	} else if (absDiff < 3600) {
+		return rtf.format(Math.round(diff / 60), "minute");
+	} else if (absDiff < 86400) {
+		return rtf.format(Math.round(diff / 3600), "hour");
+	} else if (absDiff < 604800) {
+		return rtf.format(Math.round(diff / 86400), "day");
+	} else if (absDiff < 2592000) {
+		return rtf.format(Math.round(diff / 604800), "week");
+	} else if (absDiff < 31536000) {
+		return rtf.format(Math.round(diff / 2592000), "month");
+	} else {
+		return rtf.format(Math.round(diff / 31536000), "year");
+	}
 }
 
 /**
@@ -75,11 +75,11 @@ export function formatRelativeTime(timestamp: number): string {
  * ```
  */
 export function formatShortDate(timestamp: number): string {
-  return new Date(timestamp * 1000).toLocaleDateString(undefined, {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  });
+	return new Date(timestamp * 1000).toLocaleDateString(undefined, {
+		year: "numeric",
+		month: "short",
+		day: "numeric",
+	});
 }
 
 /**
@@ -94,8 +94,8 @@ export function formatShortDate(timestamp: number): string {
  * ```
  */
 export function formatTime(timestamp: number): string {
-  return new Date(timestamp * 1000).toLocaleTimeString(undefined, {
-    hour: 'numeric',
-    minute: '2-digit',
-  });
+	return new Date(timestamp * 1000).toLocaleTimeString(undefined, {
+		hour: "numeric",
+		minute: "2-digit",
+	});
 }

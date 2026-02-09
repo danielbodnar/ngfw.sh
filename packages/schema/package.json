@@ -1,30 +1,30 @@
 {
-  "name": "@ngfw/schema",
-  "description": "NGFW.sh API schema and server using Hono + Chanfana + D1",
-  "dependencies": {
-    "@clerk/backend": "^2.29.7",
-    "chanfana": "3.0.0",
-    "hono": "4.11.7",
-    "zod": "4.3.6"
-  },
-  "devDependencies": {
-    "@cloudflare/vitest-pool-workers": "0.5.28",
-    "@types/node": "25.2.0",
-    "typescript": "5.9.3",
-    "vitest": "1.6.0",
-    "wrangler": "4.62.0"
-  },
-  "private": true,
-  "scripts": {
-    "cf-typegen": "wrangler types",
-    "deploy": "wrangler deploy",
-    "dev": "pnpm seedLocalDb && wrangler dev",
-    "predeploy": "wrangler d1 migrations apply DB --remote",
-    "schema": "npx chanfana",
-    "seedLocalDb": "wrangler d1 migrations apply DB --local",
-    "test": "wrangler deploy --dry-run && npx vitest run --config tests/vitest.config.mts"
-  },
-  "trustedDependencies": [
-    "@clerk/shared"
-  ]
+	"name": "@ngfw/schema",
+	"description": "NGFW.sh API schema and server using Hono + Chanfana + D1",
+	"dependencies": {
+		"@clerk/backend": "^2.30.1",
+		"chanfana": "3.0.0",
+		"hono": "4.11.9",
+		"zod": "4.3.6"
+	},
+	"devDependencies": {
+		"@cloudflare/vitest-pool-workers": "0.12.10",
+		"@types/node": "25.2.2",
+		"typescript": "5.9.3",
+		"vitest": "~4.0.18",
+		"wrangler": "4.63.0"
+	},
+	"private": true,
+	"scripts": {
+		"cf-typegen": "wrangler types",
+		"deploy": "wrangler deploy",
+		"dev": "pnpm seedLocalDb && wrangler dev",
+		"predeploy": "wrangler d1 migrations apply DB --remote",
+		"schema": "npx chanfana",
+		"seedLocalDb": "wrangler d1 migrations apply DB --local",
+		"test": "wrangler deploy && npx vitest run --config tests/vitest.config.mts"
+	},
+	"trustedDependencies": [
+		"@clerk/shared"
+	]
 }

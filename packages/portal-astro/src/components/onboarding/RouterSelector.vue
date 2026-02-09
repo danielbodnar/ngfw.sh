@@ -1,36 +1,36 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
-import Badge from '../ui/Badge.vue';
+import { onMounted, ref } from "vue";
+import Badge from "../ui/Badge.vue";
 
 interface RouterSpec {
-  cpu: string;
-  ram: string;
-  storage: string;
-  wanPorts: string;
-  lanPorts: string;
-  wifi: string;
-  maxDevices: number;
+	cpu: string;
+	ram: string;
+	storage: string;
+	wanPorts: string;
+	lanPorts: string;
+	wifi: string;
+	maxDevices: number;
 }
 
 interface RouterOption {
-  id: string;
-  name: string;
-  manufacturer: string;
-  firmware: string;
-  price: number;
-  specs: RouterSpec;
-  features: string[];
-  image: string;
-  recommended?: boolean;
-  inStock: boolean;
+	id: string;
+	name: string;
+	manufacturer: string;
+	firmware: string;
+	price: number;
+	specs: RouterSpec;
+	features: string[];
+	image: string;
+	recommended?: boolean;
+	inStock: boolean;
 }
 
 const props = defineProps<{
-  selectedRouterId?: string | null;
+	selectedRouterId?: string | null;
 }>();
 
 const emit = defineEmits<{
-  select: [router: RouterOption];
+	select: [router: RouterOption];
 }>();
 
 const routers = ref<RouterOption[]>([]);
@@ -38,32 +38,32 @@ const loading = ref(true);
 const error = ref<string | null>(null);
 
 const loadRouters = async () => {
-  try {
-    loading.value = true;
-    const response = await fetch('https://specs.ngfw.sh/onboarding/routers');
-    const data = await response.json();
+	try {
+		loading.value = true;
+		const response = await fetch("https://specs.ngfw.sh/onboarding/routers");
+		const data = await response.json();
 
-    if (data.success) {
-      routers.value = data.result;
-    } else {
-      error.value = 'Failed to load router options';
-    }
-  } catch (err) {
-    error.value = 'Network error. Please try again.';
-    console.error('Failed to load routers:', err);
-  } finally {
-    loading.value = false;
-  }
+		if (data.success) {
+			routers.value = data.result;
+		} else {
+			error.value = "Failed to load router options";
+		}
+	} catch (err) {
+		error.value = "Network error. Please try again.";
+		console.error("Failed to load routers:", err);
+	} finally {
+		loading.value = false;
+	}
 };
 
 const selectRouter = (router: RouterOption) => {
-  if (router.inStock) {
-    emit('select', router);
-  }
+	if (router.inStock) {
+		emit("select", router);
+	}
 };
 
 onMounted(() => {
-  loadRouters();
+	loadRouters();
 });
 </script>
 

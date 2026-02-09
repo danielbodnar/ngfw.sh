@@ -56,10 +56,15 @@ export class ReportList extends OpenAPIRoute {
 		query += " ORDER BY created_at DESC LIMIT ? OFFSET ?";
 		params.push(String(limit), String(offset));
 
-		const { results } = await c.env.DB.prepare(query).bind(...params).all();
+		const { results } = await c.env.DB.prepare(query)
+			.bind(...params)
+			.all();
 
-		const countQuery = "SELECT COUNT(*) as total FROM reports WHERE owner_id = ?";
-		const countResult = await c.env.DB.prepare(countQuery).bind(userId).first<{ total: number }>();
+		const countQuery =
+			"SELECT COUNT(*) as total FROM reports WHERE owner_id = ?";
+		const countResult = await c.env.DB.prepare(countQuery)
+			.bind(userId)
+			.first<{ total: number }>();
 
 		return {
 			success: true,

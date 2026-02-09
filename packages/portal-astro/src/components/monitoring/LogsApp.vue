@@ -1,18 +1,18 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
-import { useLogs } from '../../composables/useLogs';
-import { usePolling } from '../../composables/usePolling';
-import Spinner from '../ui/Spinner.vue';
-import Button from '../ui/Button.vue';
-import Card from '../ui/Card.vue';
-import Badge from '../ui/Badge.vue';
-import Select from '../ui/Select.vue';
-import Input from '../ui/Input.vue';
-import type { LogQuery } from '../../lib/api/types';
+import { computed, ref } from "vue";
+import { useLogs } from "../../composables/useLogs";
+import { usePolling } from "../../composables/usePolling";
+import type { LogQuery } from "../../lib/api/types";
+import Badge from "../ui/Badge.vue";
+import Button from "../ui/Button.vue";
+import Card from "../ui/Card.vue";
+import Input from "../ui/Input.vue";
+import Select from "../ui/Select.vue";
+import Spinner from "../ui/Spinner.vue";
 
 // Initial query parameters
 const initialQuery: LogQuery = {
-  limit: 100,
+	limit: 100,
 };
 
 // Fetch logs with reactive filtering
@@ -20,136 +20,148 @@ const { data: logs, loading, error, refetch, setQuery } = useLogs(initialQuery);
 
 // Auto-refresh every 10 seconds
 usePolling({
-  fetcher: refetch,
-  interval: 10000,
-  immediate: false,
+	fetcher: refetch,
+	interval: 10000,
+	immediate: false,
 });
 
 // Filter state
 const filters = ref({
-  level: 'all',
-  category: '',
-  search: '',
-  deviceId: '',
+	level: "all",
+	category: "",
+	search: "",
+	deviceId: "",
 });
 
 // Apply filters
 const applyFilters = () => {
-  const query: LogQuery = {
-    limit: 100,
-  };
+	const query: LogQuery = {
+		limit: 100,
+	};
 
-  if (filters.value.level !== 'all') {
-    query.level = filters.value.level as LogQuery['level'];
-  }
+	if (filters.value.level !== "all") {
+		query.level = filters.value.level as LogQuery["level"];
+	}
 
-  if (filters.value.category) {
-    query.category = filters.value.category;
-  }
+	if (filters.value.category) {
+		query.category = filters.value.category;
+	}
 
-  if (filters.value.deviceId) {
-    query.device_id = filters.value.deviceId;
-  }
+	if (filters.value.deviceId) {
+		query.device_id = filters.value.deviceId;
+	}
 
-  setQuery(query);
+	setQuery(query);
 };
 
 // Search/filter logs client-side for search term
 const filteredLogs = computed(() => {
-  if (!logs.value) return [];
+	if (!logs.value) return [];
 
-  let filtered = logs.value;
+	let filtered = logs.value;
 
-  if (filters.value.search) {
-    const search = filters.value.search.toLowerCase();
-    filtered = filtered.filter((log) =>
-      log.message.toLowerCase().includes(search) ||
-      log.source_ip?.toLowerCase().includes(search) ||
-      log.destination_ip?.toLowerCase().includes(search)
-    );
-  }
+	if (filters.value.search) {
+		const search = filters.value.search.toLowerCase();
+		filtered = filtered.filter(
+			(log) =>
+				log.message.toLowerCase().includes(search) ||
+				log.source_ip?.toLowerCase().includes(search) ||
+				log.destination_ip?.toLowerCase().includes(search),
+		);
+	}
 
-  return filtered;
+	return filtered;
 });
 
 // Format timestamp to readable time
 const formatTimestamp = (timestamp: number): string => {
-  return new Date(timestamp * 1000).toLocaleString('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-  });
+	return new Date(timestamp * 1000).toLocaleString("en-US", {
+		year: "numeric",
+		month: "short",
+		day: "numeric",
+		hour: "2-digit",
+		minute: "2-digit",
+		second: "2-digit",
+	});
 };
 
 // Get log level badge variant
-const getLevelVariant = (level: string): 'success' | 'danger' | 'warning' | 'info' => {
-  if (level === 'critical' || level === 'error') return 'danger';
-  if (level === 'warning') return 'warning';
-  if (level === 'info') return 'info';
-  return 'success';
+const getLevelVariant = (
+	level: string,
+): "success" | "danger" | "warning" | "info" => {
+	if (level === "critical" || level === "error") return "danger";
+	if (level === "warning") return "warning";
+	if (level === "info") return "info";
+	return "success";
 };
 
 // Get log level icon
 const getLevelIcon = (level: string): string => {
-  const icons: Record<string, string> = {
-    critical: '🔴',
-    error: '❌',
-    warning: '⚠️',
-    info: 'ℹ️',
-    debug: '🐛',
-  };
-  return icons[level] || '📝';
+	const icons: Record<string, string> = {
+		critical: "🔴",
+		error: "❌",
+		warning: "⚠️",
+		info: "ℹ️",
+		debug: "🐛",
+	};
+	return icons[level] || "📝";
 };
 
 // Export logs
 const handleExport = () => {
-  if (!filteredLogs.value || filteredLogs.value.length === 0) return;
+	if (!filteredLogs.value || filteredLogs.value.length === 0) return;
 
-  const csvContent = [
-    ['Timestamp', 'Level', 'Category', 'Message', 'Source IP', 'Destination IP', 'Protocol', 'Action'].join(','),
-    ...filteredLogs.value.map((log) =>
-      [
-        formatTimestamp(log.timestamp),
-        log.level,
-        log.category,
-        `"${log.message.replace(/"/g, '""')}"`,
-        log.source_ip || '',
-        log.destination_ip || '',
-        log.protocol || '',
-        log.action || '',
-      ].join(',')
-    ),
-  ].join('\n');
+	const csvContent = [
+		[
+			"Timestamp",
+			"Level",
+			"Category",
+			"Message",
+			"Source IP",
+			"Destination IP",
+			"Protocol",
+			"Action",
+		].join(","),
+		...filteredLogs.value.map((log) =>
+			[
+				formatTimestamp(log.timestamp),
+				log.level,
+				log.category,
+				`"${log.message.replace(/"/g, '""')}"`,
+				log.source_ip || "",
+				log.destination_ip || "",
+				log.protocol || "",
+				log.action || "",
+			].join(","),
+		),
+	].join("\n");
 
-  const blob = new Blob([csvContent], { type: 'text/csv' });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = `logs-${Date.now()}.csv`;
-  link.click();
-  URL.revokeObjectURL(url);
+	const blob = new Blob([csvContent], { type: "text/csv" });
+	const url = URL.createObjectURL(blob);
+	const link = document.createElement("a");
+	link.href = url;
+	link.download = `logs-${Date.now()}.csv`;
+	link.click();
+	URL.revokeObjectURL(url);
 };
 
 // Compute stats
 const stats = computed(() => {
-  const logList = logs.value || [];
-  return {
-    total: logList.length,
-    critical: logList.filter((l) => l.level === 'critical').length,
-    error: logList.filter((l) => l.level === 'error').length,
-    warning: logList.filter((l) => l.level === 'warning').length,
-    info: logList.filter((l) => l.level === 'info').length,
-  };
+	const logList = logs.value || [];
+	return {
+		total: logList.length,
+		critical: logList.filter((l) => l.level === "critical").length,
+		error: logList.filter((l) => l.level === "error").length,
+		warning: logList.filter((l) => l.level === "warning").length,
+		info: logList.filter((l) => l.level === "info").length,
+	};
 });
 
 // Unique categories from logs
 const categories = computed(() => {
-  if (!logs.value) return [];
-  const uniqueCategories = new Set(logs.value.map((log) => log.category));
-  return Array.from(uniqueCategories).sort();
+	if (!logs.value) return [];
+	const uniqueCategories = new Set(logs.value.map((log) => log.category));
+	return Array.from(uniqueCategories).sort();
 });
 </script>
 

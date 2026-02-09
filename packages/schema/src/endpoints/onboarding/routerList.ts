@@ -10,7 +10,8 @@ export class OnboardingRouterList extends OpenAPIRoute {
 	schema = {
 		tags: ["Onboarding"],
 		summary: "List available routers",
-		description: "Get all available router options with specs, pricing, and availability",
+		description:
+			"Get all available router options with specs, pricing, and availability",
 		responses: {
 			200: {
 				description: "List of available routers",
@@ -79,7 +80,8 @@ export class OnboardingRouterList extends OpenAPIRoute {
 					"Open-source firmware with active community",
 					"Best price-to-performance ratio",
 				],
-				image: "https://placehold.co/400x300/1e293b/10b981?text=GL.iNet+Flint+2",
+				image:
+					"https://placehold.co/400x300/1e293b/10b981?text=GL.iNet+Flint+2",
 				recommended: true,
 				inStock: true,
 			},
@@ -106,7 +108,8 @@ export class OnboardingRouterList extends OpenAPIRoute {
 					"Large community and documentation",
 					"Budget-friendly OpenWrt option",
 				],
-				image: "https://placehold.co/400x300/1e293b/8b5cf6?text=Linksys+WRT3200ACM",
+				image:
+					"https://placehold.co/400x300/1e293b/8b5cf6?text=Linksys+WRT3200ACM",
 				recommended: false,
 				inStock: true,
 			},
@@ -133,7 +136,8 @@ export class OnboardingRouterList extends OpenAPIRoute {
 					"Future-proof connectivity",
 					"Premium OpenWrt experience",
 				],
-				image: "https://placehold.co/400x300/1e293b/f59e0b?text=GL.iNet+Flint+3",
+				image:
+					"https://placehold.co/400x300/1e293b/f59e0b?text=GL.iNet+Flint+3",
 				recommended: false,
 				inStock: true,
 			},

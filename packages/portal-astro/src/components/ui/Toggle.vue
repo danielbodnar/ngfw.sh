@@ -1,48 +1,52 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed } from "vue";
 
 export interface ToggleProps {
-  modelValue: boolean;
-  label?: string;
-  description?: string;
-  disabled?: boolean;
-  id?: string;
+	modelValue: boolean;
+	label?: string;
+	description?: string;
+	disabled?: boolean;
+	id?: string;
 }
 
 const props = withDefaults(defineProps<ToggleProps>(), {
-  disabled: false,
+	disabled: false,
 });
 
 const emit = defineEmits<{
-  'update:modelValue': [value: boolean];
+	"update:modelValue": [value: boolean];
 }>();
 
-const toggleId = computed(() => props.id || `toggle-${Math.random().toString(36).slice(2, 9)}`);
+const toggleId = computed(
+	() => props.id || `toggle-${Math.random().toString(36).slice(2, 9)}`,
+);
 
 const switchClasses = computed(() => {
-  const base = 'relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50';
+	const base =
+		"relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50";
 
-  if (props.modelValue) {
-    return `${base} bg-blue-600 dark:bg-blue-500`;
-  }
+	if (props.modelValue) {
+		return `${base} bg-blue-600 dark:bg-blue-500`;
+	}
 
-  return `${base} bg-slate-200 dark:bg-slate-700`;
+	return `${base} bg-slate-200 dark:bg-slate-700`;
 });
 
 const thumbClasses = computed(() => {
-  const base = 'pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow-lg ring-0 transition-transform';
+	const base =
+		"pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow-lg ring-0 transition-transform";
 
-  if (props.modelValue) {
-    return `${base} translate-x-5`;
-  }
+	if (props.modelValue) {
+		return `${base} translate-x-5`;
+	}
 
-  return `${base} translate-x-0.5`;
+	return `${base} translate-x-0.5`;
 });
 
 const handleToggle = () => {
-  if (!props.disabled) {
-    emit('update:modelValue', !props.modelValue);
-  }
+	if (!props.disabled) {
+		emit("update:modelValue", !props.modelValue);
+	}
 };
 </script>
 

@@ -1,72 +1,72 @@
 <script setup lang="ts" generic="T extends Record<string, unknown>">
-import { ref, computed } from 'vue';
+import { computed, ref } from "vue";
 
 export interface TableColumn<T> {
-  key: keyof T;
-  label: string;
-  sortable?: boolean;
-  align?: 'left' | 'center' | 'right';
-  width?: string;
+	key: keyof T;
+	label: string;
+	sortable?: boolean;
+	align?: "left" | "center" | "right";
+	width?: string;
 }
 
 export interface TableProps<T> {
-  columns: TableColumn<T>[];
-  data: T[];
-  sortKey?: keyof T;
-  sortOrder?: 'asc' | 'desc';
-  hoverable?: boolean;
+	columns: TableColumn<T>[];
+	data: T[];
+	sortKey?: keyof T;
+	sortOrder?: "asc" | "desc";
+	hoverable?: boolean;
 }
 
 const props = withDefaults(defineProps<TableProps<T>>(), {
-  hoverable: true,
+	hoverable: true,
 });
 
 const emit = defineEmits<{
-  rowClick: [row: T];
-  sort: [key: keyof T, order: 'asc' | 'desc'];
+	rowClick: [row: T];
+	sort: [key: keyof T, order: "asc" | "desc"];
 }>();
 
 const currentSortKey = ref<keyof T | undefined>(props.sortKey);
-const currentSortOrder = ref<'asc' | 'desc'>(props.sortOrder || 'asc');
+const currentSortOrder = ref<"asc" | "desc">(props.sortOrder || "asc");
 
 const sortedData = computed(() => {
-  if (!currentSortKey.value) {
-    return props.data;
-  }
+	if (!currentSortKey.value) {
+		return props.data;
+	}
 
-  return [...props.data].sort((a, b) => {
-    const aVal = a[currentSortKey.value!];
-    const bVal = b[currentSortKey.value!];
+	return [...props.data].sort((a, b) => {
+		const aVal = a[currentSortKey.value!];
+		const bVal = b[currentSortKey.value!];
 
-    let comparison = 0;
-    if (aVal > bVal) comparison = 1;
-    if (aVal < bVal) comparison = -1;
+		let comparison = 0;
+		if (aVal > bVal) comparison = 1;
+		if (aVal < bVal) comparison = -1;
 
-    return currentSortOrder.value === 'asc' ? comparison : -comparison;
-  });
+		return currentSortOrder.value === "asc" ? comparison : -comparison;
+	});
 });
 
 const handleSort = (column: TableColumn<T>) => {
-  if (!column.sortable) return;
+	if (!column.sortable) return;
 
-  if (currentSortKey.value === column.key) {
-    currentSortOrder.value = currentSortOrder.value === 'asc' ? 'desc' : 'asc';
-  } else {
-    currentSortKey.value = column.key;
-    currentSortOrder.value = 'asc';
-  }
+	if (currentSortKey.value === column.key) {
+		currentSortOrder.value = currentSortOrder.value === "asc" ? "desc" : "asc";
+	} else {
+		currentSortKey.value = column.key;
+		currentSortOrder.value = "asc";
+	}
 
-  emit('sort', currentSortKey.value, currentSortOrder.value);
+	emit("sort", currentSortKey.value, currentSortOrder.value);
 };
 
 const handleRowClick = (row: T) => {
-  emit('rowClick', row);
+	emit("rowClick", row);
 };
 
-const getAlignment = (align?: 'left' | 'center' | 'right') => {
-  if (align === 'center') return 'text-center';
-  if (align === 'right') return 'text-right';
-  return 'text-left';
+const getAlignment = (align?: "left" | "center" | "right") => {
+	if (align === "center") return "text-center";
+	if (align === "right") return "text-right";
+	return "text-left";
 };
 </script>
 

@@ -1,0 +1,49 @@
+# NGFW Agent Docker Compose Configuration
+#
+# Usage:
+#   docker-compose up -d          # Start agent
+#   docker-compose logs -f        # View logs
+#   docker-compose down           # Stop agent
+#
+# Gateway Mode (for VPC/cloud deployments):
+#   docker-compose -f docker-compose.yml -f docker-compose.gateway.yml up -d
+
+services:
+  agent:
+    build:
+      context: ../..
+      dockerfile: packages/agent/Dockerfile
+    image: ngfw-agent:latest
+    container_name: ngfw-agent
+    restart: unless-stopped
+
+    # Configuration
+    volumes:
+      - ./config.toml:/etc/ngfw/config.toml:ro
+
+    # Networking (normal mode - agent only)
+    network_mode: bridge
+
+    # Resource limits
+    mem_limit: 256m
+    cpus: 0.5
+
+    # Health check
+    healthcheck:
+      test: ["CMD-SHELL", "ps aux | grep -q '[n]gfw-agent'"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+    # Logging
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+    # Environment variables
+    environment:
+      - RUST_LOG=info
+      - RUST_BACKTRACE=1

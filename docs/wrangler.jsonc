@@ -1,17 +1,15 @@
 {
-  "name": "ngfw-docs",
-  "account_id": "5dae265f74e6077ad674a3d855bf9853",
-  "main": "dist/_worker.js/index.js",
-  "compatibility_date": "2026-02-03",
-  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
-  "routes": [
-    { "pattern": "docs.ngfw.sh", "custom_domain": true }
-  ],
-  "assets": {
-    "binding": "ASSETS",
-    "directory": "./dist"
-  },
-  "observability": {
-    "enabled": true
-  }
+	"name": "ngfw-docs",
+	"account_id": "5dae265f74e6077ad674a3d855bf9853",
+	"main": "dist/_worker.js/index.js",
+	"compatibility_date": "2026-02-03",
+	"compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+	"routes": [{ "pattern": "docs.ngfw.sh", "custom_domain": true }],
+	"assets": {
+		"binding": "ASSETS",
+		"directory": "./dist"
+	},
+	"observability": {
+		"enabled": true
+	}
 }

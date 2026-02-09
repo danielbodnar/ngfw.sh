@@ -288,8 +288,7 @@ jobs:
         run: cargo install cargo-audit
 
       - name: Audit Rust dependencies
-        working-directory: packages/api
-        run: cargo audit
+        run: cargo audit --manifest-path packages/api/Cargo.toml
 
       - name: OWASP dependency check
         uses: dependency-check/Dependency-Check_Action@main

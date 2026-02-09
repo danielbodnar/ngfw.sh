@@ -4,28 +4,28 @@
  * @module composables/useRoutes
  */
 
-import { ref, onMounted } from 'vue';
-import { useApi } from './useApi';
-import type { Route, RouteCreate, RouteUpdate } from '../lib/api/types';
+import { onMounted, ref } from "vue";
+import type { Route, RouteCreate, RouteUpdate } from "../lib/api/types";
+import { useApi } from "./useApi";
 
 /**
  * Return value from useRoutes.
  */
 export interface UseRoutesReturn {
-  /** List of routes */
-  data: ReturnType<typeof ref<Route[]>>;
-  /** Loading state */
-  loading: ReturnType<typeof ref<boolean>>;
-  /** Error message if fetch fails */
-  error: ReturnType<typeof ref<string | null>>;
-  /** Manually refetch routes */
-  refetch: () => Promise<void>;
-  /** Create a new route */
-  create: (data: RouteCreate) => Promise<Route>;
-  /** Update an existing route */
-  update: (routeId: string, data: RouteUpdate) => Promise<Route>;
-  /** Delete a route */
-  remove: (routeId: string) => Promise<void>;
+	/** List of routes */
+	data: ReturnType<typeof ref<Route[]>>;
+	/** Loading state */
+	loading: ReturnType<typeof ref<boolean>>;
+	/** Error message if fetch fails */
+	error: ReturnType<typeof ref<string | null>>;
+	/** Manually refetch routes */
+	refetch: () => Promise<void>;
+	/** Create a new route */
+	create: (data: RouteCreate) => Promise<Route>;
+	/** Update an existing route */
+	update: (routeId: string, data: RouteUpdate) => Promise<Route>;
+	/** Delete a route */
+	remove: (routeId: string) => Promise<void>;
 }
 
 /**
@@ -57,69 +57,76 @@ export interface UseRoutesReturn {
  * ```
  */
 export function useRoutes(
-  deviceId: ReturnType<typeof ref<string>>,
+	deviceId: ReturnType<typeof ref<string>>,
 ): UseRoutesReturn {
-  const api = useApi();
-  const data = ref<Route[]>([]);
-  const loading = ref(true);
-  const error = ref<string | null>(null);
+	const api = useApi();
+	const data = ref<Route[]>([]);
+	const loading = ref(true);
+	const error = ref<string | null>(null);
 
-  async function refetch(): Promise<void> {
-    if (!deviceId.value) return;
+	async function refetch(): Promise<void> {
+		if (!deviceId.value) return;
 
-    loading.value = true;
-    error.value = null;
+		loading.value = true;
+		error.value = null;
 
-    try {
-      data.value = await api.listRoutes(deviceId.value);
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to fetch routes';
-    } finally {
-      loading.value = false;
-    }
-  }
+		try {
+			data.value = await api.listRoutes(deviceId.value);
+		} catch (err) {
+			error.value =
+				err instanceof Error ? err.message : "Failed to fetch routes";
+		} finally {
+			loading.value = false;
+		}
+	}
 
-  async function create(routeData: RouteCreate): Promise<Route> {
-    error.value = null;
-    try {
-      return await api.createRoute(routeData);
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to create route';
-      throw err;
-    }
-  }
+	async function create(routeData: RouteCreate): Promise<Route> {
+		error.value = null;
+		try {
+			return await api.createRoute(routeData);
+		} catch (err) {
+			error.value =
+				err instanceof Error ? err.message : "Failed to create route";
+			throw err;
+		}
+	}
 
-  async function update(routeId: string, routeData: RouteUpdate): Promise<Route> {
-    error.value = null;
-    try {
-      return await api.updateRoute(routeId, routeData);
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to update route';
-      throw err;
-    }
-  }
+	async function update(
+		routeId: string,
+		routeData: RouteUpdate,
+	): Promise<Route> {
+		error.value = null;
+		try {
+			return await api.updateRoute(routeId, routeData);
+		} catch (err) {
+			error.value =
+				err instanceof Error ? err.message : "Failed to update route";
+			throw err;
+		}
+	}
 
-  async function remove(routeId: string): Promise<void> {
-    error.value = null;
-    try {
-      await api.deleteRoute(routeId);
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to delete route';
-      throw err;
-    }
-  }
+	async function remove(routeId: string): Promise<void> {
+		error.value = null;
+		try {
+			await api.deleteRoute(routeId);
+		} catch (err) {
+			error.value =
+				err instanceof Error ? err.message : "Failed to delete route";
+			throw err;
+		}
+	}
 
-  onMounted(() => {
-    void refetch();
-  });
+	onMounted(() => {
+		void refetch();
+	});
 
-  return {
-    data,
-    loading,
-    error,
-    refetch,
-    create,
-    update,
-    remove,
-  };
+	return {
+		data,
+		loading,
+		error,
+		refetch,
+		create,
+		update,
+		remove,
+	};
 }

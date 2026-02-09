@@ -1,41 +1,43 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
-import { usePolling } from '../../composables/usePolling';
-import Spinner from '../ui/Spinner.vue';
-import Button from '../ui/Button.vue';
-import Card from '../ui/Card.vue';
-import Input from '../ui/Input.vue';
-import Toggle from '../ui/Toggle.vue';
-import { z } from 'zod';
+import { onMounted, ref } from "vue";
+import { z } from "zod";
+import { usePolling } from "../../composables/usePolling";
+import Button from "../ui/Button.vue";
+import Card from "../ui/Card.vue";
+import Input from "../ui/Input.vue";
+import Spinner from "../ui/Spinner.vue";
+import Toggle from "../ui/Toggle.vue";
 
 /**
  * LAN configuration schema for validation.
  */
 const LANConfigSchema = z.object({
-  primary: z.object({
-    ip_address: z.string().ip(),
-    netmask: z.string(),
-    dhcp_enabled: z.boolean(),
-    dhcp_start: z.string().ip().optional(),
-    dhcp_end: z.string().ip().optional(),
-  }),
-  guest: z.object({
-    enabled: z.boolean(),
-    ip_address: z.string().ip().optional(),
-    netmask: z.string().optional(),
-    dhcp_enabled: z.boolean(),
-    dhcp_start: z.string().ip().optional(),
-    dhcp_end: z.string().ip().optional(),
-    isolated: z.boolean(),
-  }),
-  vlans: z.array(z.object({
-    id: z.string(),
-    vlan_id: z.number().min(1).max(4094),
-    name: z.string(),
-    ip_address: z.string().ip(),
-    netmask: z.string(),
-    enabled: z.boolean(),
-  })),
+	primary: z.object({
+		ip_address: z.string().ip(),
+		netmask: z.string(),
+		dhcp_enabled: z.boolean(),
+		dhcp_start: z.string().ip().optional(),
+		dhcp_end: z.string().ip().optional(),
+	}),
+	guest: z.object({
+		enabled: z.boolean(),
+		ip_address: z.string().ip().optional(),
+		netmask: z.string().optional(),
+		dhcp_enabled: z.boolean(),
+		dhcp_start: z.string().ip().optional(),
+		dhcp_end: z.string().ip().optional(),
+		isolated: z.boolean(),
+	}),
+	vlans: z.array(
+		z.object({
+			id: z.string(),
+			vlan_id: z.number().min(1).max(4094),
+			name: z.string(),
+			ip_address: z.string().ip(),
+			netmask: z.string(),
+			enabled: z.boolean(),
+		}),
+	),
 });
 
 type LANConfig = z.infer<typeof LANConfigSchema>;
@@ -43,23 +45,23 @@ type LANConfig = z.infer<typeof LANConfigSchema>;
 const loading = ref(true);
 const error = ref<string | null>(null);
 const config = ref<LANConfig>({
-  primary: {
-    ip_address: '192.168.1.1',
-    netmask: '255.255.255.0',
-    dhcp_enabled: true,
-    dhcp_start: '192.168.1.100',
-    dhcp_end: '192.168.1.200',
-  },
-  guest: {
-    enabled: false,
-    ip_address: '192.168.2.1',
-    netmask: '255.255.255.0',
-    dhcp_enabled: true,
-    dhcp_start: '192.168.2.100',
-    dhcp_end: '192.168.2.200',
-    isolated: true,
-  },
-  vlans: [],
+	primary: {
+		ip_address: "192.168.1.1",
+		netmask: "255.255.255.0",
+		dhcp_enabled: true,
+		dhcp_start: "192.168.1.100",
+		dhcp_end: "192.168.1.200",
+	},
+	guest: {
+		enabled: false,
+		ip_address: "192.168.2.1",
+		netmask: "255.255.255.0",
+		dhcp_enabled: true,
+		dhcp_start: "192.168.2.100",
+		dhcp_end: "192.168.2.200",
+		isolated: true,
+	},
+	vlans: [],
 });
 
 const saving = ref(false);
@@ -72,128 +74,130 @@ const showVlanForm = ref(false);
  * Uses mock data as backend endpoints don't exist yet.
  */
 async function fetchData(): Promise<void> {
-  loading.value = true;
-  error.value = null;
+	loading.value = true;
+	error.value = null;
 
-  try {
-    // TODO: Replace with real API call when backend is ready
-    // const api = useApi();
-    // const configData = await api.getLANConfig();
-    // config.value = configData;
+	try {
+		// TODO: Replace with real API call when backend is ready
+		// const api = useApi();
+		// const configData = await api.getLANConfig();
+		// config.value = configData;
 
-    // Mock data for now
-    await new Promise(resolve => setTimeout(resolve, 500));
+		// Mock data for now
+		await new Promise((resolve) => setTimeout(resolve, 500));
 
-    config.value = {
-      primary: {
-        ip_address: '192.168.1.1',
-        netmask: '255.255.255.0',
-        dhcp_enabled: true,
-        dhcp_start: '192.168.1.100',
-        dhcp_end: '192.168.1.200',
-      },
-      guest: {
-        enabled: true,
-        ip_address: '192.168.2.1',
-        netmask: '255.255.255.0',
-        dhcp_enabled: true,
-        dhcp_start: '192.168.2.100',
-        dhcp_end: '192.168.2.200',
-        isolated: true,
-      },
-      vlans: [
-        {
-          id: '1',
-          vlan_id: 1,
-          name: 'Default',
-          ip_address: '192.168.1.1',
-          netmask: '255.255.255.0',
-          enabled: true,
-        },
-        {
-          id: '2',
-          vlan_id: 10,
-          name: 'IoT Devices',
-          ip_address: '192.168.10.1',
-          netmask: '255.255.255.0',
-          enabled: true,
-        },
-        {
-          id: '3',
-          vlan_id: 20,
-          name: 'Cameras',
-          ip_address: '192.168.20.1',
-          netmask: '255.255.255.0',
-          enabled: true,
-        },
-        {
-          id: '4',
-          vlan_id: 99,
-          name: 'Management',
-          ip_address: '192.168.99.1',
-          netmask: '255.255.255.0',
-          enabled: true,
-        },
-      ],
-    };
-  } catch (err) {
-    error.value = err instanceof Error ? err.message : 'Failed to fetch LAN configuration';
-  } finally {
-    loading.value = false;
-  }
+		config.value = {
+			primary: {
+				ip_address: "192.168.1.1",
+				netmask: "255.255.255.0",
+				dhcp_enabled: true,
+				dhcp_start: "192.168.1.100",
+				dhcp_end: "192.168.1.200",
+			},
+			guest: {
+				enabled: true,
+				ip_address: "192.168.2.1",
+				netmask: "255.255.255.0",
+				dhcp_enabled: true,
+				dhcp_start: "192.168.2.100",
+				dhcp_end: "192.168.2.200",
+				isolated: true,
+			},
+			vlans: [
+				{
+					id: "1",
+					vlan_id: 1,
+					name: "Default",
+					ip_address: "192.168.1.1",
+					netmask: "255.255.255.0",
+					enabled: true,
+				},
+				{
+					id: "2",
+					vlan_id: 10,
+					name: "IoT Devices",
+					ip_address: "192.168.10.1",
+					netmask: "255.255.255.0",
+					enabled: true,
+				},
+				{
+					id: "3",
+					vlan_id: 20,
+					name: "Cameras",
+					ip_address: "192.168.20.1",
+					netmask: "255.255.255.0",
+					enabled: true,
+				},
+				{
+					id: "4",
+					vlan_id: 99,
+					name: "Management",
+					ip_address: "192.168.99.1",
+					netmask: "255.255.255.0",
+					enabled: true,
+				},
+			],
+		};
+	} catch (err) {
+		error.value =
+			err instanceof Error ? err.message : "Failed to fetch LAN configuration";
+	} finally {
+		loading.value = false;
+	}
 }
 
 /**
  * Save LAN configuration.
  */
 async function saveConfig(): Promise<void> {
-  validationErrors.value = {};
+	validationErrors.value = {};
 
-  const result = LANConfigSchema.safeParse(config.value);
-  if (!result.success) {
-    result.error.errors.forEach((err) => {
-      if (err.path[0]) {
-        validationErrors.value[err.path.join('.')] = err.message;
-      }
-    });
-    return;
-  }
+	const result = LANConfigSchema.safeParse(config.value);
+	if (!result.success) {
+		result.error.errors.forEach((err) => {
+			if (err.path[0]) {
+				validationErrors.value[err.path.join(".")] = err.message;
+			}
+		});
+		return;
+	}
 
-  saving.value = true;
-  error.value = null;
+	saving.value = true;
+	error.value = null;
 
-  try {
-    // TODO: Replace with real API call when backend is ready
-    // const api = useApi();
-    // await api.updateLANConfig(config.value);
+	try {
+		// TODO: Replace with real API call when backend is ready
+		// const api = useApi();
+		// await api.updateLANConfig(config.value);
 
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    await fetchData();
-  } catch (err) {
-    error.value = err instanceof Error ? err.message : 'Failed to save LAN configuration';
-  } finally {
-    saving.value = false;
-  }
+		await new Promise((resolve) => setTimeout(resolve, 1000));
+		await fetchData();
+	} catch (err) {
+		error.value =
+			err instanceof Error ? err.message : "Failed to save LAN configuration";
+	} finally {
+		saving.value = false;
+	}
 }
 
 /**
  * Delete VLAN.
  */
 function deleteVlan(vlanId: string): void {
-  if (confirm('Are you sure you want to delete this VLAN?')) {
-    config.value.vlans = config.value.vlans.filter(v => v.id !== vlanId);
-  }
+	if (confirm("Are you sure you want to delete this VLAN?")) {
+		config.value.vlans = config.value.vlans.filter((v) => v.id !== vlanId);
+	}
 }
 
 onMounted(() => {
-  void fetchData();
+	void fetchData();
 });
 
 // Auto-refresh every 30 seconds
 usePolling({
-  fetcher: fetchData,
-  interval: 30000,
-  immediate: false,
+	fetcher: fetchData,
+	interval: 30000,
+	immediate: false,
 });
 </script>
 

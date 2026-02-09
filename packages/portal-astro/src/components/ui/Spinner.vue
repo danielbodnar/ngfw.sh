@@ -1,21 +1,21 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed } from "vue";
 
 export interface SpinnerProps {
-  size?: 'sm' | 'md' | 'lg';
+	size?: "sm" | "md" | "lg";
 }
 
 const props = withDefaults(defineProps<SpinnerProps>(), {
-  size: 'md',
+	size: "md",
 });
 
 const sizeClasses = computed(() => {
-  const sizes = {
-    sm: 'w-4 h-4 border-2',
-    md: 'w-8 h-8 border-2',
-    lg: 'w-12 h-12 border-3',
-  };
-  return sizes[props.size];
+	const sizes = {
+		sm: "w-4 h-4 border-2",
+		md: "w-8 h-8 border-2",
+		lg: "w-12 h-12 border-3",
+	};
+	return sizes[props.size];
 });
 </script>
 

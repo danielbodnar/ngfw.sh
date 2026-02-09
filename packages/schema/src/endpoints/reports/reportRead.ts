@@ -37,8 +37,9 @@ export class ReportRead extends OpenAPIRoute {
 		const data = await this.getValidatedData<typeof this.schema>();
 		const { id } = data.params;
 
-		const reportRecord = await c.env.DB
-			.prepare("SELECT * FROM reports WHERE id = ? AND owner_id = ?")
+		const reportRecord = await c.env.DB.prepare(
+			"SELECT * FROM reports WHERE id = ? AND owner_id = ?",
+		)
 			.bind(id, userId)
 			.first();
 

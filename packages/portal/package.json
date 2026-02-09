@@ -1,49 +1,49 @@
 {
-  "name": "ngfw-portal",
-  "version": "1.0.0",
-  "type": "module",
-  "private": true,
-  "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview",
-    "deploy": "vite build && wrangler deploy",
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "test:ui": "vitest --ui",
-    "test:coverage": "vitest run --coverage",
-    "test:e2e": "playwright test"
-  },
-  "devDependencies": {
-    "@cloudflare/vite-plugin": "^1.23.0",
-    "@cloudflare/workers-types": "^4.20260203.0",
-    "@tailwindcss/postcss": "^4.1.18",
-    "@tailwindcss/vite": "^4.1.18",
-    "@testing-library/jest-dom": "^6.6.3",
-    "@testing-library/react": "^16.1.0",
-    "@types/bun": "^1.3.8",
-    "@types/react": "^19.2.10",
-    "@types/react-dom": "^19.2.3",
-    "@vitejs/plugin-react": "^5.1.3",
-    "@vitest/ui": "^4.0.18",
-    "autoprefixer": "^10.4.24",
-    "jsdom": "^25.0.1",
-    "postcss": "^8.5.6",
-    "tailwindcss": "^4.1.18",
-    "typescript": "^5.9.3",
-    "vite": "^7.3.1",
-    "vitest": "^4.0.18",
-    "wrangler": "^4.62.0"
-  },
-  "dependencies": {
-    "@clerk/clerk-react": "^5.60.0",
-    "@playwright/test": "^1.58.1",
-    "@types/node": "^25.2.0",
-    "lucide-react": "^0.563.0",
-    "react": "^19.2.4",
-    "react-dom": "^19.2.4"
-  },
-  "trustedDependencies": [
-    "@clerk/shared"
-  ]
+	"name": "ngfw-portal",
+	"version": "1.0.0",
+	"type": "module",
+	"private": true,
+	"scripts": {
+		"dev": "vite",
+		"build": "vite build",
+		"preview": "vite preview",
+		"deploy": "vite build && wrangler deploy",
+		"test": "vitest run",
+		"test:watch": "vitest",
+		"test:ui": "vitest --ui",
+		"test:coverage": "vitest run --coverage",
+		"test:e2e": "playwright test"
+	},
+	"devDependencies": {
+		"@cloudflare/vite-plugin": "^1.23.1",
+		"@cloudflare/workers-types": "^4.20260207.0",
+		"@tailwindcss/postcss": "^4.1.18",
+		"@tailwindcss/vite": "^4.1.18",
+		"@testing-library/jest-dom": "^6.9.1",
+		"@testing-library/react": "^16.3.2",
+		"@types/bun": "^1.3.8",
+		"@types/react": "^19.2.13",
+		"@types/react-dom": "^19.2.3",
+		"@vitejs/plugin-react": "^5.1.3",
+		"@vitest/ui": "^4.0.18",
+		"autoprefixer": "^10.4.24",
+		"jsdom": "^28.0.0",
+		"postcss": "^8.5.6",
+		"tailwindcss": "^4.1.18",
+		"typescript": "^5.9.3",
+		"vite": "^7.3.1",
+		"vitest": "^4.0.18",
+		"wrangler": "^4.63.0"
+	},
+	"dependencies": {
+		"@clerk/clerk-react": "^5.60.0",
+		"@playwright/test": "^1.58.2",
+		"@types/node": "^25.2.2",
+		"lucide-react": "^0.563.0",
+		"react": "^19.2.4",
+		"react-dom": "^19.2.4"
+	},
+	"trustedDependencies": [
+		"@clerk/shared"
+	]
 }

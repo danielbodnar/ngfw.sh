@@ -1,291 +1,294 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
-import { usePolling } from '../../composables/usePolling';
-import Spinner from '../ui/Spinner.vue';
-import Button from '../ui/Button.vue';
-import Card from '../ui/Card.vue';
-import Badge from '../ui/Badge.vue';
-import Input from '../ui/Input.vue';
-import { z } from 'zod';
+import { computed, onMounted, ref } from "vue";
+import { z } from "zod";
+import { usePolling } from "../../composables/usePolling";
+import Badge from "../ui/Badge.vue";
+import Button from "../ui/Button.vue";
+import Card from "../ui/Card.vue";
+import Input from "../ui/Input.vue";
+import Spinner from "../ui/Spinner.vue";
 
 /**
  * DHCP configuration schema for validation.
  */
 const DHCPConfigSchema = z.object({
-  enabled: z.boolean(),
-  start_ip: z.string().ip(),
-  end_ip: z.string().ip(),
-  lease_time: z.number().min(60).max(86400),
-  domain: z.string().optional(),
-  dns_servers: z.array(z.string().ip()),
-  gateway: z.string().ip(),
-  ntp_servers: z.array(z.string().ip()).optional(),
+	enabled: z.boolean(),
+	start_ip: z.string().ip(),
+	end_ip: z.string().ip(),
+	lease_time: z.number().min(60).max(86400),
+	domain: z.string().optional(),
+	dns_servers: z.array(z.string().ip()),
+	gateway: z.string().ip(),
+	ntp_servers: z.array(z.string().ip()).optional(),
 });
 
 type DHCPConfig = z.infer<typeof DHCPConfigSchema>;
 
 interface DHCPLease {
-  ip: string;
-  mac: string;
-  hostname: string;
-  vendor: string | null;
-  expiry: number;
-  status: 'active' | 'expired' | 'static';
+	ip: string;
+	mac: string;
+	hostname: string;
+	vendor: string | null;
+	expiry: number;
+	status: "active" | "expired" | "static";
 }
 
 const loading = ref(true);
 const error = ref<string | null>(null);
 const config = ref<DHCPConfig>({
-  enabled: true,
-  start_ip: '192.168.1.100',
-  end_ip: '192.168.1.200',
-  lease_time: 86400,
-  domain: 'lan',
-  dns_servers: ['192.168.1.1'],
-  gateway: '192.168.1.1',
-  ntp_servers: [],
+	enabled: true,
+	start_ip: "192.168.1.100",
+	end_ip: "192.168.1.200",
+	lease_time: 86400,
+	domain: "lan",
+	dns_servers: ["192.168.1.1"],
+	gateway: "192.168.1.1",
+	ntp_servers: [],
 });
 const leases = ref<DHCPLease[]>([]);
 
 const saving = ref(false);
 const validationErrors = ref<Record<string, string>>({});
-const filterQuery = ref('');
+const filterQuery = ref("");
 
 /**
  * Fetch DHCP configuration and leases.
  * Uses mock data as backend endpoints don't exist yet.
  */
 async function fetchData(): Promise<void> {
-  loading.value = true;
-  error.value = null;
+	loading.value = true;
+	error.value = null;
 
-  try {
-    // TODO: Replace with real API call when backend is ready
-    // const api = useApi();
-    // const [configData, leasesData] = await Promise.all([
-    //   api.getDHCPConfig(),
-    //   api.getDHCPLeases(),
-    // ]);
-    // config.value = configData;
-    // leases.value = leasesData;
+	try {
+		// TODO: Replace with real API call when backend is ready
+		// const api = useApi();
+		// const [configData, leasesData] = await Promise.all([
+		//   api.getDHCPConfig(),
+		//   api.getDHCPLeases(),
+		// ]);
+		// config.value = configData;
+		// leases.value = leasesData;
 
-    // Mock data for now
-    await new Promise(resolve => setTimeout(resolve, 500));
+		// Mock data for now
+		await new Promise((resolve) => setTimeout(resolve, 500));
 
-    config.value = {
-      enabled: true,
-      start_ip: '192.168.1.100',
-      end_ip: '192.168.1.200',
-      lease_time: 86400,
-      domain: 'lan',
-      dns_servers: ['192.168.1.1', '1.1.1.1'],
-      gateway: '192.168.1.1',
-      ntp_servers: ['0.pool.ntp.org', '1.pool.ntp.org'],
-    };
+		config.value = {
+			enabled: true,
+			start_ip: "192.168.1.100",
+			end_ip: "192.168.1.200",
+			lease_time: 86400,
+			domain: "lan",
+			dns_servers: ["192.168.1.1", "1.1.1.1"],
+			gateway: "192.168.1.1",
+			ntp_servers: ["0.pool.ntp.org", "1.pool.ntp.org"],
+		};
 
-    const now = Date.now();
-    leases.value = [
-      {
-        ip: '192.168.1.10',
-        mac: '00:11:22:33:44:55',
-        hostname: 'desktop-pc',
-        vendor: 'Intel',
-        expiry: now + 86400000,
-        status: 'static',
-      },
-      {
-        ip: '192.168.1.20',
-        mac: 'AA:BB:CC:DD:EE:FF',
-        hostname: 'server-01',
-        vendor: 'Dell',
-        expiry: now + 86400000,
-        status: 'static',
-      },
-      {
-        ip: '192.168.1.50',
-        mac: '11:22:33:44:55:66',
-        hostname: 'nas-storage',
-        vendor: 'Synology',
-        expiry: now + 86400000,
-        status: 'static',
-      },
-      {
-        ip: '192.168.1.100',
-        mac: 'A1:B2:C3:D4:E5:F6',
-        hostname: 'laptop-01',
-        vendor: 'Apple',
-        expiry: now + 43200000,
-        status: 'active',
-      },
-      {
-        ip: '192.168.1.101',
-        mac: 'B2:C3:D4:E5:F6:A7',
-        hostname: 'phone-android',
-        vendor: 'Samsung',
-        expiry: now + 21600000,
-        status: 'active',
-      },
-      {
-        ip: '192.168.1.102',
-        mac: 'C3:D4:E5:F6:A7:B8',
-        hostname: 'tablet-ipad',
-        vendor: 'Apple',
-        expiry: now + 32400000,
-        status: 'active',
-      },
-      {
-        ip: '192.168.1.103',
-        mac: 'D4:E5:F6:A7:B8:C9',
-        hostname: 'smart-tv',
-        vendor: 'LG',
-        expiry: now + 54000000,
-        status: 'active',
-      },
-      {
-        ip: '192.168.1.104',
-        mac: 'E5:F6:A7:B8:C9:DA',
-        hostname: 'printer-hp',
-        vendor: 'HP',
-        expiry: now + 12600000,
-        status: 'active',
-      },
-      {
-        ip: '192.168.1.105',
-        mac: 'F6:A7:B8:C9:DA:EB',
-        hostname: 'camera-01',
-        vendor: 'Hikvision',
-        expiry: now + 64800000,
-        status: 'active',
-      },
-      {
-        ip: '192.168.1.106',
-        mac: 'A7:B8:C9:DA:EB:FC',
-        hostname: 'speaker-sonos',
-        vendor: 'Sonos',
-        expiry: now + 25200000,
-        status: 'active',
-      },
-      {
-        ip: '192.168.1.107',
-        mac: 'B8:C9:DA:EB:FC:0D',
-        hostname: 'thermostat',
-        vendor: 'Nest',
-        expiry: now + 18000000,
-        status: 'active',
-      },
-      {
-        ip: '192.168.1.108',
-        mac: 'C9:DA:EB:FC:0D:1E',
-        hostname: 'doorbell',
-        vendor: 'Ring',
-        expiry: now + 39600000,
-        status: 'active',
-      },
-    ];
-  } catch (err) {
-    error.value = err instanceof Error ? err.message : 'Failed to fetch DHCP data';
-  } finally {
-    loading.value = false;
-  }
+		const now = Date.now();
+		leases.value = [
+			{
+				ip: "192.168.1.10",
+				mac: "00:11:22:33:44:55",
+				hostname: "desktop-pc",
+				vendor: "Intel",
+				expiry: now + 86400000,
+				status: "static",
+			},
+			{
+				ip: "192.168.1.20",
+				mac: "AA:BB:CC:DD:EE:FF",
+				hostname: "server-01",
+				vendor: "Dell",
+				expiry: now + 86400000,
+				status: "static",
+			},
+			{
+				ip: "192.168.1.50",
+				mac: "11:22:33:44:55:66",
+				hostname: "nas-storage",
+				vendor: "Synology",
+				expiry: now + 86400000,
+				status: "static",
+			},
+			{
+				ip: "192.168.1.100",
+				mac: "A1:B2:C3:D4:E5:F6",
+				hostname: "laptop-01",
+				vendor: "Apple",
+				expiry: now + 43200000,
+				status: "active",
+			},
+			{
+				ip: "192.168.1.101",
+				mac: "B2:C3:D4:E5:F6:A7",
+				hostname: "phone-android",
+				vendor: "Samsung",
+				expiry: now + 21600000,
+				status: "active",
+			},
+			{
+				ip: "192.168.1.102",
+				mac: "C3:D4:E5:F6:A7:B8",
+				hostname: "tablet-ipad",
+				vendor: "Apple",
+				expiry: now + 32400000,
+				status: "active",
+			},
+			{
+				ip: "192.168.1.103",
+				mac: "D4:E5:F6:A7:B8:C9",
+				hostname: "smart-tv",
+				vendor: "LG",
+				expiry: now + 54000000,
+				status: "active",
+			},
+			{
+				ip: "192.168.1.104",
+				mac: "E5:F6:A7:B8:C9:DA",
+				hostname: "printer-hp",
+				vendor: "HP",
+				expiry: now + 12600000,
+				status: "active",
+			},
+			{
+				ip: "192.168.1.105",
+				mac: "F6:A7:B8:C9:DA:EB",
+				hostname: "camera-01",
+				vendor: "Hikvision",
+				expiry: now + 64800000,
+				status: "active",
+			},
+			{
+				ip: "192.168.1.106",
+				mac: "A7:B8:C9:DA:EB:FC",
+				hostname: "speaker-sonos",
+				vendor: "Sonos",
+				expiry: now + 25200000,
+				status: "active",
+			},
+			{
+				ip: "192.168.1.107",
+				mac: "B8:C9:DA:EB:FC:0D",
+				hostname: "thermostat",
+				vendor: "Nest",
+				expiry: now + 18000000,
+				status: "active",
+			},
+			{
+				ip: "192.168.1.108",
+				mac: "C9:DA:EB:FC:0D:1E",
+				hostname: "doorbell",
+				vendor: "Ring",
+				expiry: now + 39600000,
+				status: "active",
+			},
+		];
+	} catch (err) {
+		error.value =
+			err instanceof Error ? err.message : "Failed to fetch DHCP data";
+	} finally {
+		loading.value = false;
+	}
 }
 
 /**
  * Save DHCP configuration.
  */
 async function saveConfig(): Promise<void> {
-  validationErrors.value = {};
+	validationErrors.value = {};
 
-  const result = DHCPConfigSchema.safeParse(config.value);
-  if (!result.success) {
-    result.error.errors.forEach((err) => {
-      if (err.path[0]) {
-        validationErrors.value[err.path[0] as string] = err.message;
-      }
-    });
-    return;
-  }
+	const result = DHCPConfigSchema.safeParse(config.value);
+	if (!result.success) {
+		result.error.errors.forEach((err) => {
+			if (err.path[0]) {
+				validationErrors.value[err.path[0] as string] = err.message;
+			}
+		});
+		return;
+	}
 
-  saving.value = true;
-  error.value = null;
+	saving.value = true;
+	error.value = null;
 
-  try {
-    // TODO: Replace with real API call when backend is ready
-    // const api = useApi();
-    // await api.updateDHCPConfig(config.value);
+	try {
+		// TODO: Replace with real API call when backend is ready
+		// const api = useApi();
+		// await api.updateDHCPConfig(config.value);
 
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    await fetchData();
-  } catch (err) {
-    error.value = err instanceof Error ? err.message : 'Failed to save DHCP configuration';
-  } finally {
-    saving.value = false;
-  }
+		await new Promise((resolve) => setTimeout(resolve, 1000));
+		await fetchData();
+	} catch (err) {
+		error.value =
+			err instanceof Error ? err.message : "Failed to save DHCP configuration";
+	} finally {
+		saving.value = false;
+	}
 }
 
 /**
  * Format expiry time to human-readable format.
  */
 function formatExpiry(expiry: number): string {
-  const now = Date.now();
-  const diff = expiry - now;
+	const now = Date.now();
+	const diff = expiry - now;
 
-  if (diff < 0) return 'Expired';
+	if (diff < 0) return "Expired";
 
-  const hours = Math.floor(diff / 3600000);
-  const minutes = Math.floor((diff % 3600000) / 60000);
+	const hours = Math.floor(diff / 3600000);
+	const minutes = Math.floor((diff % 3600000) / 60000);
 
-  if (hours > 24) {
-    const days = Math.floor(hours / 24);
-    return `${days}d ${hours % 24}h`;
-  }
-  if (hours > 0) return `${hours}h ${minutes}m`;
-  return `${minutes}m`;
+	if (hours > 24) {
+		const days = Math.floor(hours / 24);
+		return `${days}d ${hours % 24}h`;
+	}
+	if (hours > 0) return `${hours}h ${minutes}m`;
+	return `${minutes}m`;
 }
 
 /**
  * Get status badge variant.
  */
-function getStatusVariant(status: string): 'success' | 'warning' | 'primary' {
-  if (status === 'active') return 'success';
-  if (status === 'expired') return 'warning';
-  return 'primary';
+function getStatusVariant(status: string): "success" | "warning" | "primary" {
+	if (status === "active") return "success";
+	if (status === "expired") return "warning";
+	return "primary";
 }
 
 /**
  * Filtered leases based on search query.
  */
 const filteredLeases = computed(() => {
-  if (!filterQuery.value) return leases.value;
+	if (!filterQuery.value) return leases.value;
 
-  const query = filterQuery.value.toLowerCase();
-  return leases.value.filter(lease =>
-    lease.ip.toLowerCase().includes(query) ||
-    lease.mac.toLowerCase().includes(query) ||
-    lease.hostname.toLowerCase().includes(query) ||
-    (lease.vendor && lease.vendor.toLowerCase().includes(query))
-  );
+	const query = filterQuery.value.toLowerCase();
+	return leases.value.filter(
+		(lease) =>
+			lease.ip.toLowerCase().includes(query) ||
+			lease.mac.toLowerCase().includes(query) ||
+			lease.hostname.toLowerCase().includes(query) ||
+			(lease.vendor && lease.vendor.toLowerCase().includes(query)),
+	);
 });
 
 /**
  * Static and active lease counts.
  */
 const leaseStats = computed(() => {
-  return {
-    static: leases.value.filter(l => l.status === 'static').length,
-    active: leases.value.filter(l => l.status === 'active').length,
-    total: leases.value.length,
-  };
+	return {
+		static: leases.value.filter((l) => l.status === "static").length,
+		active: leases.value.filter((l) => l.status === "active").length,
+		total: leases.value.length,
+	};
 });
 
 onMounted(() => {
-  void fetchData();
+	void fetchData();
 });
 
 // Auto-refresh every 30 seconds
 usePolling({
-  fetcher: fetchData,
-  interval: 30000,
-  immediate: false,
+	fetcher: fetchData,
+	interval: 30000,
+	immediate: false,
 });
 </script>
 

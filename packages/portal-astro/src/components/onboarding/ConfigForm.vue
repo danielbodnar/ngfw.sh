@@ -1,174 +1,225 @@
 <script setup lang="ts">
-import { ref, reactive } from 'vue';
-import Input from '../ui/Input.vue';
-import Select from '../ui/Select.vue';
-import Toggle from '../ui/Toggle.vue';
-import Card from '../ui/Card.vue';
+import { reactive, ref } from "vue";
+import Card from "../ui/Card.vue";
+import Input from "../ui/Input.vue";
+import Select from "../ui/Select.vue";
+import Toggle from "../ui/Toggle.vue";
 
 interface OnboardingConfig {
-  deviceName: string;
-  shippingAddress: {
-    fullName: string;
-    addressLine1: string;
-    addressLine2?: string;
-    city: string;
-    state: string;
-    zipCode: string;
-    country: string;
-    phoneNumber: string;
-  };
-  wifiConfig: {
-    ssid: string;
-    password: string;
-    hideSsid: boolean;
-  };
-  wanType: 'dhcp' | 'static' | 'pppoe' | 'lte';
-  wanConfig?: {
-    username?: string;
-    password?: string;
-    ipAddress?: string;
-    subnet?: string;
-    gateway?: string;
-    dns1?: string;
-    dns2?: string;
-  };
-  adminPassword: string;
-  adminPasswordConfirm?: string;
-  securityPreset: 'standard' | 'strict' | 'custom';
-  enableIPS: boolean;
-  enableDNSFilter: boolean;
-  enableAutoUpdates: boolean;
+	deviceName: string;
+	shippingAddress: {
+		fullName: string;
+		addressLine1: string;
+		addressLine2?: string;
+		city: string;
+		state: string;
+		zipCode: string;
+		country: string;
+		phoneNumber: string;
+	};
+	wifiConfig: {
+		ssid: string;
+		password: string;
+		hideSsid: boolean;
+	};
+	wanType: "dhcp" | "static" | "pppoe" | "lte";
+	wanConfig?: {
+		username?: string;
+		password?: string;
+		ipAddress?: string;
+		subnet?: string;
+		gateway?: string;
+		dns1?: string;
+		dns2?: string;
+	};
+	adminPassword: string;
+	adminPasswordConfirm?: string;
+	securityPreset: "standard" | "strict" | "custom";
+	enableIPS: boolean;
+	enableDNSFilter: boolean;
+	enableAutoUpdates: boolean;
 }
 
 const emit = defineEmits<{
-  submit: [config: OnboardingConfig];
+	submit: [config: OnboardingConfig];
 }>();
 
 const config = reactive<OnboardingConfig>({
-  deviceName: '',
-  shippingAddress: {
-    fullName: '',
-    addressLine1: '',
-    addressLine2: '',
-    city: '',
-    state: '',
-    zipCode: '',
-    country: 'US',
-    phoneNumber: '',
-  },
-  wifiConfig: {
-    ssid: '',
-    password: '',
-    hideSsid: false,
-  },
-  wanType: 'dhcp',
-  wanConfig: {},
-  adminPassword: '',
-  adminPasswordConfirm: '',
-  securityPreset: 'standard',
-  enableIPS: true,
-  enableDNSFilter: true,
-  enableAutoUpdates: true,
+	deviceName: "",
+	shippingAddress: {
+		fullName: "",
+		addressLine1: "",
+		addressLine2: "",
+		city: "",
+		state: "",
+		zipCode: "",
+		country: "US",
+		phoneNumber: "",
+	},
+	wifiConfig: {
+		ssid: "",
+		password: "",
+		hideSsid: false,
+	},
+	wanType: "dhcp",
+	wanConfig: {},
+	adminPassword: "",
+	adminPasswordConfirm: "",
+	securityPreset: "standard",
+	enableIPS: true,
+	enableDNSFilter: true,
+	enableAutoUpdates: true,
 });
 
 const errors = ref<Record<string, string>>({});
 
 const stateOptions = [
-  'AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'FL', 'GA',
-  'HI', 'ID', 'IL', 'IN', 'IA', 'KS', 'KY', 'LA', 'ME', 'MD',
-  'MA', 'MI', 'MN', 'MS', 'MO', 'MT', 'NE', 'NV', 'NH', 'NJ',
-  'NM', 'NY', 'NC', 'ND', 'OH', 'OK', 'OR', 'PA', 'RI', 'SC',
-  'SD', 'TN', 'TX', 'UT', 'VT', 'VA', 'WA', 'WV', 'WI', 'WY'
+	"AL",
+	"AK",
+	"AZ",
+	"AR",
+	"CA",
+	"CO",
+	"CT",
+	"DE",
+	"FL",
+	"GA",
+	"HI",
+	"ID",
+	"IL",
+	"IN",
+	"IA",
+	"KS",
+	"KY",
+	"LA",
+	"ME",
+	"MD",
+	"MA",
+	"MI",
+	"MN",
+	"MS",
+	"MO",
+	"MT",
+	"NE",
+	"NV",
+	"NH",
+	"NJ",
+	"NM",
+	"NY",
+	"NC",
+	"ND",
+	"OH",
+	"OK",
+	"OR",
+	"PA",
+	"RI",
+	"SC",
+	"SD",
+	"TN",
+	"TX",
+	"UT",
+	"VT",
+	"VA",
+	"WA",
+	"WV",
+	"WI",
+	"WY",
 ];
 
 const wanTypeOptions = [
-  { value: 'dhcp', label: 'DHCP (Automatic)' },
-  { value: 'static', label: 'Static IP' },
-  { value: 'pppoe', label: 'PPPoE' },
-  { value: 'lte', label: 'LTE/Mobile' },
+	{ value: "dhcp", label: "DHCP (Automatic)" },
+	{ value: "static", label: "Static IP" },
+	{ value: "pppoe", label: "PPPoE" },
+	{ value: "lte", label: "LTE/Mobile" },
 ];
 
 const securityPresetOptions = [
-  { value: 'standard', label: 'Standard - Balanced security and usability' },
-  { value: 'strict', label: 'Strict - Maximum security' },
-  { value: 'custom', label: 'Custom - Configure manually' },
+	{ value: "standard", label: "Standard - Balanced security and usability" },
+	{ value: "strict", label: "Strict - Maximum security" },
+	{ value: "custom", label: "Custom - Configure manually" },
 ];
 
 const validateForm = (): boolean => {
-  errors.value = {};
+	errors.value = {};
 
-  if (!config.deviceName || config.deviceName.length < 3) {
-    errors.value.deviceName = 'Device name must be at least 3 characters';
-  }
+	if (!config.deviceName || config.deviceName.length < 3) {
+		errors.value.deviceName = "Device name must be at least 3 characters";
+	}
 
-  if (!config.shippingAddress.fullName) {
-    errors.value.fullName = 'Full name is required';
-  }
+	if (!config.shippingAddress.fullName) {
+		errors.value.fullName = "Full name is required";
+	}
 
-  if (!config.shippingAddress.addressLine1) {
-    errors.value.addressLine1 = 'Address is required';
-  }
+	if (!config.shippingAddress.addressLine1) {
+		errors.value.addressLine1 = "Address is required";
+	}
 
-  if (!config.shippingAddress.city) {
-    errors.value.city = 'City is required';
-  }
+	if (!config.shippingAddress.city) {
+		errors.value.city = "City is required";
+	}
 
-  if (!config.shippingAddress.state) {
-    errors.value.state = 'State is required';
-  }
+	if (!config.shippingAddress.state) {
+		errors.value.state = "State is required";
+	}
 
-  if (!config.shippingAddress.zipCode || !/^\d{5}(-\d{4})?$/.test(config.shippingAddress.zipCode)) {
-    errors.value.zipCode = 'Valid ZIP code is required';
-  }
+	if (
+		!config.shippingAddress.zipCode ||
+		!/^\d{5}(-\d{4})?$/.test(config.shippingAddress.zipCode)
+	) {
+		errors.value.zipCode = "Valid ZIP code is required";
+	}
 
-  if (!config.shippingAddress.phoneNumber || !/^\d{10,}$/.test(config.shippingAddress.phoneNumber.replace(/\D/g, ''))) {
-    errors.value.phoneNumber = 'Valid phone number is required';
-  }
+	if (
+		!config.shippingAddress.phoneNumber ||
+		!/^\d{10,}$/.test(config.shippingAddress.phoneNumber.replace(/\D/g, ""))
+	) {
+		errors.value.phoneNumber = "Valid phone number is required";
+	}
 
-  if (!config.wifiConfig.ssid || config.wifiConfig.ssid.length > 32) {
-    errors.value.ssid = 'WiFi name must be 1-32 characters';
-  }
+	if (!config.wifiConfig.ssid || config.wifiConfig.ssid.length > 32) {
+		errors.value.ssid = "WiFi name must be 1-32 characters";
+	}
 
-  if (!config.wifiConfig.password || config.wifiConfig.password.length < 8) {
-    errors.value.wifiPassword = 'WiFi password must be at least 8 characters';
-  }
+	if (!config.wifiConfig.password || config.wifiConfig.password.length < 8) {
+		errors.value.wifiPassword = "WiFi password must be at least 8 characters";
+	}
 
-  if (!config.adminPassword || config.adminPassword.length < 8) {
-    errors.value.adminPassword = 'Admin password must be at least 8 characters';
-  }
+	if (!config.adminPassword || config.adminPassword.length < 8) {
+		errors.value.adminPassword = "Admin password must be at least 8 characters";
+	}
 
-  if (config.adminPassword !== config.adminPasswordConfirm) {
-    errors.value.adminPasswordConfirm = 'Passwords do not match';
-  }
+	if (config.adminPassword !== config.adminPasswordConfirm) {
+		errors.value.adminPasswordConfirm = "Passwords do not match";
+	}
 
-  // WAN-specific validation
-  if (config.wanType === 'pppoe') {
-    if (!config.wanConfig?.username) {
-      errors.value.pppoeUsername = 'PPPoE username is required';
-    }
-    if (!config.wanConfig?.password) {
-      errors.value.pppoePassword = 'PPPoE password is required';
-    }
-  }
+	// WAN-specific validation
+	if (config.wanType === "pppoe") {
+		if (!config.wanConfig?.username) {
+			errors.value.pppoeUsername = "PPPoE username is required";
+		}
+		if (!config.wanConfig?.password) {
+			errors.value.pppoePassword = "PPPoE password is required";
+		}
+	}
 
-  if (config.wanType === 'static') {
-    if (!config.wanConfig?.ipAddress) {
-      errors.value.staticIp = 'Static IP address is required';
-    }
-    if (!config.wanConfig?.gateway) {
-      errors.value.gateway = 'Gateway is required';
-    }
-  }
+	if (config.wanType === "static") {
+		if (!config.wanConfig?.ipAddress) {
+			errors.value.staticIp = "Static IP address is required";
+		}
+		if (!config.wanConfig?.gateway) {
+			errors.value.gateway = "Gateway is required";
+		}
+	}
 
-  return Object.keys(errors.value).length === 0;
+	return Object.keys(errors.value).length === 0;
 };
 
 const handleSubmit = () => {
-  if (validateForm()) {
-    const submitConfig = { ...config };
-    delete submitConfig.adminPasswordConfirm;
-    emit('submit', submitConfig);
-  }
+	if (validateForm()) {
+		const submitConfig = { ...config };
+		delete submitConfig.adminPasswordConfirm;
+		emit("submit", submitConfig);
+	}
 };
 </script>
 

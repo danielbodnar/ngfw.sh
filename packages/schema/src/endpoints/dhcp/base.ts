@@ -13,7 +13,12 @@ export const dhcpConfig = z.object({
 	gateway: z.string().describe("Default gateway for DHCP clients"),
 	dns_primary: z.string().describe("Primary DNS server"),
 	dns_secondary: z.string().nullable().describe("Secondary DNS server"),
-	lease_time: z.number().int().min(60).default(86400).describe("Lease time in seconds"),
+	lease_time: z
+		.number()
+		.int()
+		.min(60)
+		.default(86400)
+		.describe("Lease time in seconds"),
 	domain_name: z.string().nullable().describe("Domain name for DHCP clients"),
 	updated_at: z.number().int(),
 });

@@ -2,53 +2,53 @@
 const currentPath = Astro.url.pathname;
 
 const navigation = [
-  {
-    section: 'Overview',
-    items: [
-      { name: 'Dashboard', href: '/dashboard', icon: 'chart-line' },
-      { name: 'Devices', href: '/devices', icon: 'router' },
-    ],
-  },
-  {
-    section: 'Network',
-    items: [
-      { name: 'Routing', href: '/network/routing', icon: 'route' },
-      { name: 'NAT', href: '/network/nat', icon: 'network-wired' },
-      { name: 'WAN', href: '/network/wan', icon: 'globe' },
-      { name: 'LAN', href: '/network/lan', icon: 'ethernet' },
-      { name: 'WiFi', href: '/network/wifi', icon: 'wifi' },
-      { name: 'DHCP', href: '/network/dhcp', icon: 'server' },
-    ],
-  },
-  {
-    section: 'Security',
-    items: [
-      { name: 'IPS', href: '/security/ips', icon: 'shield' },
-      { name: 'Firewall', href: '/security/firewall', icon: 'fire' },
-      { name: 'Traffic', href: '/security/traffic', icon: 'chart-network' },
-      { name: 'DNS Filter', href: '/security/dns-filter', icon: 'filter' },
-    ],
-  },
-  {
-    section: 'Services',
-    items: [
-      { name: 'VPN Server', href: '/services/vpn-server', icon: 'key' },
-      { name: 'VPN Client', href: '/services/vpn-client', icon: 'plug' },
-      { name: 'QoS', href: '/services/qos', icon: 'gauge' },
-      { name: 'DDNS', href: '/services/ddns', icon: 'dns' },
-    ],
-  },
-  {
-    section: 'Monitoring',
-    items: [
-      { name: 'Reports', href: '/monitoring/reports', icon: 'file-chart' },
-      { name: 'Logs', href: '/monitoring/logs', icon: 'list' },
-    ],
-  },
+	{
+		section: "Overview",
+		items: [
+			{ name: "Dashboard", href: "/dashboard", icon: "chart-line" },
+			{ name: "Devices", href: "/devices", icon: "router" },
+		],
+	},
+	{
+		section: "Network",
+		items: [
+			{ name: "Routing", href: "/network/routing", icon: "route" },
+			{ name: "NAT", href: "/network/nat", icon: "network-wired" },
+			{ name: "WAN", href: "/network/wan", icon: "globe" },
+			{ name: "LAN", href: "/network/lan", icon: "ethernet" },
+			{ name: "WiFi", href: "/network/wifi", icon: "wifi" },
+			{ name: "DHCP", href: "/network/dhcp", icon: "server" },
+		],
+	},
+	{
+		section: "Security",
+		items: [
+			{ name: "IPS", href: "/security/ips", icon: "shield" },
+			{ name: "Firewall", href: "/security/firewall", icon: "fire" },
+			{ name: "Traffic", href: "/security/traffic", icon: "chart-network" },
+			{ name: "DNS Filter", href: "/security/dns-filter", icon: "filter" },
+		],
+	},
+	{
+		section: "Services",
+		items: [
+			{ name: "VPN Server", href: "/services/vpn-server", icon: "key" },
+			{ name: "VPN Client", href: "/services/vpn-client", icon: "plug" },
+			{ name: "QoS", href: "/services/qos", icon: "gauge" },
+			{ name: "DDNS", href: "/services/ddns", icon: "dns" },
+		],
+	},
+	{
+		section: "Monitoring",
+		items: [
+			{ name: "Reports", href: "/monitoring/reports", icon: "file-chart" },
+			{ name: "Logs", href: "/monitoring/logs", icon: "list" },
+		],
+	},
 ];
 
 function isActive(href: string): boolean {
-  return currentPath === href || currentPath.startsWith(href + '/');
+	return currentPath === href || currentPath.startsWith(href + "/");
 }
 ---
 

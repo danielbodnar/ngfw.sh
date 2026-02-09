@@ -34,8 +34,9 @@ export class ReportDelete extends OpenAPIRoute {
 		const data = await this.getValidatedData<typeof this.schema>();
 		const { id } = data.params;
 
-		const reportRecord = await c.env.DB
-			.prepare("SELECT * FROM reports WHERE id = ? AND owner_id = ?")
+		const reportRecord = await c.env.DB.prepare(
+			"SELECT * FROM reports WHERE id = ? AND owner_id = ?",
+		)
 			.bind(id, userId)
 			.first();
 
@@ -53,7 +54,9 @@ export class ReportDelete extends OpenAPIRoute {
 			await c.env.REPORTS.delete(reportRecord.r2_key);
 		}
 
-		await c.env.DB.prepare("DELETE FROM reports WHERE id = ? AND owner_id = ?").bind(id, userId).run();
+		await c.env.DB.prepare("DELETE FROM reports WHERE id = ? AND owner_id = ?")
+			.bind(id, userId)
+			.run();
 
 		return {
 			success: true,

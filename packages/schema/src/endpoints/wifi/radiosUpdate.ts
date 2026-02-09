@@ -1,7 +1,7 @@
 import { contentJson, OpenAPIRoute } from "chanfana";
 import { z } from "zod";
 import type { AppContext } from "../../types";
-import { wifiRadio, wifiBand, wifiChannelWidth } from "./base";
+import { wifiBand, wifiChannelWidth, wifiRadio } from "./base";
 
 const updateFields = z.object({
 	radios: z.array(

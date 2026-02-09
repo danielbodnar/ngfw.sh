@@ -1,85 +1,88 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
-import { useVPNClient } from '../../composables/useVPNClient';
-import { useSelectedDevice } from '../../composables/useSelectedDevice';
-import { usePolling } from '../../composables/usePolling';
-import Spinner from '../ui/Spinner.vue';
-import Button from '../ui/Button.vue';
-import Card from '../ui/Card.vue';
-import Badge from '../ui/Badge.vue';
+import { computed, ref } from "vue";
+import { usePolling } from "../../composables/usePolling";
+import { useSelectedDevice } from "../../composables/useSelectedDevice";
+import { useVPNClient } from "../../composables/useVPNClient";
+import Badge from "../ui/Badge.vue";
+import Button from "../ui/Button.vue";
+import Card from "../ui/Card.vue";
+import Spinner from "../ui/Spinner.vue";
 
 // Use globally selected device
 const { deviceId } = useSelectedDevice();
 
 // Fetch VPN client profiles with auto-refresh
-const { profiles, loading, error, refetch, connect, disconnect } = useVPNClient(deviceId);
+const { profiles, loading, error, refetch, connect, disconnect } =
+	useVPNClient(deviceId);
 
 // Auto-refresh every 30 seconds
 usePolling({
-  fetcher: refetch,
-  interval: 30000,
-  immediate: false,
+	fetcher: refetch,
+	interval: 30000,
+	immediate: false,
 });
 
 // Format timestamp to relative time
 const formatRelativeTime = (timestamp: number): string => {
-  const now = Date.now() / 1000;
-  const diff = now - timestamp;
-  const seconds = Math.floor(diff);
-  const minutes = Math.floor(seconds / 60);
-  const hours = Math.floor(minutes / 60);
-  const days = Math.floor(hours / 24);
+	const now = Date.now() / 1000;
+	const diff = now - timestamp;
+	const seconds = Math.floor(diff);
+	const minutes = Math.floor(seconds / 60);
+	const hours = Math.floor(minutes / 60);
+	const days = Math.floor(hours / 24);
 
-  if (days > 0) return `${days}d ago`;
-  if (hours > 0) return `${hours}h ago`;
-  if (minutes > 0) return `${minutes}m ago`;
-  return 'Just now';
+	if (days > 0) return `${days}d ago`;
+	if (hours > 0) return `${hours}h ago`;
+	if (minutes > 0) return `${minutes}m ago`;
+	return "Just now";
 };
 
 // Format bytes to human-readable
 const formatBytes = (bytes: number): string => {
-  if (bytes === 0) return '0 B';
-  const k = 1024;
-  const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return `${(bytes / Math.pow(k, i)).toFixed(2)} ${sizes[i]}`;
+	if (bytes === 0) return "0 B";
+	const k = 1024;
+	const sizes = ["B", "KB", "MB", "GB", "TB"];
+	const i = Math.floor(Math.log(bytes) / Math.log(k));
+	return `${(bytes / k ** i).toFixed(2)} ${sizes[i]}`;
 };
 
 // Get protocol badge variant
-const getProtocolVariant = (protocol: string): 'success' | 'primary' | 'warning' => {
-  if (protocol === 'wireguard') return 'success';
-  if (protocol === 'openvpn') return 'primary';
-  return 'warning';
+const getProtocolVariant = (
+	protocol: string,
+): "success" | "primary" | "warning" => {
+	if (protocol === "wireguard") return "success";
+	if (protocol === "openvpn") return "primary";
+	return "warning";
 };
 
 // Stats computed from profiles
 const stats = computed(() => {
-  const profileList = profiles.value || [];
-  return {
-    totalProfiles: profileList.length,
-    enabledProfiles: profileList.filter((p) => p.enabled).length,
-    autoConnectProfiles: profileList.filter((p) => p.auto_connect).length,
-  };
+	const profileList = profiles.value || [];
+	return {
+		totalProfiles: profileList.length,
+		enabledProfiles: profileList.filter((p) => p.enabled).length,
+		autoConnectProfiles: profileList.filter((p) => p.auto_connect).length,
+	};
 });
 
 // Handle connect action
 const handleConnect = async (profileId: string) => {
-  try {
-    await connect(profileId);
-    await refetch();
-  } catch (err) {
-    console.error('Failed to connect:', err);
-  }
+	try {
+		await connect(profileId);
+		await refetch();
+	} catch (err) {
+		console.error("Failed to connect:", err);
+	}
 };
 
 // Handle disconnect action
 const handleDisconnect = async (profileId: string) => {
-  try {
-    await disconnect(profileId);
-    await refetch();
-  } catch (err) {
-    console.error('Failed to disconnect:', err);
-  }
+	try {
+		await disconnect(profileId);
+		await refetch();
+	} catch (err) {
+		console.error("Failed to disconnect:", err);
+	}
 };
 </script>
 

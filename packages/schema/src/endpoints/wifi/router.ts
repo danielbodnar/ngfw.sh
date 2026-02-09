@@ -1,11 +1,11 @@
-import { Hono } from "hono";
 import { fromHono } from "chanfana";
+import { Hono } from "hono";
 import { clerkAuth } from "../../middleware/auth";
 import type { AppBindings, AppVariables } from "../../types";
-import { WifiRadiosRead } from "./radiosRead";
-import { WifiRadiosUpdate } from "./radiosUpdate";
 import { WifiNetworksRead } from "./networksRead";
 import { WifiNetworksUpdate } from "./networksUpdate";
+import { WifiRadiosRead } from "./radiosRead";
+import { WifiRadiosUpdate } from "./radiosUpdate";
 
 const app = new Hono<{ Bindings: AppBindings; Variables: AppVariables }>();
 

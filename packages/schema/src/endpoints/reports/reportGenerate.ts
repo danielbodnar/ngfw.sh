@@ -39,8 +39,9 @@ export class ReportGenerate extends OpenAPIRoute {
 		const data = await this.getValidatedData<typeof this.schema>();
 		const body = data.body;
 
-		const deviceCheck = await c.env.DB
-			.prepare("SELECT id FROM devices WHERE id = ? AND owner_id = ?")
+		const deviceCheck = await c.env.DB.prepare(
+			"SELECT id FROM devices WHERE id = ? AND owner_id = ?",
+		)
 			.bind(body.device_id, userId)
 			.first();
 
@@ -74,10 +75,9 @@ export class ReportGenerate extends OpenAPIRoute {
 			error_message: null,
 		};
 
-		await c.env.DB
-			.prepare(
-				"INSERT INTO reports (id, device_id, owner_id, type, format, status, title, date_start, date_end, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-			)
+		await c.env.DB.prepare(
+			"INSERT INTO reports (id, device_id, owner_id, type, format, status, title, date_start, date_end, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+		)
 			.bind(
 				id,
 				body.device_id,
@@ -92,9 +92,12 @@ export class ReportGenerate extends OpenAPIRoute {
 			)
 			.run();
 
-		return new Response(JSON.stringify({ success: true, result: reportRecord }), {
-			status: 201,
-			headers: { "Content-Type": "application/json" },
-		});
+		return new Response(
+			JSON.stringify({ success: true, result: reportRecord }),
+			{
+				status: 201,
+				headers: { "Content-Type": "application/json" },
+			},
+		);
 	}
 }

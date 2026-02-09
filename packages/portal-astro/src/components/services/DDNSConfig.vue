@@ -1,85 +1,85 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
-import Button from '../ui/Button.vue';
-import Input from '../ui/Input.vue';
-import Select from '../ui/Select.vue';
-import Toggle from '../ui/Toggle.vue';
-import Card from '../ui/Card.vue';
-import Badge from '../ui/Badge.vue';
+import { computed, ref } from "vue";
+import Badge from "../ui/Badge.vue";
+import Button from "../ui/Button.vue";
+import Card from "../ui/Card.vue";
+import Input from "../ui/Input.vue";
+import Select from "../ui/Select.vue";
+import Toggle from "../ui/Toggle.vue";
 
 export interface DDNSConfig {
-  enabled: boolean;
-  provider: string;
-  hostname: string;
-  username: string;
-  password: string;
-  update_interval: number;
-  force_ipv4: boolean;
-  force_ipv6: boolean;
+	enabled: boolean;
+	provider: string;
+	hostname: string;
+	username: string;
+	password: string;
+	update_interval: number;
+	force_ipv4: boolean;
+	force_ipv6: boolean;
 }
 
 export interface DDNSStatus {
-  last_update: number;
-  last_ip: string;
-  status: 'success' | 'failed' | 'pending';
-  message?: string;
+	last_update: number;
+	last_ip: string;
+	status: "success" | "failed" | "pending";
+	message?: string;
 }
 
 const props = defineProps<{
-  config: DDNSConfig;
-  status?: DDNSStatus | null;
-  loading?: boolean;
+	config: DDNSConfig;
+	status?: DDNSStatus | null;
+	loading?: boolean;
 }>();
 
 const emit = defineEmits<{
-  save: [config: DDNSConfig];
-  forceUpdate: [];
+	save: [config: DDNSConfig];
+	forceUpdate: [];
 }>();
 
 const localConfig = ref<DDNSConfig>({ ...props.config });
 
 const providers = [
-  { value: 'cloudflare', label: 'Cloudflare' },
-  { value: 'duckdns', label: 'DuckDNS' },
-  { value: 'noip', label: 'No-IP' },
-  { value: 'dyndns', label: 'Dyn DNS' },
-  { value: 'namecheap', label: 'Namecheap' },
-  { value: 'google', label: 'Google Domains' },
-  { value: 'afraid', label: 'FreeDNS (afraid.org)' },
-  { value: 'custom', label: 'Custom Provider' },
+	{ value: "cloudflare", label: "Cloudflare" },
+	{ value: "duckdns", label: "DuckDNS" },
+	{ value: "noip", label: "No-IP" },
+	{ value: "dyndns", label: "Dyn DNS" },
+	{ value: "namecheap", label: "Namecheap" },
+	{ value: "google", label: "Google Domains" },
+	{ value: "afraid", label: "FreeDNS (afraid.org)" },
+	{ value: "custom", label: "Custom Provider" },
 ];
 
 const intervalOptions = [
-  { value: '300', label: '5 minutes' },
-  { value: '600', label: '10 minutes' },
-  { value: '1800', label: '30 minutes' },
-  { value: '3600', label: '1 hour' },
-  { value: '7200', label: '2 hours' },
-  { value: '86400', label: '24 hours' },
+	{ value: "300", label: "5 minutes" },
+	{ value: "600", label: "10 minutes" },
+	{ value: "1800", label: "30 minutes" },
+	{ value: "3600", label: "1 hour" },
+	{ value: "7200", label: "2 hours" },
+	{ value: "86400", label: "24 hours" },
 ];
 
 const getStatusBadge = computed(() => {
-  if (!props.status) return { variant: 'default' as const, text: 'Unknown' };
-  const badges = {
-    success: { variant: 'success' as const, text: 'Up to Date' },
-    failed: { variant: 'danger' as const, text: 'Update Failed' },
-    pending: { variant: 'warning' as const, text: 'Update Pending' },
-  };
-  return badges[props.status.status];
+	if (!props.status) return { variant: "default" as const, text: "Unknown" };
+	const badges = {
+		success: { variant: "success" as const, text: "Up to Date" },
+		failed: { variant: "danger" as const, text: "Update Failed" },
+		pending: { variant: "warning" as const, text: "Update Pending" },
+	};
+	return badges[props.status.status];
 });
 
 const formatTimestamp = (timestamp?: number) => {
-  if (!timestamp) return 'Never';
-  const date = new Date(timestamp * 1000);
-  return date.toLocaleString();
+	if (!timestamp) return "Never";
+	const date = new Date(timestamp * 1000);
+	return date.toLocaleString();
 };
 
 const handleSave = () => {
-  emit('save', localConfig.value);
+	emit("save", localConfig.value);
 };
 
 const handleForceUpdate = () => {
-  emit('forceUpdate');
+	emit("forceUpdate");
 };
 </script>
 

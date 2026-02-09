@@ -1,58 +1,58 @@
 <script setup lang="ts">
-import Button from '../ui/Button.vue';
-import Card from '../ui/Card.vue';
-import Table from '../ui/Table.vue';
-import Badge from '../ui/Badge.vue';
+import Badge from "../ui/Badge.vue";
+import Button from "../ui/Button.vue";
+import Card from "../ui/Card.vue";
+import Table from "../ui/Table.vue";
 
 export interface Report {
-  id: string;
-  name: string;
-  type: string;
-  date: string;
-  status: 'completed' | 'generating' | 'failed';
-  fileUrl?: string;
-  fileSize?: number;
-  progress?: number;
+	id: string;
+	name: string;
+	type: string;
+	date: string;
+	status: "completed" | "generating" | "failed";
+	fileUrl?: string;
+	fileSize?: number;
+	progress?: number;
 }
 
 const props = defineProps<{
-  reports: Report[];
-  loading?: boolean;
+	reports: Report[];
+	loading?: boolean;
 }>();
 
 const emit = defineEmits<{
-  generate: [];
-  download: [reportId: string];
-  delete: [reportId: string];
+	generate: [];
+	download: [reportId: string];
+	delete: [reportId: string];
 }>();
 
 const columns = [
-  { key: 'name', label: 'Report Name' },
-  { key: 'type', label: 'Type' },
-  { key: 'date', label: 'Date' },
-  { key: 'status', label: 'Status' },
-  { key: 'actions', label: 'Actions' },
+	{ key: "name", label: "Report Name" },
+	{ key: "type", label: "Type" },
+	{ key: "date", label: "Date" },
+	{ key: "status", label: "Status" },
+	{ key: "actions", label: "Actions" },
 ];
 
 const formatFileSize = (bytes?: number): string => {
-  if (!bytes) return '—';
-  const units = ['B', 'KB', 'MB', 'GB'];
-  let size = bytes;
-  let unitIndex = 0;
-  while (size >= 1024 && unitIndex < units.length - 1) {
-    size /= 1024;
-    unitIndex++;
-  }
-  return `${size.toFixed(2)} ${units[unitIndex]}`;
+	if (!bytes) return "—";
+	const units = ["B", "KB", "MB", "GB"];
+	let size = bytes;
+	let unitIndex = 0;
+	while (size >= 1024 && unitIndex < units.length - 1) {
+		size /= 1024;
+		unitIndex++;
+	}
+	return `${size.toFixed(2)} ${units[unitIndex]}`;
 };
 
 const getStatusVariant = (status: string) => {
-  const variants = {
-    completed: 'success',
-    generating: 'warning',
-    failed: 'error',
-  };
-  return variants[status as keyof typeof variants] || 'secondary';
+	const variants = {
+		completed: "success",
+		generating: "warning",
+		failed: "error",
+	};
+	return variants[status as keyof typeof variants] || "secondary";
 };
 </script>
 

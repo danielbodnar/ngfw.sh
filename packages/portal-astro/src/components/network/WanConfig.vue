@@ -1,54 +1,54 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
-import Button from '../ui/Button.vue';
-import Input from '../ui/Input.vue';
-import Select from '../ui/Select.vue';
-import Card from '../ui/Card.vue';
+import { computed, ref } from "vue";
+import Button from "../ui/Button.vue";
+import Card from "../ui/Card.vue";
+import Input from "../ui/Input.vue";
+import Select from "../ui/Select.vue";
 
 export interface WanConfig {
-  type: 'dhcp' | 'static' | 'pppoe' | 'lte';
-  hostname: string;
-  mac_clone: string;
-  mtu: number;
-  // Static IP fields
-  ip_address: string;
-  netmask: string;
-  gateway: string;
-  dns_primary: string;
-  dns_secondary: string;
-  // PPPoE fields
-  username: string;
-  password: string;
-  service_name: string;
-  // LTE fields
-  apn: string;
-  pin: string;
+	type: "dhcp" | "static" | "pppoe" | "lte";
+	hostname: string;
+	mac_clone: string;
+	mtu: number;
+	// Static IP fields
+	ip_address: string;
+	netmask: string;
+	gateway: string;
+	dns_primary: string;
+	dns_secondary: string;
+	// PPPoE fields
+	username: string;
+	password: string;
+	service_name: string;
+	// LTE fields
+	apn: string;
+	pin: string;
 }
 
 const props = defineProps<{
-  config: WanConfig;
-  loading?: boolean;
+	config: WanConfig;
+	loading?: boolean;
 }>();
 
 const emit = defineEmits<{
-  save: [config: WanConfig];
+	save: [config: WanConfig];
 }>();
 
 const localConfig = ref<WanConfig>({ ...props.config });
 
 const connectionTypes = [
-  { value: 'dhcp', label: 'DHCP (Automatic)' },
-  { value: 'static', label: 'Static IP' },
-  { value: 'pppoe', label: 'PPPoE' },
-  { value: 'lte', label: 'LTE / Cellular' },
+	{ value: "dhcp", label: "DHCP (Automatic)" },
+	{ value: "static", label: "Static IP" },
+	{ value: "pppoe", label: "PPPoE" },
+	{ value: "lte", label: "LTE / Cellular" },
 ];
 
-const showStaticFields = computed(() => localConfig.value.type === 'static');
-const showPppoeFields = computed(() => localConfig.value.type === 'pppoe');
-const showLteFields = computed(() => localConfig.value.type === 'lte');
+const showStaticFields = computed(() => localConfig.value.type === "static");
+const showPppoeFields = computed(() => localConfig.value.type === "pppoe");
+const showLteFields = computed(() => localConfig.value.type === "lte");
 
 const handleSave = () => {
-  emit('save', localConfig.value);
+	emit("save", localConfig.value);
 };
 </script>
 

@@ -1,33 +1,33 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-import Button from '../ui/Button.vue';
-import Input from '../ui/Input.vue';
-import Toggle from '../ui/Toggle.vue';
-import Card from '../ui/Card.vue';
+import { ref } from "vue";
+import Button from "../ui/Button.vue";
+import Card from "../ui/Card.vue";
+import Input from "../ui/Input.vue";
+import Toggle from "../ui/Toggle.vue";
 
 export interface LanConfig {
-  interface: string;
-  ip_address: string;
-  netmask: string;
-  dhcp_enabled: boolean;
-  dhcp_start: string;
-  dhcp_end: string;
-  lease_time: number;
+	interface: string;
+	ip_address: string;
+	netmask: string;
+	dhcp_enabled: boolean;
+	dhcp_start: string;
+	dhcp_end: string;
+	lease_time: number;
 }
 
 const props = defineProps<{
-  config: LanConfig;
-  loading?: boolean;
+	config: LanConfig;
+	loading?: boolean;
 }>();
 
 const emit = defineEmits<{
-  save: [config: LanConfig];
+	save: [config: LanConfig];
 }>();
 
 const localConfig = ref<LanConfig>({ ...props.config });
 
 const handleSave = () => {
-  emit('save', localConfig.value);
+	emit("save", localConfig.value);
 };
 </script>
 

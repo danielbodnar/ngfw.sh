@@ -1,12 +1,15 @@
 ---
-import '../styles/global.css';
+import "../styles/global.css";
 
 interface Props {
-  title: string;
-  description?: string;
+	title: string;
+	description?: string;
 }
 
-const { title, description = 'NGFW.sh - Cloud-managed Next-Generation Firewall' } = Astro.props;
+const {
+	title,
+	description = "NGFW.sh - Cloud-managed Next-Generation Firewall",
+} = Astro.props;
 ---
 
 <!doctype html>

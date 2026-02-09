@@ -1,56 +1,56 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-import Button from '../ui/Button.vue';
-import Select from '../ui/Select.vue';
-import Input from '../ui/Input.vue';
-import Card from '../ui/Card.vue';
+import { ref } from "vue";
+import Button from "../ui/Button.vue";
+import Card from "../ui/Card.vue";
+import Input from "../ui/Input.vue";
+import Select from "../ui/Select.vue";
 
 export interface ReportConfig {
-  name: string;
-  type: string;
-  dateFrom: string;
-  dateTo: string;
-  format: string;
+	name: string;
+	type: string;
+	dateFrom: string;
+	dateTo: string;
+	format: string;
 }
 
 const props = defineProps<{
-  loading?: boolean;
+	loading?: boolean;
 }>();
 
 const emit = defineEmits<{
-  generate: [config: ReportConfig];
-  cancel: [];
+	generate: [config: ReportConfig];
+	cancel: [];
 }>();
 
-const name = ref('');
-const type = ref('security');
-const dateFrom = ref('');
-const dateTo = ref('');
-const format = ref('pdf');
+const name = ref("");
+const type = ref("security");
+const dateFrom = ref("");
+const dateTo = ref("");
+const format = ref("pdf");
 
 const reportTypes = [
-  { value: 'security', label: 'Security Summary' },
-  { value: 'traffic', label: 'Traffic Analysis' },
-  { value: 'wifi', label: 'WiFi Performance' },
-  { value: 'dns', label: 'DNS Analytics' },
-  { value: 'system', label: 'System Health' },
+	{ value: "security", label: "Security Summary" },
+	{ value: "traffic", label: "Traffic Analysis" },
+	{ value: "wifi", label: "WiFi Performance" },
+	{ value: "dns", label: "DNS Analytics" },
+	{ value: "system", label: "System Health" },
 ];
 
 const formatOptions = [
-  { value: 'pdf', label: 'PDF' },
-  { value: 'csv', label: 'CSV' },
-  { value: 'json', label: 'JSON' },
+	{ value: "pdf", label: "PDF" },
+	{ value: "csv", label: "CSV" },
+	{ value: "json", label: "JSON" },
 ];
 
 const handleGenerate = () => {
-  const config: ReportConfig = {
-    name: name.value,
-    type: type.value,
-    dateFrom: dateFrom.value,
-    dateTo: dateTo.value,
-    format: format.value,
-  };
-  emit('generate', config);
+	const config: ReportConfig = {
+		name: name.value,
+		type: type.value,
+		dateFrom: dateFrom.value,
+		dateTo: dateTo.value,
+		format: format.value,
+	};
+	emit("generate", config);
 };
 </script>
 

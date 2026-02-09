@@ -51,7 +51,9 @@ export class DeviceStatus extends OpenAPIRoute {
 		const configsKv = c.env.CONFIGS;
 
 		const row = await db
-			.prepare("SELECT id, name, model, serial, owner_id, firmware_version, status, created_at, last_seen FROM devices WHERE id = ? AND owner_id = ?")
+			.prepare(
+				"SELECT id, name, model, serial, owner_id, firmware_version, status, created_at, last_seen FROM devices WHERE id = ? AND owner_id = ?",
+			)
 			.bind(id, userId)
 			.first();
 

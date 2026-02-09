@@ -1,37 +1,37 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
-import Card from '../ui/Card.vue';
-import Spinner from '../ui/Spinner.vue';
+import { onMounted, ref } from "vue";
+import Card from "../ui/Card.vue";
+import Spinner from "../ui/Spinner.vue";
 
 const props = defineProps<{
-  dashboardId?: string;
+	dashboardId?: string;
 }>();
 
 const loading = ref(true);
-const dashboardName = ref('');
+const dashboardName = ref("");
 
 onMounted(() => {
-  // Simulated loading
-  setTimeout(() => {
-    dashboardName.value = getDashboardName(props.dashboardId || '');
-    loading.value = false;
-  }, 500);
+	// Simulated loading
+	setTimeout(() => {
+		dashboardName.value = getDashboardName(props.dashboardId || "");
+		loading.value = false;
+	}, 500);
 });
 
 const getDashboardName = (id: string): string => {
-  const names: Record<string, string> = {
-    'network-overview': 'Network Overview',
-    'security-events': 'Security Events',
-    'dns-analytics': 'DNS Analytics',
-    'wifi-performance': 'WiFi Performance',
-    'wan-health': 'WAN Health',
-    'vpn-metrics': 'VPN Metrics',
-    'system-resources': 'System Resources',
-    'traffic-analysis': 'Traffic Analysis',
-    'firewall-rules': 'Firewall Rules',
-    'qos-metrics': 'QoS Metrics',
-  };
-  return names[id] || 'Dashboard';
+	const names: Record<string, string> = {
+		"network-overview": "Network Overview",
+		"security-events": "Security Events",
+		"dns-analytics": "DNS Analytics",
+		"wifi-performance": "WiFi Performance",
+		"wan-health": "WAN Health",
+		"vpn-metrics": "VPN Metrics",
+		"system-resources": "System Resources",
+		"traffic-analysis": "Traffic Analysis",
+		"firewall-rules": "Firewall Rules",
+		"qos-metrics": "QoS Metrics",
+	};
+	return names[id] || "Dashboard";
 };
 </script>
 

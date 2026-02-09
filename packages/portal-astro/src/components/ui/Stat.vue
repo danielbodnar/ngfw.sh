@@ -1,29 +1,29 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed } from "vue";
 
 export interface StatProps {
-  label: string;
-  value: string | number;
-  icon?: string;
-  trend?: 'up' | 'down' | 'neutral';
-  trendValue?: string;
+	label: string;
+	value: string | number;
+	icon?: string;
+	trend?: "up" | "down" | "neutral";
+	trendValue?: string;
 }
 
 const props = defineProps<StatProps>();
 
 const trendClasses = computed(() => {
-  if (!props.trend) return '';
+	if (!props.trend) return "";
 
-  const base = 'text-sm font-medium';
-  if (props.trend === 'up') return `${base} text-green-600 dark:text-green-400`;
-  if (props.trend === 'down') return `${base} text-red-600 dark:text-red-400`;
-  return `${base} text-slate-600 dark:text-slate-400`;
+	const base = "text-sm font-medium";
+	if (props.trend === "up") return `${base} text-green-600 dark:text-green-400`;
+	if (props.trend === "down") return `${base} text-red-600 dark:text-red-400`;
+	return `${base} text-slate-600 dark:text-slate-400`;
 });
 
 const trendIcon = computed(() => {
-  if (props.trend === 'up') return '↑';
-  if (props.trend === 'down') return '↓';
-  return '→';
+	if (props.trend === "up") return "↑";
+	if (props.trend === "down") return "↓";
+	return "→";
 });
 </script>
 

@@ -1,47 +1,46 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
-import OnboardingWizard from './OnboardingWizard.vue';
-import RouterSelector from './RouterSelector.vue';
-import ConfigForm from './ConfigForm.vue';
-import OrderSummary from './OrderSummary.vue';
-import OrderComplete from './OrderComplete.vue';
-import { useRegisterDevice } from '../../composables/useRegisterDevice';
-import type { WizardStep } from './OnboardingWizard.vue';
+import { computed, ref } from "vue";
+import { useRegisterDevice } from "../../composables/useRegisterDevice";
+import ConfigForm from "./ConfigForm.vue";
+import OnboardingWizard, { type WizardStep } from "./OnboardingWizard.vue";
+import OrderComplete from "./OrderComplete.vue";
+import OrderSummary from "./OrderSummary.vue";
+import RouterSelector from "./RouterSelector.vue";
 
 interface RouterOption {
-  id: string;
-  name: string;
-  manufacturer: string;
-  firmware: string;
-  price: number;
-  specs: any;
-  features: string[];
-  image: string;
-  recommended?: boolean;
-  inStock: boolean;
+	id: string;
+	name: string;
+	manufacturer: string;
+	firmware: string;
+	price: number;
+	specs: any;
+	features: string[];
+	image: string;
+	recommended?: boolean;
+	inStock: boolean;
 }
 
 interface OnboardingConfig {
-  deviceName: string;
-  shippingAddress: any;
-  wifiConfig: any;
-  wanType: string;
-  wanConfig?: any;
-  adminPassword: string;
-  securityPreset: string;
-  enableIPS: boolean;
-  enableDNSFilter: boolean;
-  enableAutoUpdates: boolean;
+	deviceName: string;
+	shippingAddress: any;
+	wifiConfig: any;
+	wanType: string;
+	wanConfig?: any;
+	adminPassword: string;
+	securityPreset: string;
+	enableIPS: boolean;
+	enableDNSFilter: boolean;
+	enableAutoUpdates: boolean;
 }
 
 interface OrderResponse {
-  orderId: string;
-  deviceId: string;
-  estimatedDelivery: string;
-  trackingUrl?: string;
-  setupInstructions: string;
-  status: string;
-  createdAt: string;
+	orderId: string;
+	deviceId: string;
+	estimatedDelivery: string;
+	trackingUrl?: string;
+	setupInstructions: string;
+	status: string;
+	createdAt: string;
 }
 
 const wizardRef = ref<InstanceType<typeof OnboardingWizard>>();
@@ -50,66 +49,72 @@ const config = ref<OnboardingConfig | null>(null);
 const orderResponse = ref<OrderResponse | null>(null);
 const submitError = ref<string | null>(null);
 
-const { register, loading: registering, error: registerError } = useRegisterDevice();
+const {
+	register,
+	loading: registering,
+	error: registerError,
+} = useRegisterDevice();
 
 const currentView = computed(() => {
-  const step = wizardRef.value?.currentStep;
+	const step = wizardRef.value?.currentStep;
 
-  if (!step) return 'welcome';
-  return step;
+	if (!step) return "welcome";
+	return step;
 });
 
 const handleRouterSelect = (router: RouterOption) => {
-  selectedRouter.value = router;
-  wizardRef.value?.setRouter(router);
-  wizardRef.value?.goNext();
+	selectedRouter.value = router;
+	wizardRef.value?.setRouter(router);
+	wizardRef.value?.goNext();
 };
 
 const handleConfigSubmit = (newConfig: OnboardingConfig) => {
-  config.value = newConfig;
-  wizardRef.value?.setConfig(newConfig);
-  wizardRef.value?.goNext();
+	config.value = newConfig;
+	wizardRef.value?.setConfig(newConfig);
+	wizardRef.value?.goNext();
 };
 
 const handleOrderSubmit = async () => {
-  if (!selectedRouter.value || !config.value) {
-    submitError.value = 'Missing router or configuration';
-    return;
-  }
+	if (!selectedRouter.value || !config.value) {
+		submitError.value = "Missing router or configuration";
+		return;
+	}
 
-  wizardRef.value?.goToStep('submitting');
-  submitError.value = null;
+	wizardRef.value?.goToStep("submitting");
+	submitError.value = null;
 
-  try {
-    const registrationResponse = await register({
-      name: config.value.deviceName,
-      model: `${selectedRouter.value.manufacturer} ${selectedRouter.value.name}`,
-    });
+	try {
+		const registrationResponse = await register({
+			name: config.value.deviceName,
+			model: `${selectedRouter.value.manufacturer} ${selectedRouter.value.name}`,
+		});
 
-    orderResponse.value = {
-      orderId: registrationResponse.id,
-      deviceId: registrationResponse.id,
-      estimatedDelivery: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-      setupInstructions: 'https://docs.ngfw.sh/setup/quick-start',
-      status: 'provisioning',
-      createdAt: new Date().toISOString(),
-    };
+		orderResponse.value = {
+			orderId: registrationResponse.id,
+			deviceId: registrationResponse.id,
+			estimatedDelivery: new Date(
+				Date.now() + 7 * 24 * 60 * 60 * 1000,
+			).toISOString(),
+			setupInstructions: "https://docs.ngfw.sh/setup/quick-start",
+			status: "provisioning",
+			createdAt: new Date().toISOString(),
+		};
 
-    wizardRef.value?.setOrderId(registrationResponse.id);
-    wizardRef.value?.goToStep('complete');
-  } catch (err) {
-    console.error('Device registration failed:', err);
-    submitError.value = registerError.value || 'Failed to register device';
-    wizardRef.value?.goToStep('summary');
-  }
+		wizardRef.value?.setOrderId(registrationResponse.id);
+		wizardRef.value?.goToStep("complete");
+	} catch (err) {
+		console.error("Device registration failed:", err);
+		submitError.value = registerError.value || "Failed to register device";
+		wizardRef.value?.goToStep("summary");
+	}
 };
 
 const handleEditRouter = () => {
-  wizardRef.value?.goToStep('router');
+	wizardRef.value?.goToStep("router");
 };
 
 const handleEditConfig = () => {
-  wizardRef.value?.goToStep('config');
+	wizardRef.value?.goToStep("config");
 };
 </script>
 

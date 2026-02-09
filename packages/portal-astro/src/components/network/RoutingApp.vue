@@ -1,48 +1,61 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
-import { useDevices } from '../../composables/useDevices';
-import { useRoutes } from '../../composables/useRoutes';
-import { usePolling } from '../../composables/usePolling';
-import Spinner from '../ui/Spinner.vue';
-import Button from '../ui/Button.vue';
-import Card from '../ui/Card.vue';
-import Badge from '../ui/Badge.vue';
-import Input from '../ui/Input.vue';
-import Select from '../ui/Select.vue';
-import Toggle from '../ui/Toggle.vue';
-import Modal from '../ui/Modal.vue';
-import { z } from 'zod';
-import type { RouteCreate, RouteUpdate } from '../../lib/api/types';
+import { computed, onMounted, ref } from "vue";
+import { z } from "zod";
+import { useDevices } from "../../composables/useDevices";
+import { usePolling } from "../../composables/usePolling";
+import { useRoutes } from "../../composables/useRoutes";
+import type { RouteCreate, RouteUpdate } from "../../lib/api/types";
+import Badge from "../ui/Badge.vue";
+import Button from "../ui/Button.vue";
+import Card from "../ui/Card.vue";
+import Input from "../ui/Input.vue";
+import Modal from "../ui/Modal.vue";
+import Select from "../ui/Select.vue";
+import Spinner from "../ui/Spinner.vue";
+import Toggle from "../ui/Toggle.vue";
 
 /**
  * Route form schema for validation.
  */
 const RouteFormSchema = z.object({
-  destination: z.string().regex(/^(\d{1,3}\.){3}\d{1,3}\/\d{1,2}$/, 'Invalid CIDR format (e.g., 10.0.0.0/8)'),
-  gateway: z.string().ip('Invalid gateway IP address'),
-  interface: z.string().min(1, 'Interface is required'),
-  metric: z.number().min(0).max(9999).default(100),
-  type: z.enum(['static', 'dynamic', 'policy']).default('static'),
-  enabled: z.boolean().default(true),
-  description: z.string().optional(),
+	destination: z
+		.string()
+		.regex(
+			/^(\d{1,3}\.){3}\d{1,3}\/\d{1,2}$/,
+			"Invalid CIDR format (e.g., 10.0.0.0/8)",
+		),
+	gateway: z.string().ip("Invalid gateway IP address"),
+	interface: z.string().min(1, "Interface is required"),
+	metric: z.number().min(0).max(9999).default(100),
+	type: z.enum(["static", "dynamic", "policy"]).default("static"),
+	enabled: z.boolean().default(true),
+	description: z.string().optional(),
 });
 
 type RouteForm = z.infer<typeof RouteFormSchema>;
 
 const { data: devices, loading: devicesLoading } = useDevices();
-const selectedDeviceId = ref<string>('');
-const { data: routes, loading, error, refetch, create, update, remove } = useRoutes(selectedDeviceId);
+const selectedDeviceId = ref<string>("");
+const {
+	data: routes,
+	loading,
+	error,
+	refetch,
+	create,
+	update,
+	remove,
+} = useRoutes(selectedDeviceId);
 
 const showForm = ref(false);
 const editingRouteId = ref<string | null>(null);
 const formData = ref<RouteForm>({
-  destination: '',
-  gateway: '',
-  interface: 'eth0',
-  metric: 100,
-  type: 'static',
-  enabled: true,
-  description: '',
+	destination: "",
+	gateway: "",
+	interface: "eth0",
+	metric: 100,
+	type: "static",
+	enabled: true,
+	description: "",
 });
 
 const saving = ref(false);
@@ -52,166 +65,167 @@ const validationErrors = ref<Record<string, string>>({});
  * Select the first device on mount.
  */
 onMounted(() => {
-  if (devices.value && devices.value.length > 0) {
-    selectedDeviceId.value = devices.value[0].id;
-  }
+	if (devices.value && devices.value.length > 0) {
+		selectedDeviceId.value = devices.value[0].id;
+	}
 });
 
 /**
  * Auto-refresh every 30 seconds.
  */
 usePolling({
-  fetcher: refetch,
-  interval: 30000,
-  immediate: false,
+	fetcher: refetch,
+	interval: 30000,
+	immediate: false,
 });
 
 /**
  * Get device options for select.
  */
 const deviceOptions = computed(() => {
-  if (!devices.value) return [];
-  return devices.value.map(d => ({
-    value: d.id,
-    label: d.name,
-  }));
+	if (!devices.value) return [];
+	return devices.value.map((d) => ({
+		value: d.id,
+		label: d.name,
+	}));
 });
 
 /**
  * Interface options.
  */
 const interfaceOptions = [
-  { value: 'eth0', label: 'eth0 (WAN)' },
-  { value: 'eth1', label: 'eth1 (LAN)' },
-  { value: 'eth2', label: 'eth2 (LAN)' },
-  { value: 'wlan0', label: 'wlan0 (WiFi)' },
-  { value: 'wlan1', label: 'wlan1 (WiFi)' },
+	{ value: "eth0", label: "eth0 (WAN)" },
+	{ value: "eth1", label: "eth1 (LAN)" },
+	{ value: "eth2", label: "eth2 (LAN)" },
+	{ value: "wlan0", label: "wlan0 (WiFi)" },
+	{ value: "wlan1", label: "wlan1 (WiFi)" },
 ];
 
 /**
  * Route type options.
  */
 const typeOptions = [
-  { value: 'static', label: 'Static Route' },
-  { value: 'dynamic', label: 'Dynamic Route' },
-  { value: 'policy', label: 'Policy-based Route' },
+	{ value: "static", label: "Static Route" },
+	{ value: "dynamic", label: "Dynamic Route" },
+	{ value: "policy", label: "Policy-based Route" },
 ];
 
 /**
  * Open form to add new route.
  */
 function openAddForm(): void {
-  editingRouteId.value = null;
-  formData.value = {
-    destination: '',
-    gateway: '',
-    interface: 'eth0',
-    metric: 100,
-    type: 'static',
-    enabled: true,
-    description: '',
-  };
-  validationErrors.value = {};
-  showForm.value = true;
+	editingRouteId.value = null;
+	formData.value = {
+		destination: "",
+		gateway: "",
+		interface: "eth0",
+		metric: 100,
+		type: "static",
+		enabled: true,
+		description: "",
+	};
+	validationErrors.value = {};
+	showForm.value = true;
 }
 
 /**
  * Open form to edit existing route.
  */
 function openEditForm(routeId: string): void {
-  const route = routes.value.find(r => r.id === routeId);
-  if (!route) return;
+	const route = routes.value.find((r) => r.id === routeId);
+	if (!route) return;
 
-  editingRouteId.value = routeId;
-  formData.value = {
-    destination: route.destination,
-    gateway: route.gateway,
-    interface: route.interface,
-    metric: route.metric,
-    type: route.type,
-    enabled: route.enabled,
-    description: route.description || '',
-  };
-  validationErrors.value = {};
-  showForm.value = true;
+	editingRouteId.value = routeId;
+	formData.value = {
+		destination: route.destination,
+		gateway: route.gateway,
+		interface: route.interface,
+		metric: route.metric,
+		type: route.type,
+		enabled: route.enabled,
+		description: route.description || "",
+	};
+	validationErrors.value = {};
+	showForm.value = true;
 }
 
 /**
  * Close form modal.
  */
 function closeForm(): void {
-  showForm.value = false;
-  editingRouteId.value = null;
-  validationErrors.value = {};
+	showForm.value = false;
+	editingRouteId.value = null;
+	validationErrors.value = {};
 }
 
 /**
  * Save route (create or update).
  */
 async function saveRoute(): Promise<void> {
-  validationErrors.value = {};
+	validationErrors.value = {};
 
-  const result = RouteFormSchema.safeParse(formData.value);
-  if (!result.success) {
-    result.error.errors.forEach((err) => {
-      if (err.path[0]) {
-        validationErrors.value[err.path[0] as string] = err.message;
-      }
-    });
-    return;
-  }
+	const result = RouteFormSchema.safeParse(formData.value);
+	if (!result.success) {
+		result.error.errors.forEach((err) => {
+			if (err.path[0]) {
+				validationErrors.value[err.path[0] as string] = err.message;
+			}
+		});
+		return;
+	}
 
-  if (!selectedDeviceId.value) {
-    validationErrors.value.general = 'Please select a device';
-    return;
-  }
+	if (!selectedDeviceId.value) {
+		validationErrors.value.general = "Please select a device";
+		return;
+	}
 
-  saving.value = true;
+	saving.value = true;
 
-  try {
-    if (editingRouteId.value) {
-      const updateData: RouteUpdate = { ...formData.value };
-      await update(editingRouteId.value, updateData);
-    } else {
-      const createData: RouteCreate = {
-        device_id: selectedDeviceId.value,
-        ...formData.value,
-      };
-      await create(createData);
-    }
+	try {
+		if (editingRouteId.value) {
+			const updateData: RouteUpdate = { ...formData.value };
+			await update(editingRouteId.value, updateData);
+		} else {
+			const createData: RouteCreate = {
+				device_id: selectedDeviceId.value,
+				...formData.value,
+			};
+			await create(createData);
+		}
 
-    await refetch();
-    closeForm();
-  } catch (err) {
-    validationErrors.value.general = err instanceof Error ? err.message : 'Failed to save route';
-  } finally {
-    saving.value = false;
-  }
+		await refetch();
+		closeForm();
+	} catch (err) {
+		validationErrors.value.general =
+			err instanceof Error ? err.message : "Failed to save route";
+	} finally {
+		saving.value = false;
+	}
 }
 
 /**
  * Delete route with confirmation.
  */
 async function deleteRoute(routeId: string): Promise<void> {
-  if (!confirm('Are you sure you want to delete this route?')) {
-    return;
-  }
+	if (!confirm("Are you sure you want to delete this route?")) {
+		return;
+	}
 
-  try {
-    await remove(routeId);
-    await refetch();
-  } catch (err) {
-    console.error('Failed to delete route:', err);
-  }
+	try {
+		await remove(routeId);
+		await refetch();
+	} catch (err) {
+		console.error("Failed to delete route:", err);
+	}
 }
 
 /**
  * Get route type badge variant.
  */
-function getTypeVariant(type: string): 'primary' | 'success' | 'warning' {
-  if (type === 'static') return 'primary';
-  if (type === 'dynamic') return 'success';
-  return 'warning';
+function getTypeVariant(type: string): "primary" | "success" | "warning" {
+	if (type === "static") return "primary";
+	if (type === "dynamic") return "success";
+	return "warning";
 }
 </script>
 

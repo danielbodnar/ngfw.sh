@@ -1,43 +1,43 @@
 <script setup lang="ts">
-import Card from '../ui/Card.vue';
-import Table from '../ui/Table.vue';
-import Badge from '../ui/Badge.vue';
-import Toggle from '../ui/Toggle.vue';
+import Badge from "../ui/Badge.vue";
+import Card from "../ui/Card.vue";
+import Table from "../ui/Table.vue";
+import Toggle from "../ui/Toggle.vue";
 
 export interface IPSRule {
-  id: string;
-  name: string;
-  category: string;
-  severity: 'low' | 'medium' | 'high' | 'critical';
-  enabled: boolean;
-  signatures: number;
+	id: string;
+	name: string;
+	category: string;
+	severity: "low" | "medium" | "high" | "critical";
+	enabled: boolean;
+	signatures: number;
 }
 
 const props = defineProps<{
-  rules: IPSRule[];
-  loading?: boolean;
+	rules: IPSRule[];
+	loading?: boolean;
 }>();
 
 const emit = defineEmits<{
-  toggle: [ruleId: string];
+	toggle: [ruleId: string];
 }>();
 
 const columns = [
-  { key: 'name', label: 'Rule Name' },
-  { key: 'category', label: 'Category' },
-  { key: 'severity', label: 'Severity' },
-  { key: 'signatures', label: 'Signatures' },
-  { key: 'enabled', label: 'Enabled' },
+	{ key: "name", label: "Rule Name" },
+	{ key: "category", label: "Category" },
+	{ key: "severity", label: "Severity" },
+	{ key: "signatures", label: "Signatures" },
+	{ key: "enabled", label: "Enabled" },
 ];
 
 const getSeverityVariant = (severity: string) => {
-  const variants = {
-    low: 'secondary',
-    medium: 'warning',
-    high: 'error',
-    critical: 'error',
-  };
-  return variants[severity as keyof typeof variants] || 'secondary';
+	const variants = {
+		low: "secondary",
+		medium: "warning",
+		high: "error",
+		critical: "error",
+	};
+	return variants[severity as keyof typeof variants] || "secondary";
 };
 </script>
 

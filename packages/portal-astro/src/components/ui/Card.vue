@@ -1,11 +1,11 @@
 <script setup lang="ts">
 export interface CardProps {
-  title?: string;
-  noPadding?: boolean;
+	title?: string;
+	noPadding?: boolean;
 }
 
 withDefaults(defineProps<CardProps>(), {
-  noPadding: false,
+	noPadding: false,
 });
 </script>
 

@@ -13,7 +13,10 @@ export const wanConfig = z.object({
 	interface: z.string().describe("WAN network interface (e.g., eth0, ppp0)"),
 	connection_type: wanConnectionType,
 	enabled: z.boolean().default(true),
-	ipv4_address: z.string().nullable().describe("Static IPv4 address (null for DHCP)"),
+	ipv4_address: z
+		.string()
+		.nullable()
+		.describe("Static IPv4 address (null for DHCP)"),
 	ipv4_netmask: z.string().nullable().describe("IPv4 netmask"),
 	ipv4_gateway: z.string().nullable().describe("IPv4 gateway"),
 	ipv6_enabled: z.boolean().default(false),

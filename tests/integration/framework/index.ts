@@ -4,49 +4,46 @@
  * @module framework
  */
 
-// Core exports
-export * from './core/types';
-export { IntegrationTestBuilder, createTestBuilder } from './core/test-builder';
-
-// Mock exports
-export { MockApiServer, createMockApiServer } from './mocks/api-server';
-export { MockAgentClient, createMockAgentClient } from './mocks/agent-client';
-export { MockFirmwareAdapter, createMockFirmwareAdapter } from './mocks/firmware-adapter';
-
-// Fixture exports
-export {
-  DeviceFixtureBuilder,
-  UserFixtureBuilder,
-  MetricsFixtureBuilder,
-  NetworkConfigFixtureBuilder,
-  deviceFixture,
-  userFixture,
-  metricsFixture,
-  networkConfigFixture,
-} from './fixtures';
 
 // Assertion exports
 export {
-  WebSocketAssertions,
   StateAssertions,
   StorageAssertions,
-  TimingAssertions,
-  wsAssertions,
   stateAssertions,
   storageAssertions,
+  TimingAssertions,
   timingAssertions,
+  WebSocketAssertions,
+  wsAssertions,
 } from './assertions';
-
+export { createTestBuilder, IntegrationTestBuilder } from './core/test-builder';
+// Core exports
+export * from './core/types';
+// Fixture exports
+export {
+  DeviceFixtureBuilder,
+  deviceFixture,
+  MetricsFixtureBuilder,
+  metricsFixture,
+  NetworkConfigFixtureBuilder,
+  networkConfigFixture,
+  UserFixtureBuilder,
+  userFixture,
+} from './fixtures';
 // Isolation exports
 export {
+  createIsolationManager,
   IsolationManager,
-  TransactionIsolation,
   NamespaceIsolation,
-  WebSocketIsolation,
   ProcessIsolation,
   ResourceTracker,
-  createIsolationManager,
+  TransactionIsolation,
+  WebSocketIsolation,
 } from './isolation';
+export { createMockAgentClient, MockAgentClient } from './mocks/agent-client';
+// Mock exports
+export { createMockApiServer, MockApiServer } from './mocks/api-server';
+export { createMockFirmwareAdapter, MockFirmwareAdapter } from './mocks/firmware-adapter';
 
 /**
  * Framework version
@@ -60,7 +57,7 @@ export class TestScenarios {
   /**
    * Create a complete API<->Agent integration test environment
    */
-  static apiAgentTest() {
+  static async apiAgentTest() {
     const { IntegrationTestBuilder: Builder } = await import('./core/test-builder');
     return new Builder()
       .withMockApi()
@@ -72,7 +69,7 @@ export class TestScenarios {
   /**
    * Create a complete Agent<->Firmware integration test environment
    */
-  static agentFirmwareTest() {
+  static async agentFirmwareTest() {
     const { IntegrationTestBuilder: Builder } = await import('./core/test-builder');
     return new Builder()
       .withMockFirmware()
@@ -83,7 +80,7 @@ export class TestScenarios {
   /**
    * Create a complete UI<->API integration test environment
    */
-  static uiApiTest() {
+  static async uiApiTest() {
     const { IntegrationTestBuilder: Builder } = await import('./core/test-builder');
     return new Builder()
       .withMockApi()
@@ -95,7 +92,7 @@ export class TestScenarios {
   /**
    * Create a storage layer integration test environment
    */
-  static storageTest() {
+  static async storageTest() {
     const { IntegrationTestBuilder: Builder } = await import('./core/test-builder');
     return new Builder()
       .withMockStorage()
@@ -107,7 +104,7 @@ export class TestScenarios {
   /**
    * Create an end-to-end test environment
    */
-  static e2eTest() {
+  static async e2eTest() {
     const { IntegrationTestBuilder: Builder } = await import('./core/test-builder');
     return new Builder()
       .withMocks({

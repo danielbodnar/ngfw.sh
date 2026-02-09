@@ -1,73 +1,73 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-import Card from '../ui/Card.vue';
-import Badge from '../ui/Badge.vue';
+import { ref } from "vue";
+import Badge from "../ui/Badge.vue";
+import Card from "../ui/Card.vue";
 
 // Mock firewall rules for display purposes
 // In production, this would come from a useFirewall composable
 const mockRules = ref([
-  {
-    id: '1',
-    name: 'Allow HTTP/HTTPS',
-    zone_from: 'WAN',
-    zone_to: 'LAN',
-    protocol: 'tcp',
-    ports: '80,443',
-    action: 'accept',
-    enabled: true,
-  },
-  {
-    id: '2',
-    name: 'Block Telnet',
-    zone_from: 'ANY',
-    zone_to: 'ANY',
-    protocol: 'tcp',
-    ports: '23',
-    action: 'reject',
-    enabled: true,
-  },
-  {
-    id: '3',
-    name: 'Allow DNS',
-    zone_from: 'LAN',
-    zone_to: 'WAN',
-    protocol: 'udp',
-    ports: '53',
-    action: 'accept',
-    enabled: true,
-  },
-  {
-    id: '4',
-    name: 'Allow SSH',
-    zone_from: 'LAN',
-    zone_to: 'WAN',
-    protocol: 'tcp',
-    ports: '22',
-    action: 'accept',
-    enabled: true,
-  },
-  {
-    id: '5',
-    name: 'Block SMB',
-    zone_from: 'WAN',
-    zone_to: 'ANY',
-    protocol: 'tcp',
-    ports: '445',
-    action: 'reject',
-    enabled: true,
-  },
+	{
+		id: "1",
+		name: "Allow HTTP/HTTPS",
+		zone_from: "WAN",
+		zone_to: "LAN",
+		protocol: "tcp",
+		ports: "80,443",
+		action: "accept",
+		enabled: true,
+	},
+	{
+		id: "2",
+		name: "Block Telnet",
+		zone_from: "ANY",
+		zone_to: "ANY",
+		protocol: "tcp",
+		ports: "23",
+		action: "reject",
+		enabled: true,
+	},
+	{
+		id: "3",
+		name: "Allow DNS",
+		zone_from: "LAN",
+		zone_to: "WAN",
+		protocol: "udp",
+		ports: "53",
+		action: "accept",
+		enabled: true,
+	},
+	{
+		id: "4",
+		name: "Allow SSH",
+		zone_from: "LAN",
+		zone_to: "WAN",
+		protocol: "tcp",
+		ports: "22",
+		action: "accept",
+		enabled: true,
+	},
+	{
+		id: "5",
+		name: "Block SMB",
+		zone_from: "WAN",
+		zone_to: "ANY",
+		protocol: "tcp",
+		ports: "445",
+		action: "reject",
+		enabled: true,
+	},
 ]);
 
 // Get action badge variant
-const getActionVariant = (action: string): 'success' | 'danger' | 'warning' => {
-  if (action === 'accept') return 'success';
-  if (action === 'reject' || action === 'drop') return 'danger';
-  return 'warning';
+const getActionVariant = (action: string): "success" | "danger" | "warning" => {
+	if (action === "accept") return "success";
+	if (action === "reject" || action === "drop") return "danger";
+	return "warning";
 };
 
 // Get protocol display
 const getProtocolDisplay = (protocol: string): string => {
-  return protocol.toUpperCase();
+	return protocol.toUpperCase();
 };
 </script>
 

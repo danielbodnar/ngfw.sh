@@ -13,7 +13,12 @@ export const reportType = z.enum([
 
 export const reportFormat = z.enum(["pdf", "csv", "json"]);
 
-export const reportStatus = z.enum(["pending", "generating", "completed", "failed"]);
+export const reportStatus = z.enum([
+	"pending",
+	"generating",
+	"completed",
+	"failed",
+]);
 
 export const report = z.object({
 	id: z.string(),

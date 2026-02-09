@@ -103,7 +103,9 @@ export class DdnsConfigUpdate extends OpenAPIRoute {
 			updateValues.push(deviceId);
 
 			await db
-				.prepare(`UPDATE ddns_configs SET ${updateFields.join(", ")} WHERE device_id = ?`)
+				.prepare(
+					`UPDATE ddns_configs SET ${updateFields.join(", ")} WHERE device_id = ?`,
+				)
 				.bind(...updateValues)
 				.run();
 		} else {

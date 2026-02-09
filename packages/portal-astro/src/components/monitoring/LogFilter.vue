@@ -1,47 +1,47 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-import Button from '../ui/Button.vue';
-import Select from '../ui/Select.vue';
-import Input from '../ui/Input.vue';
-import Card from '../ui/Card.vue';
+import { ref } from "vue";
+import Button from "../ui/Button.vue";
+import Card from "../ui/Card.vue";
+import Input from "../ui/Input.vue";
+import Select from "../ui/Select.vue";
 
 export interface LogFilters {
-  level: string;
-  category: string;
-  search: string;
-  dateFrom: string;
-  dateTo: string;
+	level: string;
+	category: string;
+	search: string;
+	dateFrom: string;
+	dateTo: string;
 }
 
 const props = defineProps<{
-  filters: LogFilters;
+	filters: LogFilters;
 }>();
 
 const emit = defineEmits<{
-  update: [filters: Partial<LogFilters>];
-  export: [];
+	update: [filters: Partial<LogFilters>];
+	export: [];
 }>();
 
 const levelOptions = [
-  { value: 'all', label: 'All Levels' },
-  { value: 'info', label: 'Info' },
-  { value: 'warning', label: 'Warning' },
-  { value: 'error', label: 'Error' },
-  { value: 'critical', label: 'Critical' },
+	{ value: "all", label: "All Levels" },
+	{ value: "info", label: "Info" },
+	{ value: "warning", label: "Warning" },
+	{ value: "error", label: "Error" },
+	{ value: "critical", label: "Critical" },
 ];
 
 const categoryOptions = [
-  { value: 'all', label: 'All Categories' },
-  { value: 'system', label: 'System' },
-  { value: 'firewall', label: 'Firewall' },
-  { value: 'wan', label: 'WAN' },
-  { value: 'dhcp', label: 'DHCP' },
-  { value: 'security', label: 'Security' },
-  { value: 'vpn', label: 'VPN' },
+	{ value: "all", label: "All Categories" },
+	{ value: "system", label: "System" },
+	{ value: "firewall", label: "Firewall" },
+	{ value: "wan", label: "WAN" },
+	{ value: "dhcp", label: "DHCP" },
+	{ value: "security", label: "Security" },
+	{ value: "vpn", label: "VPN" },
 ];
 
 const updateFilter = (key: keyof LogFilters, value: string) => {
-  emit('update', { [key]: value });
+	emit("update", { [key]: value });
 };
 </script>
 

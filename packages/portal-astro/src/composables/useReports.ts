@@ -4,28 +4,28 @@
  * @module composables/useReports
  */
 
-import { ref, onMounted } from 'vue';
-import { useApi } from './useApi';
-import type { Report, ReportCreate } from '../lib/api/types';
+import { onMounted, ref } from "vue";
+import type { Report, ReportCreate } from "../lib/api/types";
+import { useApi } from "./useApi";
 
 /**
  * Return value from useReports.
  */
 export interface UseReportsReturn {
-  /** List of reports */
-  data: ReturnType<typeof ref<Report[]>>;
-  /** Loading state */
-  loading: ReturnType<typeof ref<boolean>>;
-  /** Error message if fetch fails */
-  error: ReturnType<typeof ref<string | null>>;
-  /** Manually refetch reports */
-  refetch: () => Promise<void>;
-  /** Create a new report */
-  create: (data: ReportCreate) => Promise<Report>;
-  /** Get a single report */
-  get: (reportId: string) => Promise<Report>;
-  /** Delete a report */
-  remove: (reportId: string) => Promise<void>;
+	/** List of reports */
+	data: ReturnType<typeof ref<Report[]>>;
+	/** Loading state */
+	loading: ReturnType<typeof ref<boolean>>;
+	/** Error message if fetch fails */
+	error: ReturnType<typeof ref<string | null>>;
+	/** Manually refetch reports */
+	refetch: () => Promise<void>;
+	/** Create a new report */
+	create: (data: ReportCreate) => Promise<Report>;
+	/** Get a single report */
+	get: (reportId: string) => Promise<Report>;
+	/** Delete a report */
+	remove: (reportId: string) => Promise<void>;
 }
 
 /**
@@ -59,69 +59,72 @@ export interface UseReportsReturn {
  * ```
  */
 export function useReports(
-  deviceId: ReturnType<typeof ref<string>>,
+	deviceId: ReturnType<typeof ref<string>>,
 ): UseReportsReturn {
-  const api = useApi();
-  const data = ref<Report[]>([]);
-  const loading = ref(true);
-  const error = ref<string | null>(null);
+	const api = useApi();
+	const data = ref<Report[]>([]);
+	const loading = ref(true);
+	const error = ref<string | null>(null);
 
-  async function refetch(): Promise<void> {
-    if (!deviceId.value) return;
+	async function refetch(): Promise<void> {
+		if (!deviceId.value) return;
 
-    loading.value = true;
-    error.value = null;
+		loading.value = true;
+		error.value = null;
 
-    try {
-      data.value = await api.listReports(deviceId.value);
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to fetch reports';
-    } finally {
-      loading.value = false;
-    }
-  }
+		try {
+			data.value = await api.listReports(deviceId.value);
+		} catch (err) {
+			error.value =
+				err instanceof Error ? err.message : "Failed to fetch reports";
+		} finally {
+			loading.value = false;
+		}
+	}
 
-  async function create(reportData: ReportCreate): Promise<Report> {
-    error.value = null;
-    try {
-      return await api.createReport(reportData);
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to create report';
-      throw err;
-    }
-  }
+	async function create(reportData: ReportCreate): Promise<Report> {
+		error.value = null;
+		try {
+			return await api.createReport(reportData);
+		} catch (err) {
+			error.value =
+				err instanceof Error ? err.message : "Failed to create report";
+			throw err;
+		}
+	}
 
-  async function get(reportId: string): Promise<Report> {
-    error.value = null;
-    try {
-      return await api.getReport(reportId);
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to get report';
-      throw err;
-    }
-  }
+	async function get(reportId: string): Promise<Report> {
+		error.value = null;
+		try {
+			return await api.getReport(reportId);
+		} catch (err) {
+			error.value = err instanceof Error ? err.message : "Failed to get report";
+			throw err;
+		}
+	}
 
-  async function remove(reportId: string): Promise<void> {
-    error.value = null;
-    try {
-      await api.deleteReport(reportId);
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to delete report';
-      throw err;
-    }
-  }
+	async function remove(reportId: string): Promise<void> {
+		error.value = null;
+		try {
+			await api.deleteReport(reportId);
+		} catch (err) {
+			error.value =
+				err instanceof Error ? err.message : "Failed to delete report";
+			throw err;
+		}
+	}
 
-  onMounted(() => {
-    void refetch();
-  });
+	onMounted(() => {
+		void refetch();
+	});
 
-  return {
-    data,
-    loading,
-    error,
-    refetch,
-    create,
-    get,
-    remove,
-  };
+	return {
+		data,
+		loading,
+		error,
+		refetch,
+		create,
+		get,
+		remove,
+	};
 }

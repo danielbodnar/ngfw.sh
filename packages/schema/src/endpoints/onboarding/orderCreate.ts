@@ -1,6 +1,6 @@
 import { OpenAPIRoute } from "chanfana";
 import { z } from "zod";
-import { OrderSubmissionSchema, OrderResponseSchema } from "./base";
+import { OrderResponseSchema, OrderSubmissionSchema } from "./base";
 
 /**
  * POST /onboarding/order
@@ -10,7 +10,8 @@ export class OnboardingOrderCreate extends OpenAPIRoute {
 	schema = {
 		tags: ["Onboarding"],
 		summary: "Create router order",
-		description: "Submit a new router order with device configuration and shipping information",
+		description:
+			"Submit a new router order with device configuration and shipping information",
 		request: {
 			body: {
 				content: {
@@ -69,9 +70,12 @@ export class OnboardingOrderCreate extends OpenAPIRoute {
 			createdAt: new Date().toISOString(),
 		};
 
-		return c.json({
-			success: true,
-			result: order,
-		}, 201);
+		return c.json(
+			{
+				success: true,
+				result: order,
+			},
+			201,
+		);
 	}
 }

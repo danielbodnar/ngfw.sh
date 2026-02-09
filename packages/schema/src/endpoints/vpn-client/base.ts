@@ -4,7 +4,12 @@ import { z } from "zod";
 export const vpnProfileType = z.enum(["wireguard", "openvpn"]);
 
 /** VPN profile connection status */
-export const vpnProfileStatus = z.enum(["connected", "disconnected", "connecting", "error"]);
+export const vpnProfileStatus = z.enum([
+	"connected",
+	"disconnected",
+	"connecting",
+	"error",
+]);
 
 /** WireGuard-specific configuration */
 export const wireguardConfig = z.object({
@@ -82,7 +87,10 @@ export const VpnClientProfileModel = {
 		return {
 			...obj,
 			auto_connect: Boolean(obj.auto_connect),
-			config: typeof obj.config === "string" ? JSON.parse(obj.config as string) : obj.config,
+			config:
+				typeof obj.config === "string"
+					? JSON.parse(obj.config as string)
+					: obj.config,
 		};
 	},
 	serializerObject: vpnClientProfile,

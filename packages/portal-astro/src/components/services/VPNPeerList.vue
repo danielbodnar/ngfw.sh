@@ -1,58 +1,59 @@
 <script setup lang="ts">
-import { computed } from 'vue';
-import Button from '../ui/Button.vue';
-import Badge from '../ui/Badge.vue';
-import Card from '../ui/Card.vue';
+import { computed } from "vue";
+import Badge from "../ui/Badge.vue";
+import Button from "../ui/Button.vue";
+import Card from "../ui/Card.vue";
 
 export interface VPNPeer {
-  id: string;
-  name: string;
-  public_key: string;
-  allowed_ips: string[];
-  enabled: boolean;
-  last_handshake?: number;
-  rx_bytes?: number;
-  tx_bytes?: number;
+	id: string;
+	name: string;
+	public_key: string;
+	allowed_ips: string[];
+	enabled: boolean;
+	last_handshake?: number;
+	rx_bytes?: number;
+	tx_bytes?: number;
 }
 
 const props = defineProps<{
-  peers: VPNPeer[];
-  loading?: boolean;
+	peers: VPNPeer[];
+	loading?: boolean;
 }>();
 
 const emit = defineEmits<{
-  add: [];
-  edit: [peer: VPNPeer];
-  delete: [peerId: string];
-  downloadConfig: [peerId: string];
-  showQr: [peerId: string];
+	add: [];
+	edit: [peer: VPNPeer];
+	delete: [peerId: string];
+	downloadConfig: [peerId: string];
+	showQr: [peerId: string];
 }>();
 
 const formatBytes = (bytes?: number) => {
-  if (!bytes) return 'N/A';
-  if (bytes >= 1e9) return `${(bytes / 1e9).toFixed(2)} GB`;
-  if (bytes >= 1e6) return `${(bytes / 1e6).toFixed(2)} MB`;
-  if (bytes >= 1e3) return `${(bytes / 1e3).toFixed(2)} KB`;
-  return `${bytes} B`;
+	if (!bytes) return "N/A";
+	if (bytes >= 1e9) return `${(bytes / 1e9).toFixed(2)} GB`;
+	if (bytes >= 1e6) return `${(bytes / 1e6).toFixed(2)} MB`;
+	if (bytes >= 1e3) return `${(bytes / 1e3).toFixed(2)} KB`;
+	return `${bytes} B`;
 };
 
 const formatLastSeen = (timestamp?: number) => {
-  if (!timestamp) return 'Never';
-  const now = Date.now() / 1000;
-  const diff = now - timestamp;
-  if (diff < 60) return 'Just now';
-  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
-  if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
-  return `${Math.floor(diff / 86400)}d ago`;
+	if (!timestamp) return "Never";
+	const now = Date.now() / 1000;
+	const diff = now - timestamp;
+	if (diff < 60) return "Just now";
+	if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+	if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+	return `${Math.floor(diff / 86400)}d ago`;
 };
 
 const getStatusBadge = (peer: VPNPeer) => {
-  if (!peer.enabled) return { variant: 'default' as const, text: 'Disabled' };
-  if (!peer.last_handshake) return { variant: 'default' as const, text: 'Never Connected' };
-  const now = Date.now() / 1000;
-  const diff = now - peer.last_handshake;
-  if (diff < 300) return { variant: 'success' as const, text: 'Online' };
-  return { variant: 'warning' as const, text: 'Offline' };
+	if (!peer.enabled) return { variant: "default" as const, text: "Disabled" };
+	if (!peer.last_handshake)
+		return { variant: "default" as const, text: "Never Connected" };
+	const now = Date.now() / 1000;
+	const diff = now - peer.last_handshake;
+	if (diff < 300) return { variant: "success" as const, text: "Online" };
+	return { variant: "warning" as const, text: "Offline" };
 };
 </script>
 

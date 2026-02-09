@@ -70,11 +70,17 @@ export class DdnsForceUpdate extends OpenAPIRoute {
 			.first();
 
 		if (!config) {
-			return c.json({ success: false, error: "DDNS not configured for this device" }, 404);
+			return c.json(
+				{ success: false, error: "DDNS not configured for this device" },
+				404,
+			);
 		}
 
 		if (!config.enabled) {
-			return c.json({ success: false, error: "DDNS is disabled for this device" }, 400);
+			return c.json(
+				{ success: false, error: "DDNS is disabled for this device" },
+				400,
+			);
 		}
 
 		// Store update request in KV for agent to pick up

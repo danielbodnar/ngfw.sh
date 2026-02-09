@@ -1,62 +1,62 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { onMounted, ref } from "vue";
 
 interface User {
-  id: string;
-  primaryEmailAddress?: {
-    emailAddress: string;
-  };
-  firstName?: string;
-  lastName?: string;
-  imageUrl?: string;
+	id: string;
+	primaryEmailAddress?: {
+		emailAddress: string;
+	};
+	firstName?: string;
+	lastName?: string;
+	imageUrl?: string;
 }
 
 const isOpen = ref(false);
 const user = ref<User | null>(null);
 
 onMounted(async () => {
-  // Fetch user data from Clerk
-  try {
-    const response = await fetch('/api/user');
-    if (response.ok) {
-      user.value = await response.json();
-    }
-  } catch (error) {
-    console.error('Failed to fetch user:', error);
-  }
+	// Fetch user data from Clerk
+	try {
+		const response = await fetch("/api/user");
+		if (response.ok) {
+			user.value = await response.json();
+		}
+	} catch (error) {
+		console.error("Failed to fetch user:", error);
+	}
 });
 
 const toggleMenu = () => {
-  isOpen.value = !isOpen.value;
+	isOpen.value = !isOpen.value;
 };
 
 const signOut = async () => {
-  try {
-    await fetch('/api/sign-out', { method: 'POST' });
-    window.location.href = '/sign-in';
-  } catch (error) {
-    console.error('Failed to sign out:', error);
-  }
+	try {
+		await fetch("/api/sign-out", { method: "POST" });
+		window.location.href = "/sign-in";
+	} catch (error) {
+		console.error("Failed to sign out:", error);
+	}
 };
 
 const getUserInitials = () => {
-  if (user.value?.firstName && user.value?.lastName) {
-    return `${user.value.firstName.charAt(0)}${user.value.lastName.charAt(0)}`.toUpperCase();
-  }
-  if (user.value?.primaryEmailAddress?.emailAddress) {
-    return user.value.primaryEmailAddress.emailAddress.charAt(0).toUpperCase();
-  }
-  return 'U';
+	if (user.value?.firstName && user.value?.lastName) {
+		return `${user.value.firstName.charAt(0)}${user.value.lastName.charAt(0)}`.toUpperCase();
+	}
+	if (user.value?.primaryEmailAddress?.emailAddress) {
+		return user.value.primaryEmailAddress.emailAddress.charAt(0).toUpperCase();
+	}
+	return "U";
 };
 
 const getUserDisplayName = () => {
-  if (user.value?.firstName && user.value?.lastName) {
-    return `${user.value.firstName} ${user.value.lastName}`;
-  }
-  if (user.value?.primaryEmailAddress?.emailAddress) {
-    return user.value.primaryEmailAddress.emailAddress;
-  }
-  return 'User';
+	if (user.value?.firstName && user.value?.lastName) {
+		return `${user.value.firstName} ${user.value.lastName}`;
+	}
+	if (user.value?.primaryEmailAddress?.emailAddress) {
+		return user.value.primaryEmailAddress.emailAddress;
+	}
+	return "User";
 };
 </script>
 

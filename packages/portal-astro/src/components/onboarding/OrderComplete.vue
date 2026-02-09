@@ -1,25 +1,25 @@
 <script setup lang="ts">
-import Badge from '../ui/Badge.vue';
-import Card from '../ui/Card.vue';
+import Badge from "../ui/Badge.vue";
+import Card from "../ui/Card.vue";
 
 interface OrderDetails {
-  orderId: string;
-  deviceId: string;
-  estimatedDelivery: string;
-  setupInstructions: string;
+	orderId: string;
+	deviceId: string;
+	estimatedDelivery: string;
+	setupInstructions: string;
 }
 
 const props = defineProps<{
-  order: OrderDetails;
+	order: OrderDetails;
 }>();
 
 const formatDate = (isoDate: string) => {
-  return new Date(isoDate).toLocaleDateString('en-US', {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  });
+	return new Date(isoDate).toLocaleDateString("en-US", {
+		weekday: "long",
+		year: "numeric",
+		month: "long",
+		day: "numeric",
+	});
 };
 </script>
 

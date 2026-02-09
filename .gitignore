@@ -219,3 +219,7 @@ tests/integration/docker/*.log
 
 target/
 **/target/
+
+### Firmware config archives (may contain private keys) ###
+packages/firmware/configs/*.tar
+packages/firmware/configs/**/*.tgz

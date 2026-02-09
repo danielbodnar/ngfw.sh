@@ -1,17 +1,17 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
-import { useDashboards } from '../../composables/useDashboards';
-import { usePolling } from '../../composables/usePolling';
-import Spinner from '../ui/Spinner.vue';
-import Button from '../ui/Button.vue';
-import Card from '../ui/Card.vue';
-import Stat from '../ui/Stat.vue';
+import { computed, onMounted, ref } from "vue";
+import { useDashboards } from "../../composables/useDashboards";
+import { usePolling } from "../../composables/usePolling";
+import Button from "../ui/Button.vue";
+import Card from "../ui/Card.vue";
+import Spinner from "../ui/Spinner.vue";
+import Stat from "../ui/Stat.vue";
 
 // Props
 const props = defineProps<{
-  dashboardId: string;
-  title?: string;
-  description?: string;
+	dashboardId: string;
+	title?: string;
+	description?: string;
 }>();
 
 // Fetch dashboards
@@ -19,140 +19,147 @@ const { data: dashboards, loading, error, refetch } = useDashboards();
 
 // Auto-refresh every 30 seconds
 usePolling({
-  fetcher: refetch,
-  interval: 30000,
-  immediate: false,
+	fetcher: refetch,
+	interval: 30000,
+	immediate: false,
 });
 
 // Find the specific dashboard by ID
 const dashboard = computed(() => {
-  if (!dashboards.value) return null;
-  return dashboards.value.find((d) => d.id === props.dashboardId || d.name === props.dashboardId);
+	if (!dashboards.value) return null;
+	return dashboards.value.find(
+		(d) => d.id === props.dashboardId || d.name === props.dashboardId,
+	);
 });
 
 // Dashboard configurations for specialized dashboards
-const dashboardConfigs: Record<string, {
-  title: string;
-  description: string;
-  stats: Array<{ label: string; value: string | number; icon: string }>;
-}> = {
-  'dns-analytics': {
-    title: 'DNS Analytics',
-    description: 'DNS queries and filtering statistics',
-    stats: [
-      { label: 'Total Queries', value: '45,892', icon: '🔍' },
-      { label: 'Blocked Queries', value: '1,247', icon: '🚫' },
-      { label: 'Cache Hit Rate', value: '87%', icon: '⚡' },
-      { label: 'Avg Response Time', value: '12ms', icon: '⏱️' },
-    ],
-  },
-  'firewall-rules': {
-    title: 'Firewall Rules',
-    description: 'Active firewall rules and blocked connections',
-    stats: [
-      { label: 'Active Rules', value: '156', icon: '🛡️' },
-      { label: 'Blocked Today', value: '2,341', icon: '🚫' },
-      { label: 'Allowed Today', value: '98,432', icon: '✅' },
-      { label: 'Rule Violations', value: '12', icon: '⚠️' },
-    ],
-  },
-  'network-overview': {
-    title: 'Network Overview',
-    description: 'Overall network status and performance',
-    stats: [
-      { label: 'Total Bandwidth', value: '945 Mbps', icon: '📊' },
-      { label: 'Active Connections', value: '1,234', icon: '🔗' },
-      { label: 'Connected Devices', value: '42', icon: '📱' },
-      { label: 'Network Uptime', value: '99.8%', icon: '⬆️' },
-    ],
-  },
-  'qos-metrics': {
-    title: 'QoS Metrics',
-    description: 'Quality of Service and bandwidth management',
-    stats: [
-      { label: 'Active QoS Rules', value: '23', icon: '⚙️' },
-      { label: 'High Priority', value: '156 Mbps', icon: '🔴' },
-      { label: 'Normal Priority', value: '523 Mbps', icon: '🟡' },
-      { label: 'Low Priority', value: '234 Mbps', icon: '🟢' },
-    ],
-  },
-  'security-events': {
-    title: 'Security Events',
-    description: 'Intrusion detection and security alerts',
-    stats: [
-      { label: 'Threats Blocked', value: '87', icon: '🛡️' },
-      { label: 'Critical Alerts', value: '3', icon: '🔴' },
-      { label: 'IPS Signatures', value: '45,231', icon: '📋' },
-      { label: 'Last Scan', value: '2m ago', icon: '🔍' },
-    ],
-  },
-  'system-resources': {
-    title: 'System Resources',
-    description: 'CPU, memory, and storage utilization',
-    stats: [
-      { label: 'CPU Usage', value: '34%', icon: '💻' },
-      { label: 'Memory Usage', value: '2.4 GB', icon: '🧠' },
-      { label: 'Disk Usage', value: '45%', icon: '💾' },
-      { label: 'Temperature', value: '52°C', icon: '🌡️' },
-    ],
-  },
-  'traffic-analysis': {
-    title: 'Traffic Analysis',
-    description: 'Network traffic patterns and statistics',
-    stats: [
-      { label: 'Inbound Traffic', value: '456 Mbps', icon: '⬇️' },
-      { label: 'Outbound Traffic', value: '234 Mbps', icon: '⬆️' },
-      { label: 'Peak Traffic', value: '892 Mbps', icon: '📈' },
-      { label: 'Total Data', value: '1.2 TB', icon: '📦' },
-    ],
-  },
-  'vpn-metrics': {
-    title: 'VPN Metrics',
-    description: 'VPN connections and performance',
-    stats: [
-      { label: 'Active Tunnels', value: '8', icon: '🔒' },
-      { label: 'Connected Users', value: '12', icon: '👥' },
-      { label: 'VPN Traffic', value: '123 Mbps', icon: '🌐' },
-      { label: 'Avg Latency', value: '24ms', icon: '⏱️' },
-    ],
-  },
-  'wan-health': {
-    title: 'WAN Health',
-    description: 'WAN connection status and performance',
-    stats: [
-      { label: 'Primary WAN', value: 'Online', icon: '🟢' },
-      { label: 'Backup WAN', value: 'Standby', icon: '🟡' },
-      { label: 'Packet Loss', value: '0.02%', icon: '📉' },
-      { label: 'Jitter', value: '2ms', icon: '📊' },
-    ],
-  },
-  'wifi-performance': {
-    title: 'WiFi Performance',
-    description: 'Wireless network performance metrics',
-    stats: [
-      { label: '2.4GHz Clients', value: '18', icon: '📡' },
-      { label: '5GHz Clients', value: '24', icon: '📡' },
-      { label: 'Channel Util.', value: '45%', icon: '📊' },
-      { label: 'Avg Signal', value: '-62 dBm', icon: '📶' },
-    ],
-  },
+const dashboardConfigs: Record<
+	string,
+	{
+		title: string;
+		description: string;
+		stats: Array<{ label: string; value: string | number; icon: string }>;
+	}
+> = {
+	"dns-analytics": {
+		title: "DNS Analytics",
+		description: "DNS queries and filtering statistics",
+		stats: [
+			{ label: "Total Queries", value: "45,892", icon: "🔍" },
+			{ label: "Blocked Queries", value: "1,247", icon: "🚫" },
+			{ label: "Cache Hit Rate", value: "87%", icon: "⚡" },
+			{ label: "Avg Response Time", value: "12ms", icon: "⏱️" },
+		],
+	},
+	"firewall-rules": {
+		title: "Firewall Rules",
+		description: "Active firewall rules and blocked connections",
+		stats: [
+			{ label: "Active Rules", value: "156", icon: "🛡️" },
+			{ label: "Blocked Today", value: "2,341", icon: "🚫" },
+			{ label: "Allowed Today", value: "98,432", icon: "✅" },
+			{ label: "Rule Violations", value: "12", icon: "⚠️" },
+		],
+	},
+	"network-overview": {
+		title: "Network Overview",
+		description: "Overall network status and performance",
+		stats: [
+			{ label: "Total Bandwidth", value: "945 Mbps", icon: "📊" },
+			{ label: "Active Connections", value: "1,234", icon: "🔗" },
+			{ label: "Connected Devices", value: "42", icon: "📱" },
+			{ label: "Network Uptime", value: "99.8%", icon: "⬆️" },
+		],
+	},
+	"qos-metrics": {
+		title: "QoS Metrics",
+		description: "Quality of Service and bandwidth management",
+		stats: [
+			{ label: "Active QoS Rules", value: "23", icon: "⚙️" },
+			{ label: "High Priority", value: "156 Mbps", icon: "🔴" },
+			{ label: "Normal Priority", value: "523 Mbps", icon: "🟡" },
+			{ label: "Low Priority", value: "234 Mbps", icon: "🟢" },
+		],
+	},
+	"security-events": {
+		title: "Security Events",
+		description: "Intrusion detection and security alerts",
+		stats: [
+			{ label: "Threats Blocked", value: "87", icon: "🛡️" },
+			{ label: "Critical Alerts", value: "3", icon: "🔴" },
+			{ label: "IPS Signatures", value: "45,231", icon: "📋" },
+			{ label: "Last Scan", value: "2m ago", icon: "🔍" },
+		],
+	},
+	"system-resources": {
+		title: "System Resources",
+		description: "CPU, memory, and storage utilization",
+		stats: [
+			{ label: "CPU Usage", value: "34%", icon: "💻" },
+			{ label: "Memory Usage", value: "2.4 GB", icon: "🧠" },
+			{ label: "Disk Usage", value: "45%", icon: "💾" },
+			{ label: "Temperature", value: "52°C", icon: "🌡️" },
+		],
+	},
+	"traffic-analysis": {
+		title: "Traffic Analysis",
+		description: "Network traffic patterns and statistics",
+		stats: [
+			{ label: "Inbound Traffic", value: "456 Mbps", icon: "⬇️" },
+			{ label: "Outbound Traffic", value: "234 Mbps", icon: "⬆️" },
+			{ label: "Peak Traffic", value: "892 Mbps", icon: "📈" },
+			{ label: "Total Data", value: "1.2 TB", icon: "📦" },
+		],
+	},
+	"vpn-metrics": {
+		title: "VPN Metrics",
+		description: "VPN connections and performance",
+		stats: [
+			{ label: "Active Tunnels", value: "8", icon: "🔒" },
+			{ label: "Connected Users", value: "12", icon: "👥" },
+			{ label: "VPN Traffic", value: "123 Mbps", icon: "🌐" },
+			{ label: "Avg Latency", value: "24ms", icon: "⏱️" },
+		],
+	},
+	"wan-health": {
+		title: "WAN Health",
+		description: "WAN connection status and performance",
+		stats: [
+			{ label: "Primary WAN", value: "Online", icon: "🟢" },
+			{ label: "Backup WAN", value: "Standby", icon: "🟡" },
+			{ label: "Packet Loss", value: "0.02%", icon: "📉" },
+			{ label: "Jitter", value: "2ms", icon: "📊" },
+		],
+	},
+	"wifi-performance": {
+		title: "WiFi Performance",
+		description: "Wireless network performance metrics",
+		stats: [
+			{ label: "2.4GHz Clients", value: "18", icon: "📡" },
+			{ label: "5GHz Clients", value: "24", icon: "📡" },
+			{ label: "Channel Util.", value: "45%", icon: "📊" },
+			{ label: "Avg Signal", value: "-62 dBm", icon: "📶" },
+		],
+	},
 };
 
 // Get dashboard config
 const config = computed(() => {
-  return dashboardConfigs[props.dashboardId] || {
-    title: props.title || 'Dashboard',
-    description: props.description || 'Dashboard view',
-    stats: [],
-  };
+	return (
+		dashboardConfigs[props.dashboardId] || {
+			title: props.title || "Dashboard",
+			description: props.description || "Dashboard view",
+			stats: [],
+		}
+	);
 });
 
 // Placeholder for future dashboard data fetching
 const dashboardData = ref<Record<string, unknown>>({});
 
 onMounted(() => {
-  // TODO: Fetch dashboard-specific data from API
-  // This will be implemented when the backend provides dashboard data endpoints
+	// TODO: Fetch dashboard-specific data from API
+	// This will be implemented when the backend provides dashboard data endpoints
 });
 </script>
 

@@ -49,7 +49,10 @@ export class IpsRuleList extends OpenAPIRoute {
 
 		query += " ORDER BY priority DESC, id DESC";
 
-		const result = await db.prepare(query).bind(...params).all();
+		const result = await db
+			.prepare(query)
+			.bind(...params)
+			.all();
 
 		const rules = result.results.map((row) => ({
 			...row,

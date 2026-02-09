@@ -1,7 +1,7 @@
 import { contentJson, OpenAPIRoute } from "chanfana";
 import { z } from "zod";
 import type { AppContext } from "../../types";
-import { ipsCategory, IPS_CATEGORIES } from "./base";
+import { IPS_CATEGORIES, ipsCategory } from "./base";
 
 export class IpsCategoryList extends OpenAPIRoute {
 	schema = {

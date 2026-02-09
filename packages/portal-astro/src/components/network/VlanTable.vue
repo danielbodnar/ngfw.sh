@@ -1,39 +1,39 @@
 <script setup lang="ts">
-import Button from '../ui/Button.vue';
-import Card from '../ui/Card.vue';
-import Table from '../ui/Table.vue';
-import Badge from '../ui/Badge.vue';
+import Badge from "../ui/Badge.vue";
+import Button from "../ui/Button.vue";
+import Card from "../ui/Card.vue";
+import Table from "../ui/Table.vue";
 
 export interface Vlan {
-  id: string;
-  vlan_id: number;
-  name: string;
-  interface: string;
-  ip_address: string;
-  netmask: string;
-  dhcp_enabled: boolean;
-  isolated: boolean;
+	id: string;
+	vlan_id: number;
+	name: string;
+	interface: string;
+	ip_address: string;
+	netmask: string;
+	dhcp_enabled: boolean;
+	isolated: boolean;
 }
 
 const props = defineProps<{
-  vlans: Vlan[];
-  loading?: boolean;
+	vlans: Vlan[];
+	loading?: boolean;
 }>();
 
 const emit = defineEmits<{
-  add: [];
-  edit: [vlan: Vlan];
-  delete: [vlanId: string];
+	add: [];
+	edit: [vlan: Vlan];
+	delete: [vlanId: string];
 }>();
 
 const columns = [
-  { key: 'vlan_id', label: 'VLAN ID' },
-  { key: 'name', label: 'Name' },
-  { key: 'interface', label: 'Interface' },
-  { key: 'ip_address', label: 'IP Address' },
-  { key: 'dhcp_enabled', label: 'DHCP' },
-  { key: 'isolated', label: 'Isolated' },
-  { key: 'actions', label: 'Actions' },
+	{ key: "vlan_id", label: "VLAN ID" },
+	{ key: "name", label: "Name" },
+	{ key: "interface", label: "Interface" },
+	{ key: "ip_address", label: "IP Address" },
+	{ key: "dhcp_enabled", label: "DHCP" },
+	{ key: "isolated", label: "Isolated" },
+	{ key: "actions", label: "Actions" },
 ];
 </script>
 

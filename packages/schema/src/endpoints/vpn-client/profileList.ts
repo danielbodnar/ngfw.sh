@@ -1,5 +1,5 @@
 import { D1ListEndpoint } from "chanfana";
-import { HandleArgs } from "../../types";
+import type { HandleArgs } from "../../types";
 import { VpnClientProfileModel } from "./base";
 
 export class ProfileList extends D1ListEndpoint<HandleArgs> {

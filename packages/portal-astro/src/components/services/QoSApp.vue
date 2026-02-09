@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
-import { useQoS } from '../../composables/useQoS';
-import { useSelectedDevice } from '../../composables/useSelectedDevice';
-import { usePolling } from '../../composables/usePolling';
-import Spinner from '../ui/Spinner.vue';
-import Button from '../ui/Button.vue';
-import Card from '../ui/Card.vue';
-import Badge from '../ui/Badge.vue';
+import { computed, ref } from "vue";
+import { usePolling } from "../../composables/usePolling";
+import { useQoS } from "../../composables/useQoS";
+import { useSelectedDevice } from "../../composables/useSelectedDevice";
+import Badge from "../ui/Badge.vue";
+import Button from "../ui/Button.vue";
+import Card from "../ui/Card.vue";
+import Spinner from "../ui/Spinner.vue";
 
 // Use globally selected device
 const { deviceId } = useSelectedDevice();
@@ -16,35 +16,37 @@ const { data: rules, loading, error, refetch } = useQoS(deviceId);
 
 // Auto-refresh every 30 seconds
 usePolling({
-  fetcher: refetch,
-  interval: 30000,
-  immediate: false,
+	fetcher: refetch,
+	interval: 30000,
+	immediate: false,
 });
 
 // Get priority badge variant
-const getPriorityVariant = (priority: string): 'danger' | 'warning' | 'primary' | 'success' => {
-  if (priority === 'critical') return 'danger';
-  if (priority === 'high') return 'warning';
-  if (priority === 'medium') return 'primary';
-  return 'success';
+const getPriorityVariant = (
+	priority: string,
+): "danger" | "warning" | "primary" | "success" => {
+	if (priority === "critical") return "danger";
+	if (priority === "high") return "warning";
+	if (priority === "medium") return "primary";
+	return "success";
 };
 
 // Format bandwidth
 const formatBandwidth = (bytes: number): string => {
-  if (bytes === 0) return 'Unlimited';
-  const mbps = bytes / 1000000;
-  return `${mbps.toFixed(1)} Mbps`;
+	if (bytes === 0) return "Unlimited";
+	const mbps = bytes / 1000000;
+	return `${mbps.toFixed(1)} Mbps`;
 };
 
 // Stats computed from rules
 const stats = computed(() => {
-  const ruleList = rules.value || [];
-  return {
-    totalRules: ruleList.length,
-    enabledRules: ruleList.filter((r) => r.enabled).length,
-    criticalRules: ruleList.filter((r) => r.priority === 'critical').length,
-    highRules: ruleList.filter((r) => r.priority === 'high').length,
-  };
+	const ruleList = rules.value || [];
+	return {
+		totalRules: ruleList.length,
+		enabledRules: ruleList.filter((r) => r.enabled).length,
+		criticalRules: ruleList.filter((r) => r.priority === "critical").length,
+		highRules: ruleList.filter((r) => r.priority === "high").length,
+	};
 });
 </script>
 

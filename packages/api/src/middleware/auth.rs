@@ -156,8 +156,7 @@ pub fn decode_jwt_unverified(token: &str) -> ApiResult<JwtClaims> {
 // JWKS fetching with KV cache
 // ---------------------------------------------------------------------------
 
-const DEFAULT_JWKS_URL: &str =
-    "https://tough-unicorn-25.clerk.accounts.dev/.well-known/jwks.json";
+const DEFAULT_JWKS_URL: &str = "https://tough-unicorn-25.clerk.accounts.dev/.well-known/jwks.json";
 
 /// Fetch JWKS keys from Clerk, caching in CACHE KV for 1 hour.
 async fn fetch_jwks(env: &Env) -> ApiResult<Vec<JwkKey>> {
@@ -187,8 +186,8 @@ async fn fetch_jwks(env: &Env) -> ApiResult<Vec<JwkKey>> {
         .await
         .map_err(|e| ApiError::internal(format!("JWKS read failed: {e}")))?;
 
-    let jwks: JwksResponse = serde_json::from_str(&text)
-        .map_err(|_| ApiError::internal("Invalid JWKS response"))?;
+    let jwks: JwksResponse =
+        serde_json::from_str(&text).map_err(|_| ApiError::internal("Invalid JWKS response"))?;
 
     // Best-effort cache write (1 hour TTL)
     if let Ok(cache) = env.kv("CACHE")
@@ -254,10 +253,9 @@ async fn verify_rs256(signing_input: &str, signature: &[u8], key: &JwkKey) -> Ap
     let import_promise: Promise = Reflect::apply(&import_fn, &subtle, &import_args)
         .map_err(|_| ApiError::internal("importKey call failed"))?
         .unchecked_into();
-    let crypto_key =
-        JsFuture::from(import_promise)
-            .await
-            .map_err(|_| ApiError::internal("Failed to import signing key"))?;
+    let crypto_key = JsFuture::from(import_promise)
+        .await
+        .map_err(|_| ApiError::internal("Failed to import signing key"))?;
 
     // crypto.subtle.verify(algo, key, signature, data)
     let verify_algo = Object::new();
