@@ -48,7 +48,7 @@ jobs:
         continue-on-error: true
 
       - name: Collect logs on failure
-        if: failure()
+        if: steps.lifecycle.outcome != 'success'
         run: |
           echo "=== Instance Status ==="
           nu scripts/demo-lifecycle.nu status || true
