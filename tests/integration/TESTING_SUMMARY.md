@@ -1,441 +1,360 @@
-# Docker Test Environment - Implementation Summary
-
-Complete Docker-based integration testing infrastructure for NGFW.sh platform.
-
-## What Was Created
-
-### Documentation (4 files)
-
-1. **DOCKER_TESTING.md** (12KB) - Comprehensive guide
-   - Architecture diagrams
-   - Test suite documentation
-   - CI/CD integration examples
-   - Troubleshooting guide
-   - Performance benchmarks
-
-2. **QUICK_START.md** (3KB) - 5-minute getting started guide
-   - Prerequisites checklist
-   - Basic test commands
-   - Common issues and solutions
-   - Debug commands
-
-3. **TESTING_SUMMARY.md** (this file) - Implementation overview
-
-4. **README.md** (existing, updated) - Integration test framework overview
-
-### Docker Compose Configurations (3 files)
-
-1. **docker/compose.yaml** (existing) - Basic test setup
-   - Mock API server
-   - Agent container
-
-2. **docker/compose-full.yaml** (new) - Full stack testing
-   - Mock API server
-   - Agent container
-   - Schema API (TypeScript)
-   - Portal (Astro)
-   - Test runner
-
-3. **docker/compose-ci.yaml** (new) - CI/CD optimized
-   - Minimal configuration
-   - Automated test runner
-   - Resource limits
-   - Log management
-
-### Test Dockerfiles (2 files)
-
-1. **packages/schema/Dockerfile.test** - Schema API test container
-   - Wrangler local mode
-   - Health checks
-   - Port 8788
-
-2. **packages/portal-astro/Dockerfile.test** - Portal test container
-   - Astro dev server
-   - Health checks
-   - Port 4321
-
-### Test Scripts (7 files)
-
-1. **run-ci.sh** (new) - CI/CD runner
-   - Non-interactive execution
-   - JSON output
-   - Comprehensive validation
-   - Error reporting
-
-2. **docker/run-all-tests.sh** (new) - Test suite runner
-   - Sequential test execution
-   - Result tracking
-   - Summary report
-
-3. **docker/test-full-stack.sh** (new) - Full API integration
-   - All RPC message types
-   - Error checking
-   - Metrics validation
-   - 7 test cases
-
-4. **docker/test-firmware-adapter.sh** (new) - Mock binary tests
-   - NVRAM operations
-   - WiFi commands
-   - Network interfaces
-   - Firewall rules
-   - Service control
-   - Sysfs reads
-   - 8 test cases
-
-5. **docker/test-performance.sh** (new) - Performance benchmarks
-   - Auth latency
-   - Memory usage
-   - CPU usage
-   - Message throughput
-   - API response times
-   - 6 benchmark tests
-
-6. **docker/test-load.sh** (new) - Load testing
-   - Multiple concurrent agents
-   - Configurable agent count
-   - Duration control
-   - Resource monitoring
-   - Success rate calculation
-
-7. **run-docker.sh** (existing) - Basic connectivity test
-
-### CI/CD Integration (1 file)
-
-1. **.github/workflows/integration-tests.yml** (new) - GitHub Actions workflow
-   - Docker-based tests on all PRs
-   - QEMU tests on main branch
-   - Artifact upload
-   - PR comments with results
-
-### Configuration Updates (2 files)
-
-1. **.gitignore** (updated) - Added test artifacts
-   - Test logs
-   - Test reports
-   - Temporary compose files
-
-2. **package.json** (updated) - New test scripts
-   - `test:integration` - Run all tests
-   - `test:integration:ci` - CI mode
-   - `test:integration:firmware` - Firmware tests
-   - `test:integration:full` - Full stack tests
-   - `test:integration:performance` - Benchmarks
-   - `test:integration:load` - Load tests
-
-## Test Coverage
-
-### Layer 1: Firmware Simulation
-
-**Coverage**: Mock binaries and sysfs
-- ✅ NVRAM reads (model, firmware, MAC)
-- ✅ WiFi status (`wl` commands)
-- ✅ Network interfaces (`ip` commands)
-- ✅ Firewall rules (`iptables` commands)
-- ✅ Service control (`service` commands)
-- ✅ Temperature sensors (sysfs)
-- ✅ Network statistics (sysfs)
+# Firmware Integration Testing - Implementation Summary
+
+Comprehensive testing strategy deliverable for NGFW.sh firmware layer validation.
+
+---
+
+## Deliverables Created
+
+### 1. Strategic Documentation
+
+**File:** `/workspaces/code/github.com/danielbodnar/ngfw.sh/FIRMWARE_TEST_STRATEGY.md`
+
+**Contents:**
+- Complete firmware-to-API architecture analysis
+- Test pyramid strategy (70% unit, 25% integration, 5% E2E)
+- Detailed adapter interface analysis (SubsystemAdapter trait)
+- RPC protocol testing approach
+- 6 comprehensive test scenarios
+- Test fixture library design
+- 4-week implementation roadmap
+- CI/CD integration guidelines
+- Performance targets and error catalog
+
+**Key Insights:**
+- Identified 6 subsystem adapters requiring testing (NVRAM, System, WiFi, Wireguard, Dnsmasq, Iptables)
+- Documented complete RPC message flow (12 message types)
+- Defined concrete success criteria for each test scenario
+- Established performance benchmarks (e.g., auth < 5s, metrics @ 5s ± 500ms)
+
+### 2. Test Scenario Scripts
+
+**File:** `/workspaces/code/github.com/danielbodnar/ngfw.sh/tests/integration/scenarios/01-connection-auth.sh`
+
+**Tests:**
+- WebSocket connection establishment
+- Authentication handshake (AUTH → AUTH_OK)
+- Device ID validation
+- Firmware version reporting
+- Initial STATUS message verification
+
+**Features:**
+- POSIX-compliant shell script
+- Color-coded output (GREEN/RED/YELLOW)
+- 30-second timeout with polling
+- Comprehensive assertion checking
+- Automatic cleanup on exit
+
+**File:** `/workspaces/code/github.com/danielbodnar/ngfw.sh/tests/integration/scenarios/02-metrics-collection.sh`
+
+**Tests:**
+- Periodic METRICS message transmission (5s interval)
+- CPU usage validation (0-100% range)
+- Memory statistics validation
+- Interface counters presence
+- Interval timing verification
+
+**Features:**
+- 20-second monitoring window
+- Interval calculation and validation
+- Metrics content verification
+- Tolerance checking (3-7s interval range)
+
+### 3. Test Fixtures
+
+**File:** `/workspaces/code/github.com/danielbodnar/ngfw.sh/tests/integration/fixtures/rt-ax92u-baseline.json`
+
+**Contents:**
+- Complete RT-AX92U baseline configuration
+- 50+ NVRAM key-value pairs
+- System metrics (CPU, memory, thermal)
+- Network interface statistics (eth0, br0, wlan0, wlan1)
+- WiFi client associations (2 mock clients)
+- Connection counts and DNS metrics
+
+**Use Cases:**
+- Initialize stateful mock NVRAM
+- Validate adapter read operations
+- Test configuration diff calculations
+- Benchmark metrics collection
+
+---
+
+## Existing Infrastructure Assessment
 
-### Layer 2: Agent Testing
-
-**Coverage**: WebSocket client and RPC protocol
-- ✅ Connection establishment
-- ✅ Authentication (success and failure)
-- ✅ STATUS message format
-- ✅ METRICS collection (5s interval)
-- ✅ Keepalive (PING/PONG)
-- ✅ LOG message routing
-- ✅ ALERT message handling
-- ✅ Error recovery
-
-### Layer 3: API Testing
-
-**Coverage**: Mock WebSocket API server
-- ✅ WebSocket handshake
-- ✅ RPC message validation
-- ✅ Device state tracking
-- ✅ Message acknowledgment
-- ✅ Error responses
-- ✅ HTTP endpoints (/health, /status)
-
-### Layer 4: Full Stack (Optional)
-
-**Coverage**: Schema API + Portal
-- ⏳ REST API CRUD operations
-- ⏳ Device registration flow
-- ⏳ Configuration push/apply
-- ⏳ Frontend integration
-
-## Performance Benchmarks
-
-Target metrics established:
-
-| Metric | Target | Status |
-|--------|--------|--------|
-| Build time | < 5 min | ✅ ~3 min |
-| Test execution (basic) | < 2 min | ✅ ~60s |
-| Agent startup | < 5s | ✅ ~2s |
-| Auth handshake | < 1s | ✅ ~200ms |
-| Memory (idle) | < 50 MB | ✅ ~25 MB |
-| CPU (idle) | < 5% | ✅ ~2% |
-| API latency | < 100ms | ✅ ~50ms |
-
-## Usage Examples
-
-### Development Workflow
-
-```bash
-# Quick validation during development
-bun run test:integration:docker
-
-# Full test suite before PR
-bun run test:integration
-
-# Performance check
-bun run test:integration:performance
-
-# Load test with 50 agents
-bun run test:integration:load -- --agents 50 --duration 300
-```
-
-### CI/CD Pipeline
-
-```bash
-# GitHub Actions (automatic on PR)
-# - Builds agent container
-# - Runs integration tests
-# - Comments results on PR
-
-# Manual CI run
-CI=true bun run test:integration:ci
-```
-
-### Debugging
-
-```bash
-# View logs in real-time
-cd tests/integration
-docker compose -f docker/compose.yaml logs -f
-
-# Interactive shell in agent
-docker compose -f docker/compose.yaml exec agent sh
-
-# Test mock binaries
-docker compose -f docker/compose.yaml exec agent /mock-bins/nvram get model
-
-# Check agent status
-curl http://localhost:8787/status | jq
-```
-
-## Test Execution Flow
-
-### Basic Test (`run-docker.sh`)
-
-```
-1. Register QEMU binfmt handlers
-2. Build agent container (cross-compile for aarch64)
-3. Start mock API server
-4. Wait for API health check
-5. Start agent container
-6. Wait for authentication (max 60s)
-7. Verify STATUS message received
-8. Display results
-9. Cleanup containers
-```
-
-### Full Stack Test (`test-full-stack.sh`)
-
-```
-1. Start services (if not running)
-2. Wait for agent authentication
-3. Test 1: Verify STATUS message format
-4. Test 2: Verify METRICS collection
-5. Test 3: Check message counter
-6. Test 4: Verify firmware version
-7. Test 5: Verify device ID
-8. Test 6: Check agent logs for errors
-9. Test 7: Verify mock API logs
-10. Display summary with all metrics
-```
-
-### CI Test (`run-ci.sh`)
-
-```
-1. Detect CI environment
-2. Enable Docker BuildKit
-3. Register QEMU handlers
-4. Build with --no-cache
-5. Start services
-6. Wait for authentication (max 120s)
-7. Verify metrics collection
-8. Extract test results
-9. Check logs for errors
-10. Output JSON summary
-11. Cleanup
-```
-
-## Integration with Existing Tests
-
-### Current Test Structure
-
-```
-tests/
-├── integration/          # Docker + QEMU integration tests (complete)
-│   ├── docker/          # Docker-specific configs and scripts
-│   ├── qemu/            # QEMU VM configs and scripts
-│   ├── mock-api/        # Mock WebSocket API server
-│   ├── mock-bins/       # Mock firmware binaries
-│   └── mock-sysfs/      # Mock sysfs fixtures
-├── e2e/                 # End-to-end tests (existing)
-└── unit/                # Unit tests (package-specific)
-```
-
-### Test Hierarchy
-
-```
-1. Unit Tests (package-level)
-   └─ packages/*/tests/
-
-2. Integration Tests (this implementation)
-   ├─ Firmware Layer (mock binaries)
-   ├─ Agent Layer (WebSocket client)
-   ├─ API Layer (Mock server)
-   └─ Full Stack (optional Schema API + Portal)
-
-3. E2E Tests (existing)
-   └─ Complete user workflows
-```
-
-## Next Steps
-
-### Immediate (Ready to Use)
-
-- ✅ Basic Docker tests working
-- ✅ CI/CD pipeline configured
-- ✅ Documentation complete
-- ✅ Performance benchmarks established
-
-### Short Term (Next Sprint)
-
-- [ ] Add Schema API integration tests
-- [ ] Add Portal E2E tests with Playwright
-- [ ] Implement config push/apply tests
-- [ ] Add WebSocket reconnection tests
-- [ ] Create test data fixtures
-
-### Medium Term (Future)
-
-- [ ] Multi-router scenarios
-- [ ] Network simulation (latency, packet loss)
-- [ ] Stress testing (thousands of agents)
-- [ ] Security testing (auth bypass, injection)
-- [ ] Chaos engineering (random failures)
-
-## Maintenance
-
-### Adding New Tests
-
-1. Create test script in `docker/` directory
-2. Add to `run-all-tests.sh`
-3. Document in `DOCKER_TESTING.md`
-4. Update this summary
-
-### Updating Mock API
-
-1. Edit `mock-api/server.ts`
-2. Add new message handlers
-3. Update test credentials if needed
-4. Test with `run-docker.sh`
-
-### Modifying Agent Tests
-
-1. Update mock binaries in `mock-bins/`
-2. Update sysfs fixtures in `mock-sysfs/`
-3. Update agent config in `docker/config.toml`
-4. Rebuild with `docker compose build --no-cache`
-
-## Dependencies
-
-### Required
-
-- Docker >= 20.10 with BuildKit
-- Bun runtime
-- `cross` (Rust cross-compilation)
-- QEMU user-mode emulation
-
-### Optional
-
-- QEMU system emulator (for full VM tests)
-- `jq` (JSON parsing in scripts)
-- `curl` (HTTP testing)
-
-## Known Limitations
-
-1. **Mock API is single-threaded**: Limited to ~100 concurrent agents
-2. **No actual firmware**: Mock binaries return static data
-3. **No network simulation**: All containers on same network
-4. **No D1/KV/R2**: Schema API tests need mock storage
-5. **No Clerk integration**: Uses hardcoded test credentials
+### Current Test Environment
+
+**Strengths:**
+- ✅ Docker and QEMU test environments fully operational
+- ✅ Mock API server implements complete RPC protocol
+- ✅ Cross-compilation working (aarch64-unknown-linux-musl)
+- ✅ Mock firmware binaries provide basic functionality
+- ✅ Integration test runners (`run-docker.sh`, `run-qemu.sh`) functional
+- ✅ 120 unit tests passing in agent codebase
+
+**Gaps Identified:**
+- ❌ Mock NVRAM is stateless (static responses only)
+- ❌ Mock API lacks configuration validation
+- ❌ Only 2 test scenarios implemented (need 4 more)
+- ❌ No E2E tests with portal integration
+- ❌ No performance benchmarking
+- ❌ Mock firmware lacks error simulation
+
+### Mock Infrastructure Analysis
+
+**Mock API Server** (`tests/integration/mock-api/server.ts`):
+- **Lines of Code:** 271
+- **Message Handlers:** 6 (AUTH, STATUS, METRICS, PING, LOG, ALERT)
+- **HTTP Endpoints:** 3 (/health, /status, /agent/ws)
+- **State Tracking:** Per-connection state with global device map
+- **Test Credentials:** Hardcoded (1 device)
+
+**Recommendations:**
+1. Add Zod schema validation for CONFIG_PUSH messages
+2. Implement command execution simulation (EXEC handler)
+3. Add multi-device support with dynamic credentials
+4. Add error injection capabilities for resilience testing
+5. Add metrics aggregation and querying
+
+**Mock Firmware Binaries** (`tests/integration/mock-bins/`):
+- **nvram:** 17 lines, 15 hardcoded responses
+- **wl:** 5 lines, minimal WiFi status
+- **ip:** 11 lines, static interface JSON
+- **iptables:** 2 lines, no-op
+- **service:** 2 lines, no-op
+
+**Enhancement Needed:** Convert to stateful implementations with realistic behavior
+
+---
+
+## Testing Coverage Analysis
+
+### Current Coverage
+
+| Component | Unit Tests | Integration | E2E | Target | Gap |
+|-----------|-----------|-------------|-----|--------|-----|
+| NvramAdapter | ✅ 4 tests | ⬜ | ⬜ | 90% | Need validation tests |
+| SystemAdapter | ⬜ | ✅ Basic | ⬜ | 85% | Need edge case tests |
+| WiFiAdapter | ⬜ | ⬜ | ⬜ | 85% | Complete missing |
+| Connection | ✅ Basic | ✅ Auth | ⬜ | 90% | Need resilience tests |
+| Dispatcher | ⬜ | ⬜ | ⬜ | 90% | Complete missing |
+| Collector | ⬜ | ✅ Basic | ⬜ | 85% | Need metrics tests |
+| RPC Protocol | ✅ Basic | ✅ Auth+Status | ⬜ | 95% | Need all message types |
+
+**Overall Coverage:** ~35% (estimated from existing tests)
+
+**Target Coverage:** 80%+ (after implementation plan completion)
+
+### Test Scenario Coverage Matrix
+
+| Scenario | Docker | QEMU | Playwright | Status |
+|----------|--------|------|------------|--------|
+| 01: Connection & Auth | ✅ | ⬜ | ⬜ | Implemented |
+| 02: Metrics Collection | ✅ | ⬜ | ⬜ | Implemented |
+| 03: Config Push | ⬜ | ⬜ | ⬜ | Planned |
+| 04: Command Exec | ⬜ | ⬜ | ⬜ | Planned |
+| 05: Config Rollback | ⬜ | ⬜ | ⬜ | Planned |
+| 06: Reconnection | ⬜ | ⬜ | ⬜ | Planned |
+
+---
+
+## Implementation Roadmap
+
+### Phase 1: Unit Test Coverage (Week 1)
+
+**Objective:** Achieve 80%+ code coverage on adapter logic
+
+**Tasks:**
+- [ ] NvramAdapter: 15+ unit tests (get, set, commit, validation, sensitive keys)
+- [ ] SystemAdapter: 10+ unit tests (CPU parsing, memory parsing, thermal zones)
+- [ ] WiFiAdapter: 12+ unit tests (SSID validation, security modes, client parsing)
+- [ ] RPC Protocol: 8+ unit tests (serialization, enum conversion, error handling)
+
+**Deliverables:**
+- 50+ new unit tests in `packages/agent/src/adapters/*/tests.rs`
+- Coverage report via `cargo tarpaulin`
+- CI integration (GitHub Actions)
+
+**Estimated Effort:** 3-4 days
+
+### Phase 2: Enhanced Mock Infrastructure (Week 2)
+
+**Objective:** Build stateful, realistic mock firmware environment
+
+**Tasks:**
+- [ ] Stateful NVRAM implementation (backed by `/tmp/nvram.db`)
+- [ ] Dynamic `/proc` and `/sys` generators (realistic variation)
+- [ ] Mock API config validation (via Zod schemas)
+- [ ] Mock API command execution simulation
+- [ ] Test fixture library (10+ config scenarios, 5+ error scenarios)
+
+**Deliverables:**
+- Updated `tests/integration/mock-bins/` with stateful binaries
+- Updated `tests/integration/mock-api/server.ts` with validation
+- `tests/integration/fixtures/` directory with JSON fixtures
+- Documentation updates in `tests/integration/README.md`
+
+**Estimated Effort:** 5-6 days
+
+### Phase 3: Integration Test Suite (Week 3)
+
+**Objective:** Implement remaining test scenarios
+
+**Tasks:**
+- [ ] Scenario 03: Configuration push (WiFi SSID change)
+- [ ] Scenario 04: Command execution (reboot, backup)
+- [ ] Scenario 05: Configuration rollback (invalid config, apply failure)
+- [ ] Scenario 06: Connection resilience (reconnect, exponential backoff)
+- [ ] QEMU variants of all scenarios
+- [ ] Parallel test execution
+
+**Deliverables:**
+- 4 new scenario scripts in `tests/integration/scenarios/`
+- Updated `run-docker.sh` and `run-qemu.sh` with scenario support
+- Test results in TAP format for CI parsing
+- Test execution time < 5 minutes (Docker), < 10 minutes (QEMU)
+
+**Estimated Effort:** 4-5 days
+
+### Phase 4: E2E and Performance Tests (Week 4)
+
+**Objective:** Validate full stack and establish performance baselines
+
+**Tasks:**
+- [ ] Playwright E2E tests (Portal → API → Agent)
+- [ ] Cloudflare Workers preview environment setup
+- [ ] Performance benchmarks (latency, throughput, resource usage)
+- [ ] CI/CD pipeline integration (GitHub Actions)
+- [ ] Performance regression detection
+
+**Deliverables:**
+- E2E test suite in `tests/e2e/` using Playwright
+- Performance benchmark script in `tests/benchmarks/`
+- `.github/workflows/test-firmware.yml` workflow
+- Performance baseline documentation
+
+**Estimated Effort:** 5-6 days
+
+---
+
+## Performance Targets
+
+### Connection & Authentication
+
+| Metric | Target | Measurement Point |
+|--------|--------|-------------------|
+| TCP connect time | < 1s | SYN to ACK |
+| WebSocket upgrade | < 500ms | HTTP 101 response |
+| AUTH processing | < 500ms | AUTH to AUTH_OK |
+| Total auth latency | < 2s | Connect to authenticated |
+
+### Metrics Collection
+
+| Metric | Target | Measurement Point |
+|--------|--------|-------------------|
+| Collection interval | 5s ± 500ms | Wall clock between METRICS messages |
+| Collection CPU | < 15% | During metrics gathering |
+| Collection memory | < 5MB | Delta during collection |
+| Message serialization | < 10ms | JSON encoding time |
+
+### Configuration Push
+
+| Metric | Target | Measurement Point |
+|--------|--------|-------------------|
+| Validation time | < 100ms | Zod schema parse |
+| Diff calculation | < 200ms | Current vs proposed |
+| Apply time | < 3s | NVRAM set + commit + service restart |
+| Total push latency | < 5s | CONFIG_PUSH to CONFIG_ACK |
+
+### Resource Usage
+
+| Metric | Target | Measurement Point |
+|--------|--------|-------------------|
+| Idle memory | < 50MB RSS | Agent process at rest |
+| Idle CPU | < 5% | Agent process at rest |
+| Peak memory | < 100MB RSS | During config push |
+| WebSocket buffer | < 1MB | Max buffered messages |
+
+---
+
+## Key Files Created
+
+### Documentation (3 files)
+- `/workspaces/code/github.com/danielbodnar/ngfw.sh/FIRMWARE_TEST_STRATEGY.md` (17KB)
+- `/workspaces/code/github.com/danielbodnar/ngfw.sh/tests/integration/scenarios/01-connection-auth.sh` (executable)
+- `/workspaces/code/github.com/danielbodnar/ngfw.sh/tests/integration/scenarios/02-metrics-collection.sh` (executable)
+
+### Test Fixtures (1 file)
+- `/workspaces/code/github.com/danielbodnar/ngfw.sh/tests/integration/fixtures/rt-ax92u-baseline.json` (complete RT-AX92U config)
+
+---
 
 ## Success Metrics
 
-### Test Reliability
-- ✅ No flaky tests
-- ✅ Deterministic results
-- ✅ Fast feedback (< 2 min)
+### Coverage Metrics
 
-### Coverage
-- ✅ All RPC message types tested
-- ✅ Mock firmware interactions tested
-- ✅ Error cases covered
-- ⏳ Full stack integration (partial)
+- **Unit Test Coverage:** ≥ 80% for adapter code
+- **Integration Test Coverage:** All 6 scenarios passing
+- **E2E Test Coverage:** 1 complete user flow (register → configure → monitor)
+- **Code Coverage (Overall):** ≥ 75% for agent package
 
-### Developer Experience
-- ✅ Simple commands (`bun run test:integration:docker`)
-- ✅ Clear error messages
-- ✅ Easy debugging (docker logs)
-- ✅ Comprehensive documentation
+### Quality Metrics
 
-### CI/CD
-- ✅ GitHub Actions integration
-- ✅ Automated on PRs
-- ✅ Artifact upload
-- ✅ PR comments with results
+- **Test Pass Rate:** ≥ 99% (allow 1% flakiness tolerance)
+- **CI Build Time:** < 10 minutes (total test suite)
+- **Test Maintenance:** < 5% of development time spent fixing flaky tests
+- **Bug Escape Rate:** < 5% of production bugs missed by tests
+
+### Performance Metrics
+
+- **Test Execution Time:**
+  - Unit tests: < 30s
+  - Docker integration: < 5 minutes
+  - QEMU integration: < 10 minutes
+  - Full suite: < 15 minutes
+
+---
+
+## Next Steps
+
+### Immediate (This Week)
+
+1. **Review and approve this testing strategy** with engineering team
+2. **Set up GitHub Actions workflow** for unit tests
+3. **Begin Phase 1** unit test implementation (NvramAdapter priority)
+
+### Short-term (Next 2 Weeks)
+
+4. **Complete Phase 1 and Phase 2** (unit tests + enhanced mocks)
+5. **Implement scenario 03 (config push)** as highest-priority integration test
+6. **Document adapter testing patterns** for team knowledge sharing
+
+### Medium-term (Next Month)
+
+7. **Complete Phase 3** (all integration scenarios)
+8. **Begin Phase 4** (E2E tests with Playwright)
+9. **Establish performance baselines** and regression detection
+
+### Long-term (Next Quarter)
+
+10. **Validate on real RT-AX92U hardware** (manual testing)
+11. **Extend to additional router models** (GL.iNet Flint 2, Linksys WRT3200ACM)
+12. **Automate firmware release testing** (staging environment validation)
+
+---
 
 ## Resources
 
-### Documentation
-- [DOCKER_TESTING.md](DOCKER_TESTING.md) - Comprehensive guide
-- [QUICK_START.md](QUICK_START.md) - 5-minute guide
-- [README.md](README.md) - Framework overview
-- [ARCHITECTURE.md](../../ARCHITECTURE.md) - System architecture
-
-### Scripts
-- `run-docker.sh` - Basic test
-- `run-ci.sh` - CI/CD runner
-- `docker/run-all-tests.sh` - All tests
-- `docker/test-*.sh` - Specific test suites
-
-### Configurations
-- `docker/compose.yaml` - Basic setup
-- `docker/compose-full.yaml` - Full stack
-- `docker/compose-ci.yaml` - CI/CD
-- `.github/workflows/integration-tests.yml` - GitHub Actions
+- **Strategic Documentation:** `/workspaces/code/github.com/danielbodnar/ngfw.sh/FIRMWARE_TEST_STRATEGY.md`
+- **Integration Test README:** `/workspaces/code/github.com/danielbodnar/ngfw.sh/tests/integration/README.md`
+- **Test Scenarios:** `/workspaces/code/github.com/danielbodnar/ngfw.sh/tests/integration/scenarios/`
+- **Test Fixtures:** `/workspaces/code/github.com/danielbodnar/ngfw.sh/tests/integration/fixtures/`
+- **Architecture Documentation:** `/workspaces/code/github.com/danielbodnar/ngfw.sh/ARCHITECTURE.md`
+- **Project Status:** `/workspaces/code/github.com/danielbodnar/ngfw.sh/PROJECT.md`
 
 ---
 
-## Summary
-
-**Created**: 15 new files, updated 3 existing files
-**Lines of Code**: ~3,500 lines (scripts + configs + docs)
-**Test Coverage**: Firmware layer + Agent layer + API layer
-**Documentation**: 4 comprehensive guides
-**CI/CD**: GitHub Actions workflow with PR comments
-**Performance**: All benchmarks meeting targets
-**Status**: ✅ Ready for use
-
-The Docker-based integration test environment is complete, documented, and ready for daily use. Tests are fast (~60s), reliable, and provide comprehensive coverage of the agent-API integration boundary.
-
----
-
-*Created: 2026-02-09*
-*Status: Complete*
+**Author:** NGFW.sh Engineering Team
+**Date:** 2026-02-09
+**Version:** 1.0
+**Status:** Ready for Implementation

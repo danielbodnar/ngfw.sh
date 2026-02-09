@@ -61,8 +61,8 @@ export class TestScenarios {
    * Create a complete API<->Agent integration test environment
    */
   static apiAgentTest() {
-    const { IntegrationTestBuilder } = require('./core/test-builder');
-    return new IntegrationTestBuilder()
+    const { IntegrationTestBuilder: Builder } = await import('./core/test-builder');
+    return new Builder()
       .withMockApi()
       .withMockAgent()
       .withCleanup()
@@ -73,8 +73,8 @@ export class TestScenarios {
    * Create a complete Agent<->Firmware integration test environment
    */
   static agentFirmwareTest() {
-    const { IntegrationTestBuilder } = require('./core/test-builder');
-    return new IntegrationTestBuilder()
+    const { IntegrationTestBuilder: Builder } = await import('./core/test-builder');
+    return new Builder()
       .withMockFirmware()
       .withCleanup()
       .withTimeout(15000);
@@ -84,8 +84,8 @@ export class TestScenarios {
    * Create a complete UI<->API integration test environment
    */
   static uiApiTest() {
-    const { IntegrationTestBuilder } = require('./core/test-builder');
-    return new IntegrationTestBuilder()
+    const { IntegrationTestBuilder: Builder } = await import('./core/test-builder');
+    return new Builder()
       .withMockApi()
       .withMockAuth()
       .withCleanup()
@@ -96,8 +96,8 @@ export class TestScenarios {
    * Create a storage layer integration test environment
    */
   static storageTest() {
-    const { IntegrationTestBuilder } = require('./core/test-builder');
-    return new IntegrationTestBuilder()
+    const { IntegrationTestBuilder: Builder } = await import('./core/test-builder');
+    return new Builder()
       .withMockStorage()
       .withIsolation('namespace')
       .withCleanup()
@@ -108,8 +108,8 @@ export class TestScenarios {
    * Create an end-to-end test environment
    */
   static e2eTest() {
-    const { IntegrationTestBuilder } = require('./core/test-builder');
-    return new IntegrationTestBuilder()
+    const { IntegrationTestBuilder: Builder } = await import('./core/test-builder');
+    return new Builder()
       .withMocks({
         api: true,
         agent: true,
@@ -237,7 +237,3 @@ export class TestUtils {
   }
 }
 
-/**
- * Export test scenarios and utilities
- */
-export { TestScenarios, TestUtils };
