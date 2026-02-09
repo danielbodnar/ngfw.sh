@@ -23,8 +23,9 @@ services:
         condition: service_healthy
     tmpfs:
       - /sys:exec
-    volumes:
-      - /proc:/proc:ro
+    # SECURITY: Removed host /proc mount to prevent secret exposure
+    # volumes:
+    #   - /proc:/proc:ro
     deploy:
       resources:
         limits:
