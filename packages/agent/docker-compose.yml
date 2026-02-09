@@ -30,7 +30,7 @@ services:
 
     # Health check
     healthcheck:
-      test: ["CMD", "pgrep", "ngfw-agent"]
+      test: ["CMD-SHELL", "ps aux | grep -q '[n]gfw-agent'"]
       interval: 30s
       timeout: 10s
       retries: 3
