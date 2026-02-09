@@ -57,9 +57,9 @@ const formatBytes = (bytes: number): string => {
 // Get protocol badge variant
 const getProtocolVariant = (
 	protocol: string,
-): "success" | "primary" | "warning" => {
+): "success" | "info" | "warning" => {
 	if (protocol === "wireguard") return "success";
-	if (protocol === "openvpn") return "primary";
+	if (protocol === "openvpn") return "info";
 	return "warning";
 };
 
