@@ -1,43 +1,43 @@
 <script setup lang="ts">
-import { computed } from 'vue';
-import Card from '../ui/Card.vue';
-import Stat from '../ui/Stat.vue';
-import Badge from '../ui/Badge.vue';
+import { computed } from "vue";
+import Badge from "../ui/Badge.vue";
+import Card from "../ui/Card.vue";
+import Stat from "../ui/Stat.vue";
 
 export interface WanStatus {
-  connected: boolean;
-  uptime: string;
-  interface: string;
-  ip_address: string;
-  gateway: string;
-  dns_servers: string[];
-  rx_bytes: number;
-  tx_bytes: number;
-  rx_packets: number;
-  tx_packets: number;
+	connected: boolean;
+	uptime: string;
+	interface: string;
+	ip_address: string;
+	gateway: string;
+	dns_servers: string[];
+	rx_bytes: number;
+	tx_bytes: number;
+	rx_packets: number;
+	tx_packets: number;
 }
 
 const props = defineProps<{
-  status: WanStatus;
+	status: WanStatus;
 }>();
 
 const formatBytes = (bytes: number): string => {
-  const units = ['B', 'KB', 'MB', 'GB', 'TB'];
-  let value = bytes;
-  let unitIndex = 0;
+	const units = ["B", "KB", "MB", "GB", "TB"];
+	let value = bytes;
+	let unitIndex = 0;
 
-  while (value >= 1024 && unitIndex < units.length - 1) {
-    value /= 1024;
-    unitIndex++;
-  }
+	while (value >= 1024 && unitIndex < units.length - 1) {
+		value /= 1024;
+		unitIndex++;
+	}
 
-  return `${value.toFixed(2)} ${units[unitIndex]}`;
+	return `${value.toFixed(2)} ${units[unitIndex]}`;
 };
 
 const statusBadge = computed(() => {
-  return props.status.connected
-    ? { variant: 'success' as const, label: 'Connected' }
-    : { variant: 'error' as const, label: 'Disconnected' };
+	return props.status.connected
+		? { variant: "success" as const, label: "Connected" }
+		: { variant: "error" as const, label: "Disconnected" };
 });
 </script>
 

@@ -4,22 +4,22 @@
  * @module composables/useDevices
  */
 
-import { ref, onMounted } from 'vue';
-import { useApi } from './useApi';
-import type { Device } from '../lib/api/types';
+import { onMounted, ref } from "vue";
+import type { Device } from "../lib/api/types";
+import { useApi } from "./useApi";
 
 /**
  * Return value from useDevices.
  */
 export interface UseDevicesReturn {
-  /** List of devices */
-  data: ReturnType<typeof ref<Device[]>>;
-  /** Loading state */
-  loading: ReturnType<typeof ref<boolean>>;
-  /** Error message if fetch fails */
-  error: ReturnType<typeof ref<string | null>>;
-  /** Manually refetch devices */
-  refetch: () => Promise<void>;
+	/** List of devices */
+	data: ReturnType<typeof ref<Device[]>>;
+	/** Loading state */
+	loading: ReturnType<typeof ref<boolean>>;
+	/** Error message if fetch fails */
+	error: ReturnType<typeof ref<string | null>>;
+	/** Manually refetch devices */
+	refetch: () => Promise<void>;
 }
 
 /**
@@ -49,32 +49,33 @@ export interface UseDevicesReturn {
  * ```
  */
 export function useDevices(): UseDevicesReturn {
-  const api = useApi();
-  const data = ref<Device[]>([]);
-  const loading = ref(true);
-  const error = ref<string | null>(null);
+	const api = useApi();
+	const data = ref<Device[]>([]);
+	const loading = ref(true);
+	const error = ref<string | null>(null);
 
-  async function refetch(): Promise<void> {
-    loading.value = true;
-    error.value = null;
+	async function refetch(): Promise<void> {
+		loading.value = true;
+		error.value = null;
 
-    try {
-      data.value = await api.listDevices();
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to fetch devices';
-    } finally {
-      loading.value = false;
-    }
-  }
+		try {
+			data.value = await api.listDevices();
+		} catch (err) {
+			error.value =
+				err instanceof Error ? err.message : "Failed to fetch devices";
+		} finally {
+			loading.value = false;
+		}
+	}
 
-  onMounted(() => {
-    void refetch();
-  });
+	onMounted(() => {
+		void refetch();
+	});
 
-  return {
-    data,
-    loading,
-    error,
-    refetch,
-  };
+	return {
+		data,
+		loading,
+		error,
+		refetch,
+	};
 }

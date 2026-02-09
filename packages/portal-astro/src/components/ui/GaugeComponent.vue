@@ -1,54 +1,54 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed } from "vue";
 
 export interface GaugeProps {
-  value: number;
-  max?: number;
-  label?: string;
-  size?: 'sm' | 'md' | 'lg';
-  color?: 'blue' | 'green' | 'yellow' | 'red' | 'purple';
+	value: number;
+	max?: number;
+	label?: string;
+	size?: "sm" | "md" | "lg";
+	color?: "blue" | "green" | "yellow" | "red" | "purple";
 }
 
 const props = withDefaults(defineProps<GaugeProps>(), {
-  max: 100,
-  size: 'md',
-  color: 'blue',
+	max: 100,
+	size: "md",
+	color: "blue",
 });
 
 const percentage = computed(() => {
-  return Math.min(Math.max((props.value / props.max) * 100, 0), 100);
+	return Math.min(Math.max((props.value / props.max) * 100, 0), 100);
 });
 
 const sizeConfig = computed(() => {
-  const sizes = {
-    sm: { size: 80, stroke: 6, fontSize: 'text-lg' },
-    md: { size: 120, stroke: 8, fontSize: 'text-2xl' },
-    lg: { size: 160, stroke: 10, fontSize: 'text-3xl' },
-  };
-  return sizes[props.size];
+	const sizes = {
+		sm: { size: 80, stroke: 6, fontSize: "text-lg" },
+		md: { size: 120, stroke: 8, fontSize: "text-2xl" },
+		lg: { size: 160, stroke: 10, fontSize: "text-3xl" },
+	};
+	return sizes[props.size];
 });
 
 const colorClasses = computed(() => {
-  const colors = {
-    blue: 'stroke-blue-600 dark:stroke-blue-400',
-    green: 'stroke-green-600 dark:stroke-green-400',
-    yellow: 'stroke-yellow-600 dark:stroke-yellow-400',
-    red: 'stroke-red-600 dark:stroke-red-400',
-    purple: 'stroke-purple-600 dark:stroke-purple-400',
-  };
-  return colors[props.color];
+	const colors = {
+		blue: "stroke-blue-600 dark:stroke-blue-400",
+		green: "stroke-green-600 dark:stroke-green-400",
+		yellow: "stroke-yellow-600 dark:stroke-yellow-400",
+		red: "stroke-red-600 dark:stroke-red-400",
+		purple: "stroke-purple-600 dark:stroke-purple-400",
+	};
+	return colors[props.color];
 });
 
 const radius = computed(() => {
-  return (sizeConfig.value.size - sizeConfig.value.stroke) / 2;
+	return (sizeConfig.value.size - sizeConfig.value.stroke) / 2;
 });
 
 const circumference = computed(() => {
-  return 2 * Math.PI * radius.value;
+	return 2 * Math.PI * radius.value;
 });
 
 const strokeDashoffset = computed(() => {
-  return circumference.value - (percentage.value / 100) * circumference.value;
+	return circumference.value - (percentage.value / 100) * circumference.value;
 });
 
 const center = computed(() => sizeConfig.value.size / 2);

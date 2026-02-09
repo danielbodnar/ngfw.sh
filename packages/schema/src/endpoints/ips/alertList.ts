@@ -40,7 +40,14 @@ export class IpsAlertList extends OpenAPIRoute {
 	async handle(c: AppContext) {
 		const userId = c.get("userId");
 		const data = await this.getValidatedData<typeof this.schema>();
-		const { category, severity, src_ip, dst_ip, limit = 50, offset = 0 } = data.query;
+		const {
+			category,
+			severity,
+			src_ip,
+			dst_ip,
+			limit = 50,
+			offset = 0,
+		} = data.query;
 		const db = c.env.DB;
 
 		let query = "SELECT * FROM ips_alerts WHERE owner_id = ?";
@@ -67,13 +74,19 @@ export class IpsAlertList extends OpenAPIRoute {
 		}
 
 		const countQuery = query.replace("SELECT *", "SELECT COUNT(*) as count");
-		const countResult = await db.prepare(countQuery).bind(...params).first();
+		const countResult = await db
+			.prepare(countQuery)
+			.bind(...params)
+			.first();
 		const total = (countResult?.count as number) || 0;
 
 		query += " ORDER BY timestamp DESC LIMIT ? OFFSET ?";
 		params.push(Math.min(limit, 500), offset);
 
-		const result = await db.prepare(query).bind(...params).all();
+		const result = await db
+			.prepare(query)
+			.bind(...params)
+			.all();
 
 		return {
 			success: true,

@@ -1,34 +1,27 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
-import { useIPS } from '../../composables/useIPS';
-import { useSelectedDevice } from '../../composables/useSelectedDevice';
-import { usePolling } from '../../composables/usePolling';
-import { useToast } from '../../composables/useToast';
-import Spinner from '../ui/Spinner.vue';
-import Button from '../ui/Button.vue';
-import Card from '../ui/Card.vue';
-import Badge from '../ui/Badge.vue';
-import type { IPSConfig, IPSAlert } from '../../lib/api/types';
+import { computed, ref } from "vue";
+import { useIPS } from "../../composables/useIPS";
+import { usePolling } from "../../composables/usePolling";
+import { useSelectedDevice } from "../../composables/useSelectedDevice";
+import { useToast } from "../../composables/useToast";
+import type { IPSAlert, IPSConfig } from "../../lib/api/types";
+import Badge from "../ui/Badge.vue";
+import Button from "../ui/Button.vue";
+import Card from "../ui/Card.vue";
+import Spinner from "../ui/Spinner.vue";
 
 // Use globally selected device
 const { deviceId } = useSelectedDevice();
 
 // Fetch IPS data with auto-refresh
-const {
-  config,
-  rules,
-  alerts,
-  loading,
-  error,
-  refetch,
-  updateConfig,
-} = useIPS(deviceId);
+const { config, rules, alerts, loading, error, refetch, updateConfig } =
+	useIPS(deviceId);
 
 // Auto-refresh every 30 seconds
 usePolling({
-  fetcher: refetch,
-  interval: 30000,
-  immediate: false,
+	fetcher: refetch,
+	interval: 30000,
+	immediate: false,
 });
 
 // Toast notifications
@@ -37,101 +30,105 @@ const { success, error: showError } = useToast();
 // Config editing state
 const editingConfig = ref(false);
 const configForm = ref<Partial<IPSConfig>>({
-  enabled: false,
-  mode: 'detect',
-  sensitivity: 'medium',
+	enabled: false,
+	mode: "detect",
+	sensitivity: "medium",
 });
 
 // Initialize config form when data loads
 function loadConfigForm(): void {
-  if (config.value) {
-    configForm.value = {
-      enabled: config.value.enabled,
-      mode: config.value.mode,
-      sensitivity: config.value.sensitivity,
-    };
-  }
+	if (config.value) {
+		configForm.value = {
+			enabled: config.value.enabled,
+			mode: config.value.mode,
+			sensitivity: config.value.sensitivity,
+		};
+	}
 }
 
 // Start editing config
 function handleEditConfig(): void {
-  loadConfigForm();
-  editingConfig.value = true;
+	loadConfigForm();
+	editingConfig.value = true;
 }
 
 // Save config changes
 async function handleSaveConfig(): Promise<void> {
-  try {
-    await updateConfig(configForm.value);
-    success('IPS configuration updated successfully');
-    editingConfig.value = false;
-    await refetch();
-  } catch (err) {
-    showError(err instanceof Error ? err.message : 'Failed to update IPS configuration');
-  }
+	try {
+		await updateConfig(configForm.value);
+		success("IPS configuration updated successfully");
+		editingConfig.value = false;
+		await refetch();
+	} catch (err) {
+		showError(
+			err instanceof Error ? err.message : "Failed to update IPS configuration",
+		);
+	}
 }
 
 // Cancel config editing
 function handleCancelConfig(): void {
-  editingConfig.value = false;
-  loadConfigForm();
+	editingConfig.value = false;
+	loadConfigForm();
 }
 
 // Format timestamp to readable date
 const formatTimestamp = (timestamp: number): string => {
-  return new Date(timestamp).toLocaleString();
+	return new Date(timestamp).toLocaleString();
 };
 
 // Format relative time
 const formatRelativeTime = (timestamp: number): string => {
-  const now = Date.now();
-  const diff = now - timestamp;
-  const seconds = Math.floor(diff / 1000);
-  const minutes = Math.floor(seconds / 60);
-  const hours = Math.floor(minutes / 60);
-  const days = Math.floor(hours / 24);
+	const now = Date.now();
+	const diff = now - timestamp;
+	const seconds = Math.floor(diff / 1000);
+	const minutes = Math.floor(seconds / 60);
+	const hours = Math.floor(minutes / 60);
+	const days = Math.floor(hours / 24);
 
-  if (days > 0) return `${days}d ago`;
-  if (hours > 0) return `${hours}h ago`;
-  if (minutes > 0) return `${minutes}m ago`;
-  return 'Just now';
+	if (days > 0) return `${days}d ago`;
+	if (hours > 0) return `${hours}h ago`;
+	if (minutes > 0) return `${minutes}m ago`;
+	return "Just now";
 };
 
 // Get severity badge variant
-const getSeverityVariant = (severity: string): 'info' | 'success' | 'warning' | 'danger' => {
-  if (severity === 'critical') return 'danger';
-  if (severity === 'high') return 'warning';
-  if (severity === 'medium') return 'info';
-  return 'success';
+const getSeverityVariant = (
+	severity: string,
+): "info" | "success" | "warning" | "danger" => {
+	if (severity === "critical") return "danger";
+	if (severity === "high") return "warning";
+	if (severity === "medium") return "info";
+	return "success";
 };
 
 // Get mode display name
 const getModeDisplay = (mode: string): string => {
-  if (mode === 'detect') return 'Detection Only';
-  if (mode === 'prevent') return 'Prevention Mode';
-  return mode;
+	if (mode === "detect") return "Detection Only";
+	if (mode === "prevent") return "Prevention Mode";
+	return mode;
 };
 
 // Get sensitivity display name
 const getSensitivityDisplay = (sensitivity: string): string => {
-  if (sensitivity === 'low') return 'Low';
-  if (sensitivity === 'medium') return 'Medium';
-  if (sensitivity === 'high') return 'High';
-  return sensitivity;
+	if (sensitivity === "low") return "Low";
+	if (sensitivity === "medium") return "Medium";
+	if (sensitivity === "high") return "High";
+	return sensitivity;
 };
 
 // Compute stats
 const stats = computed(() => {
-  const alertList = alerts.value || [];
-  const ruleList = rules.value || [];
+	const alertList = alerts.value || [];
+	const ruleList = rules.value || [];
 
-  return {
-    totalAlerts: alertList.length,
-    blockedAlerts: alertList.filter((a) => a.blocked).length,
-    criticalAlerts: alertList.filter((a) => a.severity === 'critical').length,
-    activeRules: ruleList.filter((r) => r.enabled).length,
-    totalRules: ruleList.length,
-  };
+	return {
+		totalAlerts: alertList.length,
+		blockedAlerts: alertList.filter((a) => a.blocked).length,
+		criticalAlerts: alertList.filter((a) => a.severity === "critical").length,
+		activeRules: ruleList.filter((r) => r.enabled).length,
+		totalRules: ruleList.length,
+	};
 });
 </script>
 

@@ -1,69 +1,77 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
-import { useDDNS } from '../../composables/useDDNS';
-import { useSelectedDevice } from '../../composables/useSelectedDevice';
-import { usePolling } from '../../composables/usePolling';
-import Spinner from '../ui/Spinner.vue';
-import Button from '../ui/Button.vue';
-import Card from '../ui/Card.vue';
-import Badge from '../ui/Badge.vue';
+import { computed, ref } from "vue";
+import { useDDNS } from "../../composables/useDDNS";
+import { usePolling } from "../../composables/usePolling";
+import { useSelectedDevice } from "../../composables/useSelectedDevice";
+import Badge from "../ui/Badge.vue";
+import Button from "../ui/Button.vue";
+import Card from "../ui/Card.vue";
+import Spinner from "../ui/Spinner.vue";
 
 // Use globally selected device
 const { deviceId } = useSelectedDevice();
 
 // Fetch DDNS configs with auto-refresh
-const { data: configs, loading, error, refetch, forceUpdate } = useDDNS(deviceId);
+const {
+	data: configs,
+	loading,
+	error,
+	refetch,
+	forceUpdate,
+} = useDDNS(deviceId);
 
 // Auto-refresh every 60 seconds
 usePolling({
-  fetcher: refetch,
-  interval: 60000,
-  immediate: false,
+	fetcher: refetch,
+	interval: 60000,
+	immediate: false,
 });
 
 // Format timestamp to relative time
 const formatRelativeTime = (timestamp: number): string => {
-  const now = Date.now() / 1000;
-  const diff = now - timestamp;
-  const seconds = Math.floor(diff);
-  const minutes = Math.floor(seconds / 60);
-  const hours = Math.floor(minutes / 60);
-  const days = Math.floor(hours / 24);
+	const now = Date.now() / 1000;
+	const diff = now - timestamp;
+	const seconds = Math.floor(diff);
+	const minutes = Math.floor(seconds / 60);
+	const hours = Math.floor(minutes / 60);
+	const days = Math.floor(hours / 24);
 
-  if (days > 0) return `${days}d ago`;
-  if (hours > 0) return `${hours}h ago`;
-  if (minutes > 0) return `${minutes}m ago`;
-  return 'Just now';
+	if (days > 0) return `${days}d ago`;
+	if (hours > 0) return `${hours}h ago`;
+	if (minutes > 0) return `${minutes}m ago`;
+	return "Just now";
 };
 
 // Format interval to human-readable
 const formatInterval = (seconds: number): string => {
-  const minutes = Math.floor(seconds / 60);
-  if (minutes < 60) return `${minutes} min`;
-  const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `${hours} hr`;
-  const days = Math.floor(hours / 24);
-  return `${days} day${days > 1 ? 's' : ''}`;
+	const minutes = Math.floor(seconds / 60);
+	if (minutes < 60) return `${minutes} min`;
+	const hours = Math.floor(minutes / 60);
+	if (hours < 24) return `${hours} hr`;
+	const days = Math.floor(hours / 24);
+	return `${days} day${days > 1 ? "s" : ""}`;
 };
 
 // Stats computed from configs
 const stats = computed(() => {
-  const configList = configs.value || [];
-  return {
-    totalConfigs: configList.length,
-    enabledConfigs: configList.filter((c) => c.enabled).length,
-    recentUpdates: configList.filter((c) => c.last_update && (Date.now() / 1000 - c.last_update < 3600)).length,
-  };
+	const configList = configs.value || [];
+	return {
+		totalConfigs: configList.length,
+		enabledConfigs: configList.filter((c) => c.enabled).length,
+		recentUpdates: configList.filter(
+			(c) => c.last_update && Date.now() / 1000 - c.last_update < 3600,
+		).length,
+	};
 });
 
 // Handle force update
 const handleForceUpdate = async (configId: string) => {
-  try {
-    await forceUpdate(configId);
-    await refetch();
-  } catch (err) {
-    console.error('Failed to force update:', err);
-  }
+	try {
+		await forceUpdate(configId);
+		await refetch();
+	} catch (err) {
+		console.error("Failed to force update:", err);
+	}
 };
 </script>
 

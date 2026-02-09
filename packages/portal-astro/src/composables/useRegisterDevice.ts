@@ -4,20 +4,23 @@
  * @module composables/useRegisterDevice
  */
 
-import { ref } from 'vue';
-import { useApi } from './useApi';
-import type { DeviceRegistration, DeviceRegistrationResponse } from '../lib/api/types';
+import { ref } from "vue";
+import type {
+	DeviceRegistration,
+	DeviceRegistrationResponse,
+} from "../lib/api/types";
+import { useApi } from "./useApi";
 
 /**
  * Return value from useRegisterDevice.
  */
 export interface UseRegisterDeviceReturn {
-  /** Register a new device */
-  register: (data: DeviceRegistration) => Promise<DeviceRegistrationResponse>;
-  /** Loading state */
-  loading: ReturnType<typeof ref<boolean>>;
-  /** Error message if registration fails */
-  error: ReturnType<typeof ref<string | null>>;
+	/** Register a new device */
+	register: (data: DeviceRegistration) => Promise<DeviceRegistrationResponse>;
+	/** Loading state */
+	loading: ReturnType<typeof ref<boolean>>;
+	/** Error message if registration fails */
+	error: ReturnType<typeof ref<string | null>>;
 }
 
 /**
@@ -44,31 +47,31 @@ export interface UseRegisterDeviceReturn {
  * ```
  */
 export function useRegisterDevice(): UseRegisterDeviceReturn {
-  const api = useApi();
-  const loading = ref(false);
-  const error = ref<string | null>(null);
+	const api = useApi();
+	const loading = ref(false);
+	const error = ref<string | null>(null);
 
-  async function register(
-    data: DeviceRegistration,
-  ): Promise<DeviceRegistrationResponse> {
-    loading.value = true;
-    error.value = null;
+	async function register(
+		data: DeviceRegistration,
+	): Promise<DeviceRegistrationResponse> {
+		loading.value = true;
+		error.value = null;
 
-    try {
-      return await api.registerDevice(data);
-    } catch (err) {
-      const message =
-        err instanceof Error ? err.message : 'Failed to register device';
-      error.value = message;
-      throw err;
-    } finally {
-      loading.value = false;
-    }
-  }
+		try {
+			return await api.registerDevice(data);
+		} catch (err) {
+			const message =
+				err instanceof Error ? err.message : "Failed to register device";
+			error.value = message;
+			throw err;
+		} finally {
+			loading.value = false;
+		}
+	}
 
-  return {
-    register,
-    loading,
-    error,
-  };
+	return {
+		register,
+		loading,
+		error,
+	};
 }

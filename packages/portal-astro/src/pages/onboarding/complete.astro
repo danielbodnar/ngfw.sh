@@ -1,17 +1,17 @@
 ---
-import PortalLayout from '../../layouts/PortalLayout.astro';
+import PortalLayout from "../../layouts/PortalLayout.astro";
 
 // Redirect to sign-in if not authenticated
 const { userId } = Astro.locals.auth();
 if (!userId) {
-  return Astro.redirect('/sign-in');
+	return Astro.redirect("/sign-in");
 }
 
 // In production, would fetch order details from URL params or session
-const orderId = Astro.url.searchParams.get('order');
+const orderId = Astro.url.searchParams.get("order");
 
 if (!orderId) {
-  return Astro.redirect('/onboarding');
+	return Astro.redirect("/onboarding");
 }
 ---
 

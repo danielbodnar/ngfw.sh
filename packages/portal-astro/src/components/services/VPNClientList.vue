@@ -1,59 +1,59 @@
 <script setup lang="ts">
-import { computed } from 'vue';
-import Button from '../ui/Button.vue';
-import Badge from '../ui/Badge.vue';
-import Card from '../ui/Card.vue';
+import { computed } from "vue";
+import Badge from "../ui/Badge.vue";
+import Button from "../ui/Button.vue";
+import Card from "../ui/Card.vue";
 
 export interface VPNClientProfile {
-  id: string;
-  name: string;
-  endpoint: string;
-  allowed_ips: string[];
-  enabled: boolean;
-  status: 'connected' | 'disconnected' | 'connecting';
-  connected_since?: number;
-  rx_bytes?: number;
-  tx_bytes?: number;
+	id: string;
+	name: string;
+	endpoint: string;
+	allowed_ips: string[];
+	enabled: boolean;
+	status: "connected" | "disconnected" | "connecting";
+	connected_since?: number;
+	rx_bytes?: number;
+	tx_bytes?: number;
 }
 
 const props = defineProps<{
-  profiles: VPNClientProfile[];
-  loading?: boolean;
+	profiles: VPNClientProfile[];
+	loading?: boolean;
 }>();
 
 const emit = defineEmits<{
-  add: [];
-  edit: [profile: VPNClientProfile];
-  delete: [profileId: string];
-  connect: [profileId: string];
-  disconnect: [profileId: string];
+	add: [];
+	edit: [profile: VPNClientProfile];
+	delete: [profileId: string];
+	connect: [profileId: string];
+	disconnect: [profileId: string];
 }>();
 
 const formatBytes = (bytes?: number) => {
-  if (!bytes) return 'N/A';
-  if (bytes >= 1e9) return `${(bytes / 1e9).toFixed(2)} GB`;
-  if (bytes >= 1e6) return `${(bytes / 1e6).toFixed(2)} MB`;
-  if (bytes >= 1e3) return `${(bytes / 1e3).toFixed(2)} KB`;
-  return `${bytes} B`;
+	if (!bytes) return "N/A";
+	if (bytes >= 1e9) return `${(bytes / 1e9).toFixed(2)} GB`;
+	if (bytes >= 1e6) return `${(bytes / 1e6).toFixed(2)} MB`;
+	if (bytes >= 1e3) return `${(bytes / 1e3).toFixed(2)} KB`;
+	return `${bytes} B`;
 };
 
 const formatDuration = (timestamp?: number) => {
-  if (!timestamp) return 'N/A';
-  const now = Date.now() / 1000;
-  const diff = now - timestamp;
-  const hours = Math.floor(diff / 3600);
-  const minutes = Math.floor((diff % 3600) / 60);
-  if (hours > 0) return `${hours}h ${minutes}m`;
-  return `${minutes}m`;
+	if (!timestamp) return "N/A";
+	const now = Date.now() / 1000;
+	const diff = now - timestamp;
+	const hours = Math.floor(diff / 3600);
+	const minutes = Math.floor((diff % 3600) / 60);
+	if (hours > 0) return `${hours}h ${minutes}m`;
+	return `${minutes}m`;
 };
 
-const getStatusBadge = (status: VPNClientProfile['status']) => {
-  const badges = {
-    connected: { variant: 'success' as const, text: 'Connected' },
-    disconnected: { variant: 'default' as const, text: 'Disconnected' },
-    connecting: { variant: 'warning' as const, text: 'Connecting...' },
-  };
-  return badges[status];
+const getStatusBadge = (status: VPNClientProfile["status"]) => {
+	const badges = {
+		connected: { variant: "success" as const, text: "Connected" },
+		disconnected: { variant: "default" as const, text: "Disconnected" },
+		connecting: { variant: "warning" as const, text: "Connecting..." },
+	};
+	return badges[status];
 };
 </script>
 

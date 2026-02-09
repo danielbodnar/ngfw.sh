@@ -7,25 +7,25 @@
  * @module hooks/useDevices
  */
 
-import { useState, useEffect, useCallback, useRef } from 'react';
-import { useAuth } from '@clerk/clerk-react';
+import { useAuth } from "@clerk/clerk-react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
-  createApiClient,
-  type Device,
-  type DeviceStatus,
-  type DeviceRegistration,
-  type DeviceRegistrationResponse,
-} from '../api.ts';
+	createApiClient,
+	type Device,
+	type DeviceRegistration,
+	type DeviceRegistrationResponse,
+	type DeviceStatus,
+} from "../api.ts";
 
 // ---------------------------------------------------------------------------
 // useDevices — fetch the device list
 // ---------------------------------------------------------------------------
 
 export interface UseDevicesReturn {
-  devices: Device[];
-  loading: boolean;
-  error: string | null;
-  refetch: () => void;
+	devices: Device[];
+	loading: boolean;
+	error: string | null;
+	refetch: () => void;
 }
 
 /**
@@ -38,30 +38,30 @@ export interface UseDevicesReturn {
  * ```
  */
 export function useDevices(): UseDevicesReturn {
-  const { getToken } = useAuth();
-  const [devices, setDevices] = useState<Device[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+	const { getToken } = useAuth();
+	const [devices, setDevices] = useState<Device[]>([]);
+	const [loading, setLoading] = useState(true);
+	const [error, setError] = useState<string | null>(null);
 
-  const fetchDevices = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const api = createApiClient(getToken);
-      const list = await api.listDevices();
-      setDevices(list);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to fetch devices');
-    } finally {
-      setLoading(false);
-    }
-  }, [getToken]);
+	const fetchDevices = useCallback(async () => {
+		setLoading(true);
+		setError(null);
+		try {
+			const api = createApiClient(getToken);
+			const list = await api.listDevices();
+			setDevices(list);
+		} catch (err) {
+			setError(err instanceof Error ? err.message : "Failed to fetch devices");
+		} finally {
+			setLoading(false);
+		}
+	}, [getToken]);
 
-  useEffect(() => {
-    void fetchDevices();
-  }, [fetchDevices]);
+	useEffect(() => {
+		void fetchDevices();
+	}, [fetchDevices]);
 
-  return { devices, loading, error, refetch: fetchDevices };
+	return { devices, loading, error, refetch: fetchDevices };
 }
 
 // ---------------------------------------------------------------------------
@@ -69,9 +69,9 @@ export function useDevices(): UseDevicesReturn {
 // ---------------------------------------------------------------------------
 
 export interface UseDeviceStatusReturn {
-  status: DeviceStatus | null;
-  loading: boolean;
-  error: string | null;
+	status: DeviceStatus | null;
+	loading: boolean;
+	error: string | null;
 }
 
 const POLL_INTERVAL_MS = 5_000;
@@ -90,57 +90,59 @@ const POLL_INTERVAL_MS = 5_000;
  * ```
  */
 export function useDeviceStatus(
-  deviceId: string | null,
+	deviceId: string | null,
 ): UseDeviceStatusReturn {
-  const { getToken } = useAuth();
-  const [status, setStatus] = useState<DeviceStatus | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+	const { getToken } = useAuth();
+	const [status, setStatus] = useState<DeviceStatus | null>(null);
+	const [loading, setLoading] = useState(false);
+	const [error, setError] = useState<string | null>(null);
 
-  // Keep a stable ref to getToken so the interval callback never goes stale.
-  const getTokenRef = useRef(getToken);
-  getTokenRef.current = getToken;
+	// Keep a stable ref to getToken so the interval callback never goes stale.
+	const getTokenRef = useRef(getToken);
+	getTokenRef.current = getToken;
 
-  useEffect(() => {
-    if (!deviceId) {
-      setStatus(null);
-      setLoading(false);
-      setError(null);
-      return;
-    }
+	useEffect(() => {
+		if (!deviceId) {
+			setStatus(null);
+			setLoading(false);
+			setError(null);
+			return;
+		}
 
-    let cancelled = false;
+		let cancelled = false;
 
-    async function poll() {
-      if (cancelled) return;
-      setLoading(true);
-      setError(null);
-      try {
-        const api = createApiClient(getTokenRef.current);
-        const data = await api.getDeviceStatus(deviceId!);
-        if (!cancelled) setStatus(data);
-      } catch (err) {
-        if (!cancelled) {
-          setError(
-            err instanceof Error ? err.message : 'Failed to fetch device status',
-          );
-        }
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    }
+		async function poll() {
+			if (cancelled) return;
+			setLoading(true);
+			setError(null);
+			try {
+				const api = createApiClient(getTokenRef.current);
+				const data = await api.getDeviceStatus(deviceId!);
+				if (!cancelled) setStatus(data);
+			} catch (err) {
+				if (!cancelled) {
+					setError(
+						err instanceof Error
+							? err.message
+							: "Failed to fetch device status",
+					);
+				}
+			} finally {
+				if (!cancelled) setLoading(false);
+			}
+		}
 
-    // Initial fetch, then poll on an interval.
-    void poll();
-    const id = setInterval(() => void poll(), POLL_INTERVAL_MS);
+		// Initial fetch, then poll on an interval.
+		void poll();
+		const id = setInterval(() => void poll(), POLL_INTERVAL_MS);
 
-    return () => {
-      cancelled = true;
-      clearInterval(id);
-    };
-  }, [deviceId]);
+		return () => {
+			cancelled = true;
+			clearInterval(id);
+		};
+	}, [deviceId]);
 
-  return { status, loading, error };
+	return { status, loading, error };
 }
 
 // ---------------------------------------------------------------------------
@@ -148,9 +150,9 @@ export function useDeviceStatus(
 // ---------------------------------------------------------------------------
 
 export interface UseRegisterDeviceReturn {
-  register: (data: DeviceRegistration) => Promise<DeviceRegistrationResponse>;
-  loading: boolean;
-  error: string | null;
+	register: (data: DeviceRegistration) => Promise<DeviceRegistrationResponse>;
+	loading: boolean;
+	error: string | null;
 }
 
 /**
@@ -166,28 +168,28 @@ export interface UseRegisterDeviceReturn {
  * ```
  */
 export function useRegisterDevice(): UseRegisterDeviceReturn {
-  const { getToken } = useAuth();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+	const { getToken } = useAuth();
+	const [loading, setLoading] = useState(false);
+	const [error, setError] = useState<string | null>(null);
 
-  const register = useCallback(
-    async (data: DeviceRegistration): Promise<DeviceRegistrationResponse> => {
-      setLoading(true);
-      setError(null);
-      try {
-        const api = createApiClient(getToken);
-        return await api.registerDevice(data);
-      } catch (err) {
-        const message =
-          err instanceof Error ? err.message : 'Failed to register device';
-        setError(message);
-        throw err;
-      } finally {
-        setLoading(false);
-      }
-    },
-    [getToken],
-  );
+	const register = useCallback(
+		async (data: DeviceRegistration): Promise<DeviceRegistrationResponse> => {
+			setLoading(true);
+			setError(null);
+			try {
+				const api = createApiClient(getToken);
+				return await api.registerDevice(data);
+			} catch (err) {
+				const message =
+					err instanceof Error ? err.message : "Failed to register device";
+				setError(message);
+				throw err;
+			} finally {
+				setLoading(false);
+			}
+		},
+		[getToken],
+	);
 
-  return { register, loading, error };
+	return { register, loading, error };
 }

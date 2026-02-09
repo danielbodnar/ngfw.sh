@@ -5,11 +5,22 @@ import { z } from "zod";
  */
 export const staticRoute = z.object({
 	id: z.string(),
-	destination: z.string().describe("Destination network in CIDR notation (e.g., 10.0.0.0/24)"),
+	destination: z
+		.string()
+		.describe("Destination network in CIDR notation (e.g., 10.0.0.0/24)"),
 	gateway: z.string().describe("Gateway IP address"), // TODO: Add IP validation with z.string().regex() in Zod 4
 	interface: z.string().describe("Network interface (e.g., eth0, wlan0)"),
-	metric: z.number().int().min(0).max(1000).default(100).describe("Route priority (lower is higher priority)"),
-	description: z.string().optional().describe("Optional description of the route"),
+	metric: z
+		.number()
+		.int()
+		.min(0)
+		.max(1000)
+		.default(100)
+		.describe("Route priority (lower is higher priority)"),
+	description: z
+		.string()
+		.optional()
+		.describe("Optional description of the route"),
 	enabled: z.boolean().default(true),
 	created_at: z.number().int(),
 	updated_at: z.number().int(),
@@ -24,7 +35,10 @@ export const policyRoute = z.object({
 	source: z.string().describe("Source IP or network in CIDR notation"),
 	destination: z.string().optional().describe("Destination IP or network"),
 	protocol: z.enum(["tcp", "udp", "icmp", "all"]).default("all"),
-	port: z.string().optional().describe("Port or port range (e.g., 80, 443, 1000-2000)"),
+	port: z
+		.string()
+		.optional()
+		.describe("Port or port range (e.g., 80, 443, 1000-2000)"),
 	gateway: z.string().describe("Gateway to route through"), // TODO: Add IP validation with z.string().regex() in Zod 4
 	table: z.string().optional().describe("Routing table ID"),
 	priority: z.number().int().min(0).max(1000).default(100),
@@ -48,17 +62,26 @@ export const routeEntry = z.object({
 /**
  * Request schema for creating a static route
  */
-export const staticRouteCreate = staticRoute.omit({ id: true, created_at: true, updated_at: true });
+export const staticRouteCreate = staticRoute.omit({
+	id: true,
+	created_at: true,
+	updated_at: true,
+});
 
 /**
  * Request schema for updating a static route
  */
-export const staticRouteUpdate = staticRoute.omit({ id: true, created_at: true, updated_at: true }).partial();
+export const staticRouteUpdate = staticRoute
+	.omit({ id: true, created_at: true, updated_at: true })
+	.partial();
 
 /**
  * Request schema for creating a policy route
  */
-export const policyRouteCreate = policyRoute.omit({ id: true, created_at: true });
+export const policyRouteCreate = policyRoute.omit({
+	id: true,
+	created_at: true,
+});
 
 export const RoutingModel = {
 	tableName: "static_routes",

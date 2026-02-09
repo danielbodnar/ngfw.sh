@@ -1,86 +1,90 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue';
-import Button from '../ui/Button.vue';
-import Input from '../ui/Input.vue';
-import Select from '../ui/Select.vue';
-import Toggle from '../ui/Toggle.vue';
+import { ref, watch } from "vue";
+import Button from "../ui/Button.vue";
+import Input from "../ui/Input.vue";
+import Select from "../ui/Select.vue";
+import Toggle from "../ui/Toggle.vue";
 
 export interface QoSRuleFormData {
-  name: string;
-  enabled: boolean;
-  priority: number;
-  source?: string;
-  destination?: string;
-  protocol?: string;
-  port?: string;
-  download_limit?: number;
-  upload_limit?: number;
-  class_type: 'high' | 'medium' | 'low' | 'custom';
+	name: string;
+	enabled: boolean;
+	priority: number;
+	source?: string;
+	destination?: string;
+	protocol?: string;
+	port?: string;
+	download_limit?: number;
+	upload_limit?: number;
+	class_type: "high" | "medium" | "low" | "custom";
 }
 
 const props = defineProps<{
-  isOpen: boolean;
-  rule?: QoSRuleFormData | null;
-  loading?: boolean;
+	isOpen: boolean;
+	rule?: QoSRuleFormData | null;
+	loading?: boolean;
 }>();
 
 const emit = defineEmits<{
-  close: [];
-  save: [rule: QoSRuleFormData];
+	close: [];
+	save: [rule: QoSRuleFormData];
 }>();
 
 const formData = ref<QoSRuleFormData>({
-  name: '',
-  enabled: true,
-  priority: 10,
-  source: '',
-  destination: '',
-  protocol: '',
-  port: '',
-  download_limit: undefined,
-  upload_limit: undefined,
-  class_type: 'medium',
+	name: "",
+	enabled: true,
+	priority: 10,
+	source: "",
+	destination: "",
+	protocol: "",
+	port: "",
+	download_limit: undefined,
+	upload_limit: undefined,
+	class_type: "medium",
 });
 
 const classOptions = [
-  { value: 'high', label: 'High Priority' },
-  { value: 'medium', label: 'Medium Priority' },
-  { value: 'low', label: 'Low Priority' },
-  { value: 'custom', label: 'Custom Limits' },
+	{ value: "high", label: "High Priority" },
+	{ value: "medium", label: "Medium Priority" },
+	{ value: "low", label: "Low Priority" },
+	{ value: "custom", label: "Custom Limits" },
 ];
 
 const protocolOptions = [
-  { value: '', label: 'Any' },
-  { value: 'tcp', label: 'TCP' },
-  { value: 'udp', label: 'UDP' },
-  { value: 'icmp', label: 'ICMP' },
+	{ value: "", label: "Any" },
+	{ value: "tcp", label: "TCP" },
+	{ value: "udp", label: "UDP" },
+	{ value: "icmp", label: "ICMP" },
 ];
 
-watch(() => props.rule, (newRule) => {
-  if (newRule) {
-    formData.value = { ...newRule };
-  } else {
-    formData.value = {
-      name: '',
-      enabled: true,
-      priority: 10,
-      source: '',
-      destination: '',
-      protocol: '',
-      port: '',
-      download_limit: undefined,
-      upload_limit: undefined,
-      class_type: 'medium',
-    };
-  }
-}, { immediate: true });
+watch(
+	() => props.rule,
+	(newRule) => {
+		if (newRule) {
+			formData.value = { ...newRule };
+		} else {
+			formData.value = {
+				name: "",
+				enabled: true,
+				priority: 10,
+				source: "",
+				destination: "",
+				protocol: "",
+				port: "",
+				download_limit: undefined,
+				upload_limit: undefined,
+				class_type: "medium",
+			};
+		}
+	},
+	{ immediate: true },
+);
 
 const handleSubmit = () => {
-  emit('save', formData.value);
+	emit("save", formData.value);
 };
 
 const handleClose = () => {
-  emit('close');
+	emit("close");
 };
 </script>
 

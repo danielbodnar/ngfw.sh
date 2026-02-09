@@ -1,27 +1,34 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
-import { useReports } from '../../composables/useReports';
-import { useSelectedDevice } from '../../composables/useSelectedDevice';
-import { usePolling } from '../../composables/usePolling';
-import Spinner from '../ui/Spinner.vue';
-import Button from '../ui/Button.vue';
-import Card from '../ui/Card.vue';
-import Badge from '../ui/Badge.vue';
-import Modal from '../ui/Modal.vue';
-import Select from '../ui/Select.vue';
-import type { ReportCreate } from '../../lib/api/types';
+import { computed, ref } from "vue";
+import { usePolling } from "../../composables/usePolling";
+import { useReports } from "../../composables/useReports";
+import { useSelectedDevice } from "../../composables/useSelectedDevice";
+import type { ReportCreate } from "../../lib/api/types";
+import Badge from "../ui/Badge.vue";
+import Button from "../ui/Button.vue";
+import Card from "../ui/Card.vue";
+import Modal from "../ui/Modal.vue";
+import Select from "../ui/Select.vue";
+import Spinner from "../ui/Spinner.vue";
 
 // Use globally selected device
 const { deviceId } = useSelectedDevice();
 
 // Fetch reports with auto-refresh
-const { data: reports, loading, error, refetch, create, remove } = useReports(deviceId);
+const {
+	data: reports,
+	loading,
+	error,
+	refetch,
+	create,
+	remove,
+} = useReports(deviceId);
 
 // Auto-refresh every 30 seconds
 usePolling({
-  fetcher: refetch,
-  interval: 30000,
-  immediate: false,
+	fetcher: refetch,
+	interval: 30000,
+	immediate: false,
 });
 
 // Report generator modal state
@@ -31,130 +38,133 @@ const generatorError = ref<string | null>(null);
 
 // Report generator form
 const reportForm = ref<Partial<ReportCreate>>({
-  type: 'traffic',
-  format: 'pdf',
+	type: "traffic",
+	format: "pdf",
 });
 
 // Time period presets
 const timePeriods = [
-  { label: 'Last 24 Hours', value: '24h' },
-  { label: 'Last 7 Days', value: '7d' },
-  { label: 'Last 30 Days', value: '30d' },
-  { label: 'Last 90 Days', value: '90d' },
+	{ label: "Last 24 Hours", value: "24h" },
+	{ label: "Last 7 Days", value: "7d" },
+	{ label: "Last 30 Days", value: "30d" },
+	{ label: "Last 90 Days", value: "90d" },
 ];
 
-const selectedPeriod = ref('7d');
+const selectedPeriod = ref("7d");
 
 // Calculate time range based on selected period
 const calculateTimeRange = (period: string) => {
-  const now = Math.floor(Date.now() / 1000);
-  const periods: Record<string, number> = {
-    '24h': 24 * 60 * 60,
-    '7d': 7 * 24 * 60 * 60,
-    '30d': 30 * 24 * 60 * 60,
-    '90d': 90 * 24 * 60 * 60,
-  };
+	const now = Math.floor(Date.now() / 1000);
+	const periods: Record<string, number> = {
+		"24h": 24 * 60 * 60,
+		"7d": 7 * 24 * 60 * 60,
+		"30d": 30 * 24 * 60 * 60,
+		"90d": 90 * 24 * 60 * 60,
+	};
 
-  const duration = periods[period] || periods['7d'];
-  return {
-    period_start: now - duration,
-    period_end: now,
-  };
+	const duration = periods[period] || periods["7d"];
+	return {
+		period_start: now - duration,
+		period_end: now,
+	};
 };
 
 // Format timestamp to readable date
 const formatDate = (timestamp: number): string => {
-  return new Date(timestamp * 1000).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
+	return new Date(timestamp * 1000).toLocaleDateString("en-US", {
+		year: "numeric",
+		month: "short",
+		day: "numeric",
+		hour: "2-digit",
+		minute: "2-digit",
+	});
 };
 
 // Format file size
 const formatFileSize = (bytes: number): string => {
-  const sizes = ['B', 'KB', 'MB', 'GB'];
-  if (bytes === 0) return '0 B';
-  const i = Math.floor(Math.log(bytes) / Math.log(1024));
-  return `${(bytes / Math.pow(1024, i)).toFixed(2)} ${sizes[i]}`;
+	const sizes = ["B", "KB", "MB", "GB"];
+	if (bytes === 0) return "0 B";
+	const i = Math.floor(Math.log(bytes) / Math.log(1024));
+	return `${(bytes / 1024 ** i).toFixed(2)} ${sizes[i]}`;
 };
 
 // Get status badge variant
-const getStatusVariant = (status: string): 'success' | 'danger' | 'warning' | 'info' => {
-  if (status === 'completed') return 'success';
-  if (status === 'failed') return 'danger';
-  if (status === 'generating') return 'warning';
-  return 'info';
+const getStatusVariant = (
+	status: string,
+): "success" | "danger" | "warning" | "info" => {
+	if (status === "completed") return "success";
+	if (status === "failed") return "danger";
+	if (status === "generating") return "warning";
+	return "info";
 };
 
 // Get report type display name
 const getReportTypeName = (type: string): string => {
-  const types: Record<string, string> = {
-    traffic: 'Traffic Analysis',
-    security: 'Security Report',
-    performance: 'Performance Report',
-    summary: 'Summary Report',
-  };
-  return types[type] || type;
+	const types: Record<string, string> = {
+		traffic: "Traffic Analysis",
+		security: "Security Report",
+		performance: "Performance Report",
+		summary: "Summary Report",
+	};
+	return types[type] || type;
 };
 
 // Generate report
 const handleGenerateReport = async () => {
-  if (!deviceId.value) return;
+	if (!deviceId.value) return;
 
-  generating.value = true;
-  generatorError.value = null;
+	generating.value = true;
+	generatorError.value = null;
 
-  try {
-    const timeRange = calculateTimeRange(selectedPeriod.value);
+	try {
+		const timeRange = calculateTimeRange(selectedPeriod.value);
 
-    await create({
-      device_id: deviceId.value,
-      type: reportForm.value.type as ReportCreate['type'],
-      format: reportForm.value.format as ReportCreate['format'],
-      ...timeRange,
-    });
+		await create({
+			device_id: deviceId.value,
+			type: reportForm.value.type as ReportCreate["type"],
+			format: reportForm.value.format as ReportCreate["format"],
+			...timeRange,
+		});
 
-    showGenerator.value = false;
-    await refetch();
-  } catch (err) {
-    generatorError.value = err instanceof Error ? err.message : 'Failed to generate report';
-  } finally {
-    generating.value = false;
-  }
+		showGenerator.value = false;
+		await refetch();
+	} catch (err) {
+		generatorError.value =
+			err instanceof Error ? err.message : "Failed to generate report";
+	} finally {
+		generating.value = false;
+	}
 };
 
 // Download report
 const handleDownload = (reportUrl: string, reportId: string) => {
-  const link = document.createElement('a');
-  link.href = reportUrl;
-  link.download = `report-${reportId}`;
-  link.click();
+	const link = document.createElement("a");
+	link.href = reportUrl;
+	link.download = `report-${reportId}`;
+	link.click();
 };
 
 // Delete report
 const handleDelete = async (reportId: string) => {
-  if (!confirm('Are you sure you want to delete this report?')) return;
+	if (!confirm("Are you sure you want to delete this report?")) return;
 
-  try {
-    await remove(reportId);
-    await refetch();
-  } catch (err) {
-    console.error('Failed to delete report:', err);
-  }
+	try {
+		await remove(reportId);
+		await refetch();
+	} catch (err) {
+		console.error("Failed to delete report:", err);
+	}
 };
 
 // Compute stats
 const stats = computed(() => {
-  const reportList = reports.value || [];
-  return {
-    total: reportList.length,
-    completed: reportList.filter((r) => r.status === 'completed').length,
-    generating: reportList.filter((r) => r.status === 'generating').length,
-    failed: reportList.filter((r) => r.status === 'failed').length,
-  };
+	const reportList = reports.value || [];
+	return {
+		total: reportList.length,
+		completed: reportList.filter((r) => r.status === "completed").length,
+		generating: reportList.filter((r) => r.status === "generating").length,
+		failed: reportList.filter((r) => r.status === "failed").length,
+	};
 });
 </script>
 

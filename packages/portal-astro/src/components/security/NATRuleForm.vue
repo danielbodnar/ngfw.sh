@@ -1,69 +1,69 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
-import Button from '../ui/Button.vue';
-import Input from '../ui/Input.vue';
-import Select from '../ui/Select.vue';
-import Card from '../ui/Card.vue';
-import type { NATRule } from './NATRuleList.vue';
+import { computed, ref } from "vue";
+import Button from "../ui/Button.vue";
+import Card from "../ui/Card.vue";
+import Input from "../ui/Input.vue";
+import Select from "../ui/Select.vue";
+import type { NATRule } from "./NATRuleList.vue";
 
 const props = defineProps<{
-  rule?: NATRule | null;
-  loading?: boolean;
+	rule?: NATRule | null;
+	loading?: boolean;
 }>();
 
 const emit = defineEmits<{
-  save: [rule: NATRule];
-  cancel: [];
+	save: [rule: NATRule];
+	cancel: [];
 }>();
 
-const name = ref(props.rule?.name || '');
-const type = ref(props.rule?.type || 'port_forward');
-const protocol = ref(props.rule?.protocol || 'tcp');
+const name = ref(props.rule?.name || "");
+const type = ref(props.rule?.type || "port_forward");
+const protocol = ref(props.rule?.protocol || "tcp");
 const external_port = ref(props.rule?.external_port || 0);
-const internal_ip = ref(props.rule?.internal_ip || '');
+const internal_ip = ref(props.rule?.internal_ip || "");
 const internal_port = ref(props.rule?.internal_port || 0);
-const source_ip = ref(props.rule?.source_ip || '');
-const target_ip = ref(props.rule?.target_ip || '');
+const source_ip = ref(props.rule?.source_ip || "");
+const target_ip = ref(props.rule?.target_ip || "");
 
 const typeOptions = [
-  { value: 'port_forward', label: 'Port Forward (DNAT)' },
-  { value: 'snat', label: 'Source NAT (SNAT)' },
-  { value: 'dnat', label: 'Destination NAT (DNAT)' },
-  { value: 'masquerade', label: 'Masquerade' },
+	{ value: "port_forward", label: "Port Forward (DNAT)" },
+	{ value: "snat", label: "Source NAT (SNAT)" },
+	{ value: "dnat", label: "Destination NAT (DNAT)" },
+	{ value: "masquerade", label: "Masquerade" },
 ];
 
 const protocolOptions = [
-  { value: 'tcp', label: 'TCP' },
-  { value: 'udp', label: 'UDP' },
-  { value: 'both', label: 'Both' },
+	{ value: "tcp", label: "TCP" },
+	{ value: "udp", label: "UDP" },
+	{ value: "both", label: "Both" },
 ];
 
-const showPortForwardFields = computed(() => type.value === 'port_forward');
-const showSnatFields = computed(() => type.value === 'snat');
-const showDnatFields = computed(() => type.value === 'dnat');
+const showPortForwardFields = computed(() => type.value === "port_forward");
+const showSnatFields = computed(() => type.value === "snat");
+const showDnatFields = computed(() => type.value === "dnat");
 
 const handleSave = () => {
-  const rule: NATRule = {
-    id: props.rule?.id || Date.now().toString(),
-    name: name.value,
-    type: type.value as NATRule['type'],
-    enabled: props.rule?.enabled ?? true,
-  };
+	const rule: NATRule = {
+		id: props.rule?.id || Date.now().toString(),
+		name: name.value,
+		type: type.value as NATRule["type"],
+		enabled: props.rule?.enabled ?? true,
+	};
 
-  if (showPortForwardFields.value) {
-    rule.protocol = protocol.value;
-    rule.external_port = Number(external_port.value);
-    rule.internal_ip = internal_ip.value;
-    rule.internal_port = Number(internal_port.value);
-  } else if (showSnatFields.value) {
-    rule.source_ip = source_ip.value;
-    rule.target_ip = target_ip.value;
-  } else if (showDnatFields.value) {
-    rule.external_port = Number(external_port.value);
-    rule.internal_ip = internal_ip.value;
-  }
+	if (showPortForwardFields.value) {
+		rule.protocol = protocol.value;
+		rule.external_port = Number(external_port.value);
+		rule.internal_ip = internal_ip.value;
+		rule.internal_port = Number(internal_port.value);
+	} else if (showSnatFields.value) {
+		rule.source_ip = source_ip.value;
+		rule.target_ip = target_ip.value;
+	} else if (showDnatFields.value) {
+		rule.external_port = Number(external_port.value);
+		rule.internal_ip = internal_ip.value;
+	}
 
-  emit('save', rule);
+	emit("save", rule);
 };
 </script>
 

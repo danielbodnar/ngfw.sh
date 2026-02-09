@@ -1,7 +1,7 @@
 import { contentJson, OpenAPIRoute } from "chanfana";
 import { z } from "zod";
 import type { AppContext } from "../../types";
-import { natRule, natRuleType, natProtocol } from "./base";
+import { natProtocol, natRule, natRuleType } from "./base";
 
 const createBody = z.object({
 	name: z.string().min(1).max(255),

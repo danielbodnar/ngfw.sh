@@ -1,5 +1,5 @@
 import { D1CreateEndpoint } from "chanfana";
-import { HandleArgs } from "../../types";
+import type { HandleArgs } from "../../types";
 import { QosRuleModel } from "./base";
 
 export class QosRuleCreate extends D1CreateEndpoint<HandleArgs> {

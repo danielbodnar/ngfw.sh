@@ -25,8 +25,18 @@ export const wifiRadio = z.object({
 	enabled: z.boolean().default(true),
 	channel: z.number().int().min(1).max(196).describe("WiFi channel (auto = 0)"),
 	channel_width: wifiChannelWidth,
-	tx_power: z.number().int().min(1).max(30).default(20).describe("Transmit power in dBm"),
-	country_code: z.string().length(2).default("US").describe("Two-letter country code"),
+	tx_power: z
+		.number()
+		.int()
+		.min(1)
+		.max(30)
+		.default(20)
+		.describe("Transmit power in dBm"),
+	country_code: z
+		.string()
+		.length(2)
+		.default("US")
+		.describe("Two-letter country code"),
 	updated_at: z.number().int(),
 });
 
@@ -40,9 +50,21 @@ export const wifiNetwork = z.object({
 	enabled: z.boolean().default(true),
 	hidden: z.boolean().default(false).describe("Hide SSID from broadcast"),
 	security_mode: wifiSecurityMode,
-	password: z.string().nullable().describe("WiFi password (null for open networks)"),
-	vlan_id: z.number().int().min(1).max(4094).nullable().describe("VLAN ID (null for default)"),
-	guest_network: z.boolean().default(false).describe("Isolate clients (guest mode)"),
+	password: z
+		.string()
+		.nullable()
+		.describe("WiFi password (null for open networks)"),
+	vlan_id: z
+		.number()
+		.int()
+		.min(1)
+		.max(4094)
+		.nullable()
+		.describe("VLAN ID (null for default)"),
+	guest_network: z
+		.boolean()
+		.default(false)
+		.describe("Isolate clients (guest mode)"),
 	max_clients: z.number().int().min(1).max(250).default(50),
 	created_at: z.number().int(),
 	updated_at: z.number().int(),

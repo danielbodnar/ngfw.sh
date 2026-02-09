@@ -1,7 +1,12 @@
 import { z } from "zod";
 
 /** NAT rule types */
-export const natRuleType = z.enum(["snat", "dnat", "masquerade", "port_forward"]);
+export const natRuleType = z.enum([
+	"snat",
+	"dnat",
+	"masquerade",
+	"port_forward",
+]);
 
 /** Protocol types for NAT rules */
 export const natProtocol = z.enum(["tcp", "udp", "tcp_udp", "icmp", "all"]);

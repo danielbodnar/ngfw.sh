@@ -1,54 +1,55 @@
 <script setup lang="ts">
-import { computed } from 'vue';
-import { useDevices } from '../../composables/useDevices';
-import { usePolling } from '../../composables/usePolling';
-import Spinner from '../ui/Spinner.vue';
-import Button from '../ui/Button.vue';
-import Card from '../ui/Card.vue';
-import Badge from '../ui/Badge.vue';
-import Stat from '../ui/Stat.vue';
+import { computed } from "vue";
+import { useDevices } from "../../composables/useDevices";
+import { usePolling } from "../../composables/usePolling";
+import Badge from "../ui/Badge.vue";
+import Button from "../ui/Button.vue";
+import Card from "../ui/Card.vue";
+import Spinner from "../ui/Spinner.vue";
+import Stat from "../ui/Stat.vue";
 
 // Fetch devices with auto-refresh
 const { data: devices, loading, error, refetch } = useDevices();
 
 // Auto-refresh every 30 seconds
 usePolling({
-  fetcher: refetch,
-  interval: 30000,
-  immediate: false, // Don't fetch immediately since useDevices already does
+	fetcher: refetch,
+	interval: 30000,
+	immediate: false, // Don't fetch immediately since useDevices already does
 });
 
 // Compute aggregate stats from device list
 const stats = computed(() => {
-  const deviceList = devices.value || [];
-  return {
-    activeDevices: deviceList.filter((d) => d.status === 'online').length,
-    totalDevices: deviceList.length,
-    offlineDevices: deviceList.filter((d) => d.status === 'offline').length,
-    provisioningDevices: deviceList.filter((d) => d.status === 'provisioning').length,
-  };
+	const deviceList = devices.value || [];
+	return {
+		activeDevices: deviceList.filter((d) => d.status === "online").length,
+		totalDevices: deviceList.length,
+		offlineDevices: deviceList.filter((d) => d.status === "offline").length,
+		provisioningDevices: deviceList.filter((d) => d.status === "provisioning")
+			.length,
+	};
 });
 
 // Format timestamp to relative time
 const formatRelativeTime = (timestamp: number): string => {
-  const now = Date.now();
-  const diff = now - timestamp;
-  const seconds = Math.floor(diff / 1000);
-  const minutes = Math.floor(seconds / 60);
-  const hours = Math.floor(minutes / 60);
-  const days = Math.floor(hours / 24);
+	const now = Date.now();
+	const diff = now - timestamp;
+	const seconds = Math.floor(diff / 1000);
+	const minutes = Math.floor(seconds / 60);
+	const hours = Math.floor(minutes / 60);
+	const days = Math.floor(hours / 24);
 
-  if (days > 0) return `${days}d ago`;
-  if (hours > 0) return `${hours}h ago`;
-  if (minutes > 0) return `${minutes}m ago`;
-  return 'Just now';
+	if (days > 0) return `${days}d ago`;
+	if (hours > 0) return `${hours}h ago`;
+	if (minutes > 0) return `${minutes}m ago`;
+	return "Just now";
 };
 
 // Get status badge variant
-const getStatusVariant = (status: string): 'success' | 'danger' | 'warning' => {
-  if (status === 'online') return 'success';
-  if (status === 'offline') return 'danger';
-  return 'warning';
+const getStatusVariant = (status: string): "success" | "danger" | "warning" => {
+	if (status === "online") return "success";
+	if (status === "offline") return "danger";
+	return "warning";
 };
 </script>
 

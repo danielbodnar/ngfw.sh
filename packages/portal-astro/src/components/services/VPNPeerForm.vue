@@ -1,61 +1,65 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue';
-import Button from '../ui/Button.vue';
-import Input from '../ui/Input.vue';
-import Toggle from '../ui/Toggle.vue';
+import { ref, watch } from "vue";
+import Button from "../ui/Button.vue";
+import Input from "../ui/Input.vue";
+import Toggle from "../ui/Toggle.vue";
 
 export interface VPNPeerFormData {
-  name: string;
-  allowed_ips: string[];
-  persistent_keepalive: number;
-  enabled: boolean;
+	name: string;
+	allowed_ips: string[];
+	persistent_keepalive: number;
+	enabled: boolean;
 }
 
 const props = defineProps<{
-  isOpen: boolean;
-  peer?: VPNPeerFormData | null;
-  loading?: boolean;
+	isOpen: boolean;
+	peer?: VPNPeerFormData | null;
+	loading?: boolean;
 }>();
 
 const emit = defineEmits<{
-  close: [];
-  save: [peer: VPNPeerFormData];
+	close: [];
+	save: [peer: VPNPeerFormData];
 }>();
 
 const formData = ref<VPNPeerFormData>({
-  name: '',
-  allowed_ips: [],
-  persistent_keepalive: 25,
-  enabled: true,
+	name: "",
+	allowed_ips: [],
+	persistent_keepalive: 25,
+	enabled: true,
 });
 
-const allowedIpsString = ref('10.0.0.2/32');
+const allowedIpsString = ref("10.0.0.2/32");
 
-watch(() => props.peer, (newPeer) => {
-  if (newPeer) {
-    formData.value = { ...newPeer };
-    allowedIpsString.value = newPeer.allowed_ips.join(', ');
-  } else {
-    formData.value = {
-      name: '',
-      allowed_ips: [],
-      persistent_keepalive: 25,
-      enabled: true,
-    };
-    allowedIpsString.value = '10.0.0.2/32';
-  }
-}, { immediate: true });
+watch(
+	() => props.peer,
+	(newPeer) => {
+		if (newPeer) {
+			formData.value = { ...newPeer };
+			allowedIpsString.value = newPeer.allowed_ips.join(", ");
+		} else {
+			formData.value = {
+				name: "",
+				allowed_ips: [],
+				persistent_keepalive: 25,
+				enabled: true,
+			};
+			allowedIpsString.value = "10.0.0.2/32";
+		}
+	},
+	{ immediate: true },
+);
 
 const handleSubmit = () => {
-  formData.value.allowed_ips = allowedIpsString.value
-    .split(',')
-    .map(s => s.trim())
-    .filter(Boolean);
-  emit('save', formData.value);
+	formData.value.allowed_ips = allowedIpsString.value
+		.split(",")
+		.map((s) => s.trim())
+		.filter(Boolean);
+	emit("save", formData.value);
 };
 
 const handleClose = () => {
-  emit('close');
+	emit("close");
 };
 </script>
 

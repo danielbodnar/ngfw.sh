@@ -1,53 +1,53 @@
 <script setup lang="ts">
-import { computed } from 'vue';
-import Card from '../ui/Card.vue';
-import Table from '../ui/Table.vue';
-import Badge from '../ui/Badge.vue';
-import Button from '../ui/Button.vue';
+import { computed } from "vue";
+import Badge from "../ui/Badge.vue";
+import Button from "../ui/Button.vue";
+import Card from "../ui/Card.vue";
+import Table from "../ui/Table.vue";
 
 export interface IPSAlert {
-  id: string;
-  timestamp: string;
-  rule: string;
-  severity: 'low' | 'medium' | 'high' | 'critical';
-  source_ip: string;
-  destination_ip: string;
-  action: 'blocked' | 'logged';
-  details: string;
+	id: string;
+	timestamp: string;
+	rule: string;
+	severity: "low" | "medium" | "high" | "critical";
+	source_ip: string;
+	destination_ip: string;
+	action: "blocked" | "logged";
+	details: string;
 }
 
 const props = defineProps<{
-  alerts: IPSAlert[];
-  loading?: boolean;
+	alerts: IPSAlert[];
+	loading?: boolean;
 }>();
 
 const emit = defineEmits<{
-  dismiss: [alertId: string];
+	dismiss: [alertId: string];
 }>();
 
 const columns = [
-  { key: 'timestamp', label: 'Time' },
-  { key: 'rule', label: 'Rule' },
-  { key: 'severity', label: 'Severity' },
-  { key: 'source_ip', label: 'Source' },
-  { key: 'destination_ip', label: 'Destination' },
-  { key: 'action', label: 'Action' },
-  { key: 'actions_col', label: 'Actions' },
+	{ key: "timestamp", label: "Time" },
+	{ key: "rule", label: "Rule" },
+	{ key: "severity", label: "Severity" },
+	{ key: "source_ip", label: "Source" },
+	{ key: "destination_ip", label: "Destination" },
+	{ key: "action", label: "Action" },
+	{ key: "actions_col", label: "Actions" },
 ];
 
 const getSeverityVariant = (severity: string) => {
-  const variants = {
-    low: 'secondary',
-    medium: 'warning',
-    high: 'error',
-    critical: 'error',
-  };
-  return variants[severity as keyof typeof variants] || 'secondary';
+	const variants = {
+		low: "secondary",
+		medium: "warning",
+		high: "error",
+		critical: "error",
+	};
+	return variants[severity as keyof typeof variants] || "secondary";
 };
 
 const formatTime = (timestamp: string): string => {
-  const date = new Date(timestamp);
-  return date.toLocaleTimeString();
+	const date = new Date(timestamp);
+	return date.toLocaleTimeString();
 };
 </script>
 

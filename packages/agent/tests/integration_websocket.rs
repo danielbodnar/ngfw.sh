@@ -73,7 +73,7 @@ impl MockApiServer {
 async fn test_connection_auth_handshake_success() {
     let config = create_test_config("ws://127.0.0.1:9999/ws");
 
-    let (outbound_tx, mut outbound_rx) = mpsc::channel(10);
+    let (_outbound_tx, outbound_rx) = mpsc::channel(10);
     let (inbound_tx, _inbound_rx) = mpsc::channel::<RpcMessage>(10);
     let (shutdown_tx, shutdown_rx) = watch::channel(false);
 
@@ -130,11 +130,11 @@ async fn test_connection_auth_handshake_success() {
 
 #[tokio::test]
 async fn test_connection_auth_handshake_failure() {
-    let config = create_test_config("ws://127.0.0.1:9998/ws");
+    let _config = create_test_config("ws://127.0.0.1:9998/ws");
 
-    let (_outbound_tx, outbound_rx) = mpsc::channel::<RpcMessage>(10);
-    let (inbound_tx, _inbound_rx) = mpsc::channel::<RpcMessage>(10);
-    let (_shutdown_tx, shutdown_rx) = watch::channel(false);
+    let (_outbound_tx, _outbound_rx) = mpsc::channel::<RpcMessage>(10);
+    let (_inbound_tx, _inbound_rx) = mpsc::channel::<RpcMessage>(10);
+    let (_shutdown_tx, _shutdown_rx) = watch::channel(false);
 
     // Spawn mock server that rejects auth
     let server_task = tokio::spawn(async move {
@@ -157,7 +157,7 @@ async fn test_connection_auth_handshake_failure() {
     tokio::time::sleep(Duration::from_millis(100)).await;
 
     // Connection should fail and retry
-    let conn_task = tokio::spawn(async move {
+    let _conn_task = tokio::spawn(async move {
         // Connection loop will retry with backoff, this is expected behavior
         // Just verify it doesn't panic
     });
@@ -170,11 +170,11 @@ async fn test_connection_auth_handshake_failure() {
 
 #[tokio::test]
 async fn test_ping_pong_keepalive() {
-    let config = create_test_config("ws://127.0.0.1:9997/ws");
+    let _config = create_test_config("ws://127.0.0.1:9997/ws");
 
-    let (_outbound_tx, outbound_rx) = mpsc::channel::<RpcMessage>(10);
-    let (inbound_tx, _inbound_rx) = mpsc::channel::<RpcMessage>(10);
-    let (shutdown_tx, shutdown_rx) = watch::channel(false);
+    let (_outbound_tx, _outbound_rx) = mpsc::channel::<RpcMessage>(10);
+    let (_inbound_tx, _inbound_rx) = mpsc::channel::<RpcMessage>(10);
+    let (shutdown_tx, _shutdown_rx) = watch::channel(false);
 
     let received_pings = Arc::new(Mutex::new(Vec::new()));
     let pings_clone = received_pings.clone();
@@ -232,16 +232,16 @@ async fn test_ping_pong_keepalive() {
 
 #[tokio::test]
 async fn test_reconnection_with_backoff() {
-    let config = create_test_config("ws://127.0.0.1:9996/ws");
+    let _config = create_test_config("ws://127.0.0.1:9996/ws");
 
-    let (_outbound_tx, outbound_rx) = mpsc::channel::<RpcMessage>(10);
-    let (inbound_tx, _inbound_rx) = mpsc::channel::<RpcMessage>(10);
-    let (shutdown_tx, shutdown_rx) = watch::channel(false);
+    let (_outbound_tx, _outbound_rx) = mpsc::channel::<RpcMessage>(10);
+    let (_inbound_tx, _inbound_rx) = mpsc::channel::<RpcMessage>(10);
+    let (shutdown_tx, _shutdown_rx) = watch::channel(false);
 
     let connection_attempts = Arc::new(Mutex::new(0));
     let attempts_clone = connection_attempts.clone();
 
-    let server_task = tokio::spawn(async move {
+    let _server_task = tokio::spawn(async move {
         let listener = TcpListener::bind("127.0.0.1:9996").await.unwrap();
 
         // Accept first connection and immediately close it
@@ -289,13 +289,13 @@ async fn test_reconnection_with_backoff() {
 
 #[tokio::test]
 async fn test_message_routing_inbound_to_dispatcher() {
-    let config = create_test_config("ws://127.0.0.1:9995/ws");
+    let _config = create_test_config("ws://127.0.0.1:9995/ws");
 
-    let (_outbound_tx, outbound_rx) = mpsc::channel::<RpcMessage>(10);
-    let (inbound_tx, mut inbound_rx) = mpsc::channel::<RpcMessage>(10);
-    let (shutdown_tx, shutdown_rx) = watch::channel(false);
+    let (_outbound_tx, _outbound_rx) = mpsc::channel::<RpcMessage>(10);
+    let (_inbound_tx, mut inbound_rx) = mpsc::channel::<RpcMessage>(10);
+    let (shutdown_tx, _shutdown_rx) = watch::channel(false);
 
-    let server_task = tokio::spawn(async move {
+    let _server_task = tokio::spawn(async move {
         let listener = TcpListener::bind("127.0.0.1:9995").await.unwrap();
         let (stream, _) = listener.accept().await.unwrap();
         let mut ws = accept_async(stream).await.unwrap();
@@ -347,13 +347,13 @@ async fn test_message_routing_inbound_to_dispatcher() {
 
 #[tokio::test]
 async fn test_graceful_shutdown() {
-    let config = create_test_config("ws://127.0.0.1:9994/ws");
+    let _config = create_test_config("ws://127.0.0.1:9994/ws");
 
-    let (_outbound_tx, outbound_rx) = mpsc::channel::<RpcMessage>(10);
-    let (inbound_tx, _inbound_rx) = mpsc::channel::<RpcMessage>(10);
-    let (shutdown_tx, shutdown_rx) = watch::channel(false);
+    let (_outbound_tx, _outbound_rx) = mpsc::channel::<RpcMessage>(10);
+    let (_inbound_tx, _inbound_rx) = mpsc::channel::<RpcMessage>(10);
+    let (shutdown_tx, _shutdown_rx) = watch::channel(false);
 
-    let server_task = tokio::spawn(async move {
+    let _server_task = tokio::spawn(async move {
         let listener = TcpListener::bind("127.0.0.1:9994").await.unwrap();
         let (stream, _) = listener.accept().await.unwrap();
         let mut ws = accept_async(stream).await.unwrap();

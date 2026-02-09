@@ -1,43 +1,43 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
-import { usePolling } from '../../composables/usePolling';
-import Spinner from '../ui/Spinner.vue';
-import Button from '../ui/Button.vue';
-import Card from '../ui/Card.vue';
-import Badge from '../ui/Badge.vue';
-import Input from '../ui/Input.vue';
-import Select from '../ui/Select.vue';
-import Toggle from '../ui/Toggle.vue';
-import { z } from 'zod';
+import { onMounted, ref } from "vue";
+import { z } from "zod";
+import { usePolling } from "../../composables/usePolling";
+import Badge from "../ui/Badge.vue";
+import Button from "../ui/Button.vue";
+import Card from "../ui/Card.vue";
+import Input from "../ui/Input.vue";
+import Select from "../ui/Select.vue";
+import Spinner from "../ui/Spinner.vue";
+import Toggle from "../ui/Toggle.vue";
 
 /**
  * WiFi network schema for validation.
  */
 const WiFiNetworkSchema = z.object({
-  id: z.string(),
-  ssid: z.string().min(1).max(32),
-  band: z.enum(['2.4GHz', '5GHz', 'both']),
-  channel: z.number().min(1).max(165),
-  width: z.enum(['20MHz', '40MHz', '80MHz', '160MHz']),
-  security: z.enum(['none', 'WPA2', 'WPA3', 'WPA2/WPA3']),
-  password: z.string().min(8).optional(),
-  clients: z.number(),
-  signal: z.number(),
-  hidden: z.boolean(),
-  enabled: z.boolean(),
-  vlan: z.number().optional(),
-  isolated: z.boolean().optional(),
+	id: z.string(),
+	ssid: z.string().min(1).max(32),
+	band: z.enum(["2.4GHz", "5GHz", "both"]),
+	channel: z.number().min(1).max(165),
+	width: z.enum(["20MHz", "40MHz", "80MHz", "160MHz"]),
+	security: z.enum(["none", "WPA2", "WPA3", "WPA2/WPA3"]),
+	password: z.string().min(8).optional(),
+	clients: z.number(),
+	signal: z.number(),
+	hidden: z.boolean(),
+	enabled: z.boolean(),
+	vlan: z.number().optional(),
+	isolated: z.boolean().optional(),
 });
 
 type WiFiNetwork = z.infer<typeof WiFiNetworkSchema>;
 
 interface RadioConfig {
-  band: '2.4GHz' | '5GHz';
-  enabled: boolean;
-  channel: number;
-  width: string;
-  tx_power: number;
-  country_code: string;
+	band: "2.4GHz" | "5GHz";
+	enabled: boolean;
+	channel: number;
+	width: string;
+	tx_power: number;
+	country_code: string;
 }
 
 const loading = ref(true);
@@ -53,199 +53,202 @@ const validationErrors = ref<Record<string, string>>({});
  * Uses mock data as backend endpoints don't exist yet.
  */
 async function fetchData(): Promise<void> {
-  loading.value = true;
-  error.value = null;
+	loading.value = true;
+	error.value = null;
 
-  try {
-    // TODO: Replace with real API call when backend is ready
-    // const api = useApi();
-    // const [networksData, radiosData] = await Promise.all([
-    //   api.getWiFiNetworks(),
-    //   api.getWiFiRadios(),
-    // ]);
-    // networks.value = networksData;
-    // radios.value = radiosData;
+	try {
+		// TODO: Replace with real API call when backend is ready
+		// const api = useApi();
+		// const [networksData, radiosData] = await Promise.all([
+		//   api.getWiFiNetworks(),
+		//   api.getWiFiRadios(),
+		// ]);
+		// networks.value = networksData;
+		// radios.value = radiosData;
 
-    // Mock data for now
-    await new Promise(resolve => setTimeout(resolve, 500));
+		// Mock data for now
+		await new Promise((resolve) => setTimeout(resolve, 500));
 
-    networks.value = [
-      {
-        id: '1',
-        ssid: 'NGFW.sh-5G',
-        band: '5GHz',
-        channel: 149,
-        width: '80MHz',
-        security: 'WPA3',
-        password: '********',
-        clients: 18,
-        signal: -42,
-        hidden: false,
-        enabled: true,
-      },
-      {
-        id: '2',
-        ssid: 'NGFW.sh-2G',
-        band: '2.4GHz',
-        channel: 6,
-        width: '40MHz',
-        security: 'WPA2/WPA3',
-        password: '********',
-        clients: 12,
-        signal: -38,
-        hidden: false,
-        enabled: true,
-      },
-      {
-        id: '3',
-        ssid: 'IoT-Network',
-        band: '2.4GHz',
-        channel: 11,
-        width: '20MHz',
-        security: 'WPA2',
-        password: '********',
-        clients: 8,
-        signal: -45,
-        hidden: false,
-        enabled: true,
-        vlan: 10,
-      },
-      {
-        id: '4',
-        ssid: 'Guest-Network',
-        band: '2.4GHz',
-        channel: 6,
-        width: '20MHz',
-        security: 'WPA2',
-        password: '********',
-        clients: 2,
-        signal: -48,
-        hidden: false,
-        enabled: true,
-        isolated: true,
-        vlan: 20,
-      },
-    ];
+		networks.value = [
+			{
+				id: "1",
+				ssid: "NGFW.sh-5G",
+				band: "5GHz",
+				channel: 149,
+				width: "80MHz",
+				security: "WPA3",
+				password: "********",
+				clients: 18,
+				signal: -42,
+				hidden: false,
+				enabled: true,
+			},
+			{
+				id: "2",
+				ssid: "NGFW.sh-2G",
+				band: "2.4GHz",
+				channel: 6,
+				width: "40MHz",
+				security: "WPA2/WPA3",
+				password: "********",
+				clients: 12,
+				signal: -38,
+				hidden: false,
+				enabled: true,
+			},
+			{
+				id: "3",
+				ssid: "IoT-Network",
+				band: "2.4GHz",
+				channel: 11,
+				width: "20MHz",
+				security: "WPA2",
+				password: "********",
+				clients: 8,
+				signal: -45,
+				hidden: false,
+				enabled: true,
+				vlan: 10,
+			},
+			{
+				id: "4",
+				ssid: "Guest-Network",
+				band: "2.4GHz",
+				channel: 6,
+				width: "20MHz",
+				security: "WPA2",
+				password: "********",
+				clients: 2,
+				signal: -48,
+				hidden: false,
+				enabled: true,
+				isolated: true,
+				vlan: 20,
+			},
+		];
 
-    radios.value = [
-      {
-        band: '5GHz',
-        enabled: true,
-        channel: 149,
-        width: '80MHz',
-        tx_power: 20,
-        country_code: 'US',
-      },
-      {
-        band: '2.4GHz',
-        enabled: true,
-        channel: 6,
-        width: '40MHz',
-        tx_power: 20,
-        country_code: 'US',
-      },
-    ];
-  } catch (err) {
-    error.value = err instanceof Error ? err.message : 'Failed to fetch WiFi configuration';
-  } finally {
-    loading.value = false;
-  }
+		radios.value = [
+			{
+				band: "5GHz",
+				enabled: true,
+				channel: 149,
+				width: "80MHz",
+				tx_power: 20,
+				country_code: "US",
+			},
+			{
+				band: "2.4GHz",
+				enabled: true,
+				channel: 6,
+				width: "40MHz",
+				tx_power: 20,
+				country_code: "US",
+			},
+		];
+	} catch (err) {
+		error.value =
+			err instanceof Error ? err.message : "Failed to fetch WiFi configuration";
+	} finally {
+		loading.value = false;
+	}
 }
 
 /**
  * Toggle network enabled state.
  */
 async function toggleNetwork(networkId: string): Promise<void> {
-  const network = networks.value.find(n => n.id === networkId);
-  if (!network) return;
+	const network = networks.value.find((n) => n.id === networkId);
+	if (!network) return;
 
-  network.enabled = !network.enabled;
+	network.enabled = !network.enabled;
 
-  try {
-    // TODO: Replace with real API call when backend is ready
-    // const api = useApi();
-    // await api.updateWiFiNetwork(networkId, { enabled: network.enabled });
+	try {
+		// TODO: Replace with real API call when backend is ready
+		// const api = useApi();
+		// await api.updateWiFiNetwork(networkId, { enabled: network.enabled });
 
-    await new Promise(resolve => setTimeout(resolve, 500));
-  } catch (err) {
-    error.value = err instanceof Error ? err.message : 'Failed to update network';
-    network.enabled = !network.enabled;
-  }
+		await new Promise((resolve) => setTimeout(resolve, 500));
+	} catch (err) {
+		error.value =
+			err instanceof Error ? err.message : "Failed to update network";
+		network.enabled = !network.enabled;
+	}
 }
 
 /**
  * Save radio configuration.
  */
 async function saveRadioConfig(): Promise<void> {
-  saving.value = true;
-  error.value = null;
+	saving.value = true;
+	error.value = null;
 
-  try {
-    // TODO: Replace with real API call when backend is ready
-    // const api = useApi();
-    // await api.updateWiFiRadios(radios.value);
+	try {
+		// TODO: Replace with real API call when backend is ready
+		// const api = useApi();
+		// await api.updateWiFiRadios(radios.value);
 
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    await fetchData();
-  } catch (err) {
-    error.value = err instanceof Error ? err.message : 'Failed to save radio configuration';
-  } finally {
-    saving.value = false;
-  }
+		await new Promise((resolve) => setTimeout(resolve, 1000));
+		await fetchData();
+	} catch (err) {
+		error.value =
+			err instanceof Error ? err.message : "Failed to save radio configuration";
+	} finally {
+		saving.value = false;
+	}
 }
 
 /**
  * Get signal strength badge variant.
  */
-function getSignalVariant(signal: number): 'success' | 'warning' | 'danger' {
-  if (signal > -50) return 'success';
-  if (signal > -70) return 'warning';
-  return 'danger';
+function getSignalVariant(signal: number): "success" | "warning" | "danger" {
+	if (signal > -50) return "success";
+	if (signal > -70) return "warning";
+	return "danger";
 }
 
 /**
  * Get signal strength label.
  */
 function getSignalLabel(signal: number): string {
-  if (signal > -50) return 'Excellent';
-  if (signal > -60) return 'Good';
-  if (signal > -70) return 'Fair';
-  return 'Poor';
+	if (signal > -50) return "Excellent";
+	if (signal > -60) return "Good";
+	if (signal > -70) return "Fair";
+	return "Poor";
 }
 
 const channelOptions5GHz = [
-  { value: 36, label: 'Channel 36 (5180 MHz)' },
-  { value: 40, label: 'Channel 40 (5200 MHz)' },
-  { value: 44, label: 'Channel 44 (5220 MHz)' },
-  { value: 48, label: 'Channel 48 (5240 MHz)' },
-  { value: 149, label: 'Channel 149 (5745 MHz)' },
-  { value: 153, label: 'Channel 153 (5765 MHz)' },
-  { value: 157, label: 'Channel 157 (5785 MHz)' },
-  { value: 161, label: 'Channel 161 (5805 MHz)' },
+	{ value: 36, label: "Channel 36 (5180 MHz)" },
+	{ value: 40, label: "Channel 40 (5200 MHz)" },
+	{ value: 44, label: "Channel 44 (5220 MHz)" },
+	{ value: 48, label: "Channel 48 (5240 MHz)" },
+	{ value: 149, label: "Channel 149 (5745 MHz)" },
+	{ value: 153, label: "Channel 153 (5765 MHz)" },
+	{ value: 157, label: "Channel 157 (5785 MHz)" },
+	{ value: 161, label: "Channel 161 (5805 MHz)" },
 ];
 
 const channelOptions24GHz = [
-  { value: 1, label: 'Channel 1 (2412 MHz)' },
-  { value: 6, label: 'Channel 6 (2437 MHz)' },
-  { value: 11, label: 'Channel 11 (2462 MHz)' },
+	{ value: 1, label: "Channel 1 (2412 MHz)" },
+	{ value: 6, label: "Channel 6 (2437 MHz)" },
+	{ value: 11, label: "Channel 11 (2462 MHz)" },
 ];
 
 const widthOptions = [
-  { value: '20MHz', label: '20 MHz' },
-  { value: '40MHz', label: '40 MHz' },
-  { value: '80MHz', label: '80 MHz' },
-  { value: '160MHz', label: '160 MHz' },
+	{ value: "20MHz", label: "20 MHz" },
+	{ value: "40MHz", label: "40 MHz" },
+	{ value: "80MHz", label: "80 MHz" },
+	{ value: "160MHz", label: "160 MHz" },
 ];
 
 onMounted(() => {
-  void fetchData();
+	void fetchData();
 });
 
 // Auto-refresh every 30 seconds
 usePolling({
-  fetcher: fetchData,
-  interval: 30000,
-  immediate: false,
+	fetcher: fetchData,
+	interval: 30000,
+	immediate: false,
 });
 </script>
 

@@ -89,11 +89,10 @@ async fn test_metrics_loop_interval_timing() {
     let mut timestamps = Vec::new();
 
     for _ in 0..3 {
-        if let Ok(Some(msg)) = timeout(Duration::from_secs(5), outbound_rx.recv()).await {
-            if let Ok(metrics) = serde_json::from_value::<MetricsPayload>(msg.payload) {
+        if let Ok(Some(msg)) = timeout(Duration::from_secs(5), outbound_rx.recv()).await
+            && let Ok(metrics) = serde_json::from_value::<MetricsPayload>(msg.payload) {
                 timestamps.push(metrics.timestamp);
             }
-        }
     }
 
     assert_eq!(timestamps.len(), 3, "Should receive 3 metrics");
@@ -104,12 +103,12 @@ async fn test_metrics_loop_interval_timing() {
 
     // Allow some tolerance (0.5s - 2s)
     assert!(
-        interval1 >= 0 && interval1 <= 3,
+        (0..=3).contains(&interval1),
         "First interval should be ~1s, got {}s",
         interval1
     );
     assert!(
-        interval2 >= 0 && interval2 <= 3,
+        (0..=3).contains(&interval2),
         "Second interval should be ~1s, got {}s",
         interval2
     );
@@ -226,7 +225,7 @@ async fn test_metrics_interfaces_structure() {
         );
 
         // If interfaces exist, verify structure
-        for (_name, rates) in &metrics.interfaces {
+        for rates in metrics.interfaces.values() {
             assert!(rates.rx_rate >= 0, "RX rate should be non-negative");
             assert!(rates.tx_rate >= 0, "TX rate should be non-negative");
         }
@@ -356,11 +355,10 @@ async fn test_metrics_multiple_collections() {
     // Collect 5 metrics
     let mut collected = Vec::new();
     for _ in 0..5 {
-        if let Ok(Some(msg)) = timeout(Duration::from_secs(3), outbound_rx.recv()).await {
-            if let Ok(metrics) = serde_json::from_value::<MetricsPayload>(msg.payload) {
+        if let Ok(Some(msg)) = timeout(Duration::from_secs(3), outbound_rx.recv()).await
+            && let Ok(metrics) = serde_json::from_value::<MetricsPayload>(msg.payload) {
                 collected.push(metrics);
             }
-        }
     }
 
     assert_eq!(collected.len(), 5, "Should collect 5 metrics");

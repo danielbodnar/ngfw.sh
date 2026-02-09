@@ -35,11 +35,16 @@ export class QosConfigRead extends OpenAPIRoute {
 		const db = c.env.DB;
 
 		const row = await db
-			.prepare("SELECT id, enabled, algorithm, wan_upload_kbps, wan_download_kbps, updated_at FROM qos_config WHERE id = 1")
+			.prepare(
+				"SELECT id, enabled, algorithm, wan_upload_kbps, wan_download_kbps, updated_at FROM qos_config WHERE id = 1",
+			)
 			.first();
 
 		if (!row) {
-			return c.json({ success: false, error: "QoS configuration not found" }, 404);
+			return c.json(
+				{ success: false, error: "QoS configuration not found" },
+				404,
+			);
 		}
 
 		return {

@@ -1,19 +1,19 @@
 <script setup lang="ts">
-import Card from '../ui/Card.vue';
+import Card from "../ui/Card.vue";
 
 export interface Dashboard {
-  id: string;
-  name: string;
-  description: string;
-  icon: string;
+	id: string;
+	name: string;
+	description: string;
+	icon: string;
 }
 
 const props = defineProps<{
-  dashboards: Dashboard[];
+	dashboards: Dashboard[];
 }>();
 
 const navigateToDashboard = (id: string) => {
-  window.location.href = `/monitoring/dashboards/${id}`;
+	window.location.href = `/monitoring/dashboards/${id}`;
 };
 </script>
 

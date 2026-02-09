@@ -25,28 +25,26 @@ export const RouterOptionSchema = z.object({
 	specs: RouterSpecSchema.describe("Hardware specifications"),
 	features: z.array(z.string()).describe("Key features list"),
 	image: z.string().url().describe("Product image URL"),
-	recommended: z.boolean().optional().describe("Whether this is a recommended option"),
+	recommended: z
+		.boolean()
+		.optional()
+		.describe("Whether this is a recommended option"),
 	inStock: z.boolean().describe("Stock availability"),
 });
 
 /**
  * WAN connection type options
  */
-export const WANTypeEnum = z.enum([
-	"dhcp",
-	"static",
-	"pppoe",
-	"lte",
-]).describe("WAN connection type");
+export const WANTypeEnum = z
+	.enum(["dhcp", "static", "pppoe", "lte"])
+	.describe("WAN connection type");
 
 /**
  * Security preset options
  */
-export const SecurityPresetEnum = z.enum([
-	"standard",
-	"strict",
-	"custom",
-]).describe("Security preset level");
+export const SecurityPresetEnum = z
+	.enum(["standard", "strict", "custom"])
+	.describe("Security preset level");
 
 /**
  * Onboarding configuration schema
@@ -56,46 +54,59 @@ export const OnboardingConfigSchema = z.object({
 	deviceName: z.string().min(3).max(50).describe("Device friendly name"),
 
 	// Shipping information
-	shippingAddress: z.object({
-		fullName: z.string().min(2).describe("Full name"),
-		addressLine1: z.string().min(5).describe("Street address"),
-		addressLine2: z.string().optional().describe("Apartment, suite, etc"),
-		city: z.string().min(2).describe("City"),
-		state: z.string().min(2).max(2).describe("State (2-letter code)"),
-		zipCode: z.string().min(5).max(10).describe("ZIP or postal code"),
-		country: z.string().default("US").describe("Country code"),
-		phoneNumber: z.string().min(10).describe("Contact phone number"),
-	}).describe("Shipping address"),
+	shippingAddress: z
+		.object({
+			fullName: z.string().min(2).describe("Full name"),
+			addressLine1: z.string().min(5).describe("Street address"),
+			addressLine2: z.string().optional().describe("Apartment, suite, etc"),
+			city: z.string().min(2).describe("City"),
+			state: z.string().min(2).max(2).describe("State (2-letter code)"),
+			zipCode: z.string().min(5).max(10).describe("ZIP or postal code"),
+			country: z.string().default("US").describe("Country code"),
+			phoneNumber: z.string().min(10).describe("Contact phone number"),
+		})
+		.describe("Shipping address"),
 
 	// WiFi configuration
-	wifiConfig: z.object({
-		ssid: z.string().min(1).max(32).describe("WiFi network name (SSID)"),
-		password: z.string().min(8).max(63).describe("WiFi password (WPA2/WPA3)"),
-		hideSsid: z.boolean().default(false).describe("Hide SSID from broadcast"),
-	}).describe("WiFi network configuration"),
+	wifiConfig: z
+		.object({
+			ssid: z.string().min(1).max(32).describe("WiFi network name (SSID)"),
+			password: z.string().min(8).max(63).describe("WiFi password (WPA2/WPA3)"),
+			hideSsid: z.boolean().default(false).describe("Hide SSID from broadcast"),
+		})
+		.describe("WiFi network configuration"),
 
 	// WAN configuration
 	wanType: WANTypeEnum,
-	wanConfig: z.object({
-		// For PPPoE
-		username: z.string().optional().describe("PPPoE username"),
-		password: z.string().optional().describe("PPPoE password"),
-		// For static IP
-		ipAddress: z.string().optional().describe("Static IP address"),
-		subnet: z.string().optional().describe("Subnet mask"),
-		gateway: z.string().optional().describe("Gateway IP"),
-		dns1: z.string().optional().describe("Primary DNS"),
-		dns2: z.string().optional().describe("Secondary DNS"),
-	}).optional().describe("WAN-specific configuration"),
+	wanConfig: z
+		.object({
+			// For PPPoE
+			username: z.string().optional().describe("PPPoE username"),
+			password: z.string().optional().describe("PPPoE password"),
+			// For static IP
+			ipAddress: z.string().optional().describe("Static IP address"),
+			subnet: z.string().optional().describe("Subnet mask"),
+			gateway: z.string().optional().describe("Gateway IP"),
+			dns1: z.string().optional().describe("Primary DNS"),
+			dns2: z.string().optional().describe("Secondary DNS"),
+		})
+		.optional()
+		.describe("WAN-specific configuration"),
 
 	// Admin access
 	adminPassword: z.string().min(8).describe("Router admin password"),
 
 	// Security settings
 	securityPreset: SecurityPresetEnum,
-	enableIPS: z.boolean().default(true).describe("Enable Intrusion Prevention System"),
+	enableIPS: z
+		.boolean()
+		.default(true)
+		.describe("Enable Intrusion Prevention System"),
 	enableDNSFilter: z.boolean().default(true).describe("Enable DNS filtering"),
-	enableAutoUpdates: z.boolean().default(true).describe("Enable automatic firmware updates"),
+	enableAutoUpdates: z
+		.boolean()
+		.default(true)
+		.describe("Enable automatic firmware updates"),
 });
 
 /**
@@ -104,7 +115,10 @@ export const OnboardingConfigSchema = z.object({
 export const OrderSubmissionSchema = z.object({
 	routerId: z.string().describe("Selected router ID"),
 	config: OnboardingConfigSchema.describe("Device configuration"),
-	subscriptionPlan: z.enum(["free", "pro", "enterprise"]).default("free").describe("Selected subscription plan"),
+	subscriptionPlan: z
+		.enum(["free", "pro", "enterprise"])
+		.default("free")
+		.describe("Selected subscription plan"),
 });
 
 /**
@@ -116,7 +130,9 @@ export const OrderResponseSchema = z.object({
 	estimatedDelivery: z.string().describe("Estimated delivery date (ISO 8601)"),
 	trackingUrl: z.string().url().optional().describe("Shipping tracking URL"),
 	setupInstructions: z.string().url().describe("Setup instructions URL"),
-	status: z.enum(["pending", "processing", "shipped", "delivered"]).describe("Order status"),
+	status: z
+		.enum(["pending", "processing", "shipped", "delivered"])
+		.describe("Order status"),
 	createdAt: z.string().describe("Order creation timestamp"),
 });
 
@@ -128,15 +144,18 @@ export const OnboardingStatusSchema = z.object({
 	orderId: z.string().optional().describe("Order ID if exists"),
 	deviceId: z.string().optional().describe("Device ID if provisioned"),
 	deviceOnline: z.boolean().optional().describe("Whether device is online"),
-	currentStep: z.enum([
-		"router_selection",
-		"configuration",
-		"order_placed",
-		"device_shipped",
-		"device_delivered",
-		"device_connected",
-		"complete",
-	]).optional().describe("Current onboarding step"),
+	currentStep: z
+		.enum([
+			"router_selection",
+			"configuration",
+			"order_placed",
+			"device_shipped",
+			"device_delivered",
+			"device_connected",
+			"complete",
+		])
+		.optional()
+		.describe("Current onboarding step"),
 	lastUpdated: z.string().describe("Last status update timestamp"),
 });
 

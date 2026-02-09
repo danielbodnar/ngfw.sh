@@ -1,7 +1,7 @@
 import { contentJson, OpenAPIRoute } from "chanfana";
 import { z } from "zod";
 import type { AppContext } from "../../types";
-import { ipsCategory, ipsModeEnum, IPS_CATEGORIES } from "./base";
+import { IPS_CATEGORIES, ipsCategory, ipsModeEnum } from "./base";
 
 export class IpsCategoryUpdate extends OpenAPIRoute {
 	schema = {
@@ -65,7 +65,10 @@ export class IpsCategoryUpdate extends OpenAPIRoute {
 			mode,
 		};
 
-		await configsKv.put(`ips_categories:${userId}`, JSON.stringify(customSettings));
+		await configsKv.put(
+			`ips_categories:${userId}`,
+			JSON.stringify(customSettings),
+		);
 
 		return {
 			success: true,

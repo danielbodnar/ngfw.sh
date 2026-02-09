@@ -11,7 +11,9 @@ export class UpnpList extends OpenAPIRoute {
 		security: [{ bearerAuth: [] }],
 		request: {
 			query: z.object({
-				device_id: z.string() /* TODO: UUID validation */.optional(),
+				device_id: z
+					.string() /* TODO: UUID validation */
+					.optional(),
 			}),
 		},
 		responses: {

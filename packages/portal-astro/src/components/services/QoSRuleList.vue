@@ -1,50 +1,50 @@
 <script setup lang="ts">
-import { computed } from 'vue';
-import Button from '../ui/Button.vue';
-import Badge from '../ui/Badge.vue';
-import Card from '../ui/Card.vue';
-import Toggle from '../ui/Toggle.vue';
+import { computed } from "vue";
+import Badge from "../ui/Badge.vue";
+import Button from "../ui/Button.vue";
+import Card from "../ui/Card.vue";
+import Toggle from "../ui/Toggle.vue";
 
 export interface QoSRule {
-  id: string;
-  name: string;
-  enabled: boolean;
-  priority: number;
-  source?: string;
-  destination?: string;
-  protocol?: string;
-  port?: string;
-  download_limit?: number;
-  upload_limit?: number;
-  class_type: 'high' | 'medium' | 'low' | 'custom';
+	id: string;
+	name: string;
+	enabled: boolean;
+	priority: number;
+	source?: string;
+	destination?: string;
+	protocol?: string;
+	port?: string;
+	download_limit?: number;
+	upload_limit?: number;
+	class_type: "high" | "medium" | "low" | "custom";
 }
 
 const props = defineProps<{
-  rules: QoSRule[];
-  loading?: boolean;
+	rules: QoSRule[];
+	loading?: boolean;
 }>();
 
 const emit = defineEmits<{
-  add: [];
-  edit: [rule: QoSRule];
-  delete: [ruleId: string];
-  toggle: [ruleId: string, enabled: boolean];
-  reorder: [rules: QoSRule[]];
+	add: [];
+	edit: [rule: QoSRule];
+	delete: [ruleId: string];
+	toggle: [ruleId: string, enabled: boolean];
+	reorder: [rules: QoSRule[]];
 }>();
 
 const formatBandwidth = (mbps?: number) => {
-  if (!mbps) return 'Unlimited';
-  return `${mbps} Mbps`;
+	if (!mbps) return "Unlimited";
+	return `${mbps} Mbps`;
 };
 
-const getClassBadge = (classType: QoSRule['class_type']) => {
-  const badges = {
-    high: { variant: 'success' as const, text: 'High Priority' },
-    medium: { variant: 'warning' as const, text: 'Medium Priority' },
-    low: { variant: 'default' as const, text: 'Low Priority' },
-    custom: { variant: 'default' as const, text: 'Custom' },
-  };
-  return badges[classType];
+const getClassBadge = (classType: QoSRule["class_type"]) => {
+	const badges = {
+		high: { variant: "success" as const, text: "High Priority" },
+		medium: { variant: "warning" as const, text: "Medium Priority" },
+		low: { variant: "default" as const, text: "Low Priority" },
+		custom: { variant: "default" as const, text: "Custom" },
+	};
+	return badges[classType];
 };
 </script>
 

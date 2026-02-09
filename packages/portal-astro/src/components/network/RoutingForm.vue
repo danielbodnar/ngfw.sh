@@ -1,45 +1,45 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-import Button from '../ui/Button.vue';
-import Input from '../ui/Input.vue';
-import Select from '../ui/Select.vue';
-import Card from '../ui/Card.vue';
-import type { Route } from './RoutingTable.vue';
+import { ref } from "vue";
+import Button from "../ui/Button.vue";
+import Card from "../ui/Card.vue";
+import Input from "../ui/Input.vue";
+import Select from "../ui/Select.vue";
+import type { Route } from "./RoutingTable.vue";
 
 const props = defineProps<{
-  route?: Route | null;
-  loading?: boolean;
+	route?: Route | null;
+	loading?: boolean;
 }>();
 
 const emit = defineEmits<{
-  save: [route: Route];
-  cancel: [];
+	save: [route: Route];
+	cancel: [];
 }>();
 
-const destination = ref(props.route?.destination || '');
-const gateway = ref(props.route?.gateway || '');
-const interfaceName = ref(props.route?.interface || 'eth0');
+const destination = ref(props.route?.destination || "");
+const gateway = ref(props.route?.gateway || "");
+const interfaceName = ref(props.route?.interface || "eth0");
 const metric = ref(props.route?.metric || 10);
-const description = ref(props.route?.description || '');
+const description = ref(props.route?.description || "");
 
 const interfaceOptions = [
-  { value: 'eth0', label: 'eth0 - WAN' },
-  { value: 'eth1', label: 'eth1 - LAN1' },
-  { value: 'eth2', label: 'eth2 - LAN2' },
-  { value: 'br0', label: 'br0 - Bridge' },
-  { value: 'wg0', label: 'wg0 - VPN' },
+	{ value: "eth0", label: "eth0 - WAN" },
+	{ value: "eth1", label: "eth1 - LAN1" },
+	{ value: "eth2", label: "eth2 - LAN2" },
+	{ value: "br0", label: "br0 - Bridge" },
+	{ value: "wg0", label: "wg0 - VPN" },
 ];
 
 const handleSave = () => {
-  const route: Route = {
-    id: props.route?.id || Date.now().toString(),
-    destination: destination.value,
-    gateway: gateway.value,
-    interface: interfaceName.value,
-    metric: Number(metric.value),
-    description: description.value,
-  };
-  emit('save', route);
+	const route: Route = {
+		id: props.route?.id || Date.now().toString(),
+		destination: destination.value,
+		gateway: gateway.value,
+		interface: interfaceName.value,
+		metric: Number(metric.value),
+		description: description.value,
+	};
+	emit("save", route);
 };
 </script>
 

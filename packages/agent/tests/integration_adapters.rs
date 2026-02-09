@@ -34,12 +34,12 @@ fn setup_mock_bins() -> PathBuf {
 
 /// Setup mock sysfs directory for tests
 fn setup_mock_sysfs() -> PathBuf {
-    let sysfs_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+    
+
+    PathBuf::from(env!("CARGO_MANIFEST_DIR"))
         .join("tests")
         .join("integration")
-        .join("mock-sysfs");
-
-    sysfs_dir
+        .join("mock-sysfs")
 }
 
 #[tokio::test]
@@ -101,7 +101,7 @@ async fn test_iptables_adapter_validate_invalid_config() {
     let result = adapter.validate(&invalid_config).await;
     assert!(result.is_ok(), "Validate should return, not error");
 
-    let issues = result.unwrap();
+    let _issues = result.unwrap();
     // Depending on adapter implementation, may have validation issues
     // At minimum, should not panic
 }
@@ -317,12 +317,12 @@ async fn test_adapter_apply_and_rollback() {
         ]
     });
 
-    let apply_result = adapter.apply(&test_config, 1).await;
+    let _apply_result = adapter.apply(&test_config, 1).await;
     // Apply may fail in test environment without real iptables
     // Just verify it doesn't panic
 
     // Try rollback
-    let rollback_result = adapter.rollback().await;
+    let _rollback_result = adapter.rollback().await;
     // Rollback may also fail in test env
     // Verify no panic
 }

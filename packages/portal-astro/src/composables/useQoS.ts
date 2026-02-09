@@ -4,28 +4,28 @@
  * @module composables/useQoS
  */
 
-import { ref, onMounted } from 'vue';
-import { useApi } from './useApi';
-import type { QoSRule, QoSRuleCreate, QoSRuleUpdate } from '../lib/api/types';
+import { onMounted, ref } from "vue";
+import type { QoSRule, QoSRuleCreate, QoSRuleUpdate } from "../lib/api/types";
+import { useApi } from "./useApi";
 
 /**
  * Return value from useQoS.
  */
 export interface UseQoSReturn {
-  /** List of QoS rules */
-  data: ReturnType<typeof ref<QoSRule[]>>;
-  /** Loading state */
-  loading: ReturnType<typeof ref<boolean>>;
-  /** Error message if fetch fails */
-  error: ReturnType<typeof ref<string | null>>;
-  /** Manually refetch QoS rules */
-  refetch: () => Promise<void>;
-  /** Create a new QoS rule */
-  create: (data: QoSRuleCreate) => Promise<QoSRule>;
-  /** Update an existing QoS rule */
-  update: (ruleId: string, data: QoSRuleUpdate) => Promise<QoSRule>;
-  /** Delete a QoS rule */
-  remove: (ruleId: string) => Promise<void>;
+	/** List of QoS rules */
+	data: ReturnType<typeof ref<QoSRule[]>>;
+	/** Loading state */
+	loading: ReturnType<typeof ref<boolean>>;
+	/** Error message if fetch fails */
+	error: ReturnType<typeof ref<string | null>>;
+	/** Manually refetch QoS rules */
+	refetch: () => Promise<void>;
+	/** Create a new QoS rule */
+	create: (data: QoSRuleCreate) => Promise<QoSRule>;
+	/** Update an existing QoS rule */
+	update: (ruleId: string, data: QoSRuleUpdate) => Promise<QoSRule>;
+	/** Delete a QoS rule */
+	remove: (ruleId: string) => Promise<void>;
 }
 
 /**
@@ -56,70 +56,75 @@ export interface UseQoSReturn {
  * </script>
  * ```
  */
-export function useQoS(
-  deviceId: ReturnType<typeof ref<string>>,
-): UseQoSReturn {
-  const api = useApi();
-  const data = ref<QoSRule[]>([]);
-  const loading = ref(true);
-  const error = ref<string | null>(null);
+export function useQoS(deviceId: ReturnType<typeof ref<string>>): UseQoSReturn {
+	const api = useApi();
+	const data = ref<QoSRule[]>([]);
+	const loading = ref(true);
+	const error = ref<string | null>(null);
 
-  async function refetch(): Promise<void> {
-    if (!deviceId.value) return;
+	async function refetch(): Promise<void> {
+		if (!deviceId.value) return;
 
-    loading.value = true;
-    error.value = null;
+		loading.value = true;
+		error.value = null;
 
-    try {
-      data.value = await api.listQoSRules(deviceId.value);
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to fetch QoS rules';
-    } finally {
-      loading.value = false;
-    }
-  }
+		try {
+			data.value = await api.listQoSRules(deviceId.value);
+		} catch (err) {
+			error.value =
+				err instanceof Error ? err.message : "Failed to fetch QoS rules";
+		} finally {
+			loading.value = false;
+		}
+	}
 
-  async function create(ruleData: QoSRuleCreate): Promise<QoSRule> {
-    error.value = null;
-    try {
-      return await api.createQoSRule(ruleData);
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to create QoS rule';
-      throw err;
-    }
-  }
+	async function create(ruleData: QoSRuleCreate): Promise<QoSRule> {
+		error.value = null;
+		try {
+			return await api.createQoSRule(ruleData);
+		} catch (err) {
+			error.value =
+				err instanceof Error ? err.message : "Failed to create QoS rule";
+			throw err;
+		}
+	}
 
-  async function update(ruleId: string, ruleData: QoSRuleUpdate): Promise<QoSRule> {
-    error.value = null;
-    try {
-      return await api.updateQoSRule(ruleId, ruleData);
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to update QoS rule';
-      throw err;
-    }
-  }
+	async function update(
+		ruleId: string,
+		ruleData: QoSRuleUpdate,
+	): Promise<QoSRule> {
+		error.value = null;
+		try {
+			return await api.updateQoSRule(ruleId, ruleData);
+		} catch (err) {
+			error.value =
+				err instanceof Error ? err.message : "Failed to update QoS rule";
+			throw err;
+		}
+	}
 
-  async function remove(ruleId: string): Promise<void> {
-    error.value = null;
-    try {
-      await api.deleteQoSRule(ruleId);
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to delete QoS rule';
-      throw err;
-    }
-  }
+	async function remove(ruleId: string): Promise<void> {
+		error.value = null;
+		try {
+			await api.deleteQoSRule(ruleId);
+		} catch (err) {
+			error.value =
+				err instanceof Error ? err.message : "Failed to delete QoS rule";
+			throw err;
+		}
+	}
 
-  onMounted(() => {
-    void refetch();
-  });
+	onMounted(() => {
+		void refetch();
+	});
 
-  return {
-    data,
-    loading,
-    error,
-    refetch,
-    create,
-    update,
-    remove,
-  };
+	return {
+		data,
+		loading,
+		error,
+		refetch,
+		create,
+		update,
+		remove,
+	};
 }

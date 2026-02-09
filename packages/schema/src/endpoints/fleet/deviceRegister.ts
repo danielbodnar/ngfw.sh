@@ -19,7 +19,8 @@ export class DeviceRegister extends OpenAPIRoute {
 		},
 		responses: {
 			"201": {
-				description: "Device registered successfully. The api_key is shown only once.",
+				description:
+					"Device registered successfully. The api_key is shown only once.",
 				...contentJson(
 					z.object({
 						success: z.boolean(),
@@ -60,7 +61,15 @@ export class DeviceRegister extends OpenAPIRoute {
 			.prepare(
 				"INSERT INTO devices (id, name, model, owner_id, api_key, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
 			)
-			.bind(id, body.name, body.model ?? null, userId, apiKey, "provisioning", now)
+			.bind(
+				id,
+				body.name,
+				body.model ?? null,
+				userId,
+				apiKey,
+				"provisioning",
+				now,
+			)
 			.run();
 
 		await Promise.all([

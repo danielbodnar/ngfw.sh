@@ -1,10 +1,10 @@
-import { Hono } from "hono";
 import { fromHono } from "chanfana";
+import { Hono } from "hono";
 import { clerkAuth } from "../../middleware/auth";
 import type { AppBindings, AppVariables } from "../../types";
+import { DeviceDelete } from "./deviceDelete";
 import { DeviceList } from "./deviceList";
 import { DeviceRegister } from "./deviceRegister";
-import { DeviceDelete } from "./deviceDelete";
 import { DeviceStatus } from "./deviceStatus";
 
 const app = new Hono<{ Bindings: AppBindings; Variables: AppVariables }>();

@@ -1,759 +1,702 @@
 {
-  "openapi": "3.1.0",
-  "info": {
-    "title": "NGFW.sh API",
-    "version": "1.0.0",
-    "description": "Next-generation firewall management API for router configuration, monitoring, and fleet management.",
-    "contact": {
-      "name": "NGFW.sh Support",
-      "url": "https://ngfw.sh"
-    },
-    "license": {
-      "name": "MIT",
-      "url": "https://opensource.org/licenses/MIT"
-    }
-  },
-  "servers": [
-    {
-      "url": "https://api.ngfw.sh",
-      "description": "Production API"
-    },
-    {
-      "url": "http://localhost:8787",
-      "description": "Local development"
-    }
-  ],
-  "security": [
-    {
-      "bearerAuth": []
-    }
-  ],
-  "tags": [
-    {
-      "name": "System",
-      "description": "System health, hardware info, and power management"
-    },
-    {
-      "name": "WAN",
-      "description": "WAN connection configuration and status"
-    },
-    {
-      "name": "LAN",
-      "description": "LAN and VLAN configuration"
-    },
-    {
-      "name": "WiFi",
-      "description": "Wireless network and radio configuration"
-    },
-    {
-      "name": "DHCP",
-      "description": "DHCP server, leases, and reservations"
-    },
-    {
-      "name": "Firewall",
-      "description": "Firewall rules, zones, and policies"
-    },
-    {
-      "name": "NAT",
-      "description": "NAT rules and UPnP management"
-    },
-    {
-      "name": "Traffic",
-      "description": "Traffic logs and statistics"
-    },
-    {
-      "name": "DNS",
-      "description": "DNS filtering and blocklists"
-    },
-    {
-      "name": "IDS",
-      "description": "Intrusion detection and prevention"
-    },
-    {
-      "name": "VPN Server",
-      "description": "WireGuard VPN server configuration"
-    },
-    {
-      "name": "VPN Client",
-      "description": "VPN client profiles and connections"
-    },
-    {
-      "name": "QoS",
-      "description": "Quality of Service and traffic shaping"
-    },
-    {
-      "name": "DDNS",
-      "description": "Dynamic DNS configuration"
-    },
-    {
-      "name": "Firmware",
-      "description": "Firmware updates and boot slots"
-    },
-    {
-      "name": "Backup",
-      "description": "Configuration backup and restore"
-    },
-    {
-      "name": "Fleet",
-      "description": "Multi-device fleet management"
-    },
-    {
-      "name": "User",
-      "description": "User profile and authentication"
-    },
-    {
-      "name": "Billing",
-      "description": "Subscription plans and payments"
-    }
-  ],
-  "components": {
-    "schemas": {},
-    "parameters": {}
-  },
-  "paths": {
-    "/tasks": {
-      "get": {
-        "operationId": "get_TaskList",
-        "parameters": [
-          {
-            "schema": {
-              "type": "integer",
-              "minimum": 1,
-              "default": 1
-            },
-            "required": false,
-            "name": "page",
-            "in": "query"
-          },
-          {
-            "schema": {
-              "type": "integer",
-              "minimum": 1,
-              "maximum": 100,
-              "default": 20
-            },
-            "required": false,
-            "name": "per_page",
-            "in": "query"
-          },
-          {
-            "schema": {
-              "type": "string",
-              "description": "Search by name, slug, description"
-            },
-            "required": false,
-            "name": "search",
-            "in": "query"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "List objects",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean"
-                    },
-                    "result": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "id": {
-                            "type": "integer"
-                          },
-                          "name": {
-                            "type": "string"
-                          },
-                          "slug": {
-                            "type": "string"
-                          },
-                          "description": {
-                            "type": "string"
-                          },
-                          "completed": {
-                            "type": "boolean"
-                          },
-                          "due_date": {
-                            "type": "string",
-                            "format": "date-time"
-                          }
-                        },
-                        "required": [
-                          "id",
-                          "name",
-                          "slug",
-                          "description",
-                          "completed",
-                          "due_date"
-                        ]
-                      }
-                    }
-                  },
-                  "required": [
-                    "success",
-                    "result"
-                  ]
-                }
-              }
-            }
-          }
-        }
-      },
-      "post": {
-        "operationId": "post_TaskCreate",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "name": {
-                    "type": "string"
-                  },
-                  "slug": {
-                    "type": "string"
-                  },
-                  "description": {
-                    "type": "string"
-                  },
-                  "completed": {
-                    "type": "boolean"
-                  },
-                  "due_date": {
-                    "type": "string",
-                    "format": "date-time"
-                  }
-                },
-                "required": [
-                  "name",
-                  "slug",
-                  "description",
-                  "completed",
-                  "due_date"
-                ]
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "Returns the created Object",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean"
-                    },
-                    "result": {
-                      "type": "object",
-                      "properties": {
-                        "id": {
-                          "type": "integer"
-                        },
-                        "name": {
-                          "type": "string"
-                        },
-                        "slug": {
-                          "type": "string"
-                        },
-                        "description": {
-                          "type": "string"
-                        },
-                        "completed": {
-                          "type": "boolean"
-                        },
-                        "due_date": {
-                          "type": "string",
-                          "format": "date-time"
-                        }
-                      },
-                      "required": [
-                        "id",
-                        "name",
-                        "slug",
-                        "description",
-                        "completed",
-                        "due_date"
-                      ]
-                    }
-                  },
-                  "required": [
-                    "success",
-                    "result"
-                  ]
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Input Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "enum": [
-                        false
-                      ]
-                    },
-                    "errors": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "code": {
-                            "type": "number",
-                            "example": 7001
-                          },
-                          "message": {
-                            "type": "string",
-                            "example": "Input Validation Error"
-                          },
-                          "path": {
-                            "type": "array",
-                            "items": {
-                              "type": "string",
-                              "example": "body"
-                            }
-                          }
-                        },
-                        "required": [
-                          "code",
-                          "message",
-                          "path"
-                        ]
-                      }
-                    }
-                  },
-                  "required": [
-                    "success",
-                    "errors"
-                  ]
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/tasks/{id}": {
-      "get": {
-        "operationId": "get_TaskRead",
-        "parameters": [
-          {
-            "schema": {
-              "type": "integer"
-            },
-            "required": true,
-            "name": "id",
-            "in": "path"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Returns a single object if found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean"
-                    },
-                    "result": {
-                      "type": "object",
-                      "properties": {
-                        "id": {
-                          "type": "integer"
-                        },
-                        "name": {
-                          "type": "string"
-                        },
-                        "slug": {
-                          "type": "string"
-                        },
-                        "description": {
-                          "type": "string"
-                        },
-                        "completed": {
-                          "type": "boolean"
-                        },
-                        "due_date": {
-                          "type": "string",
-                          "format": "date-time"
-                        }
-                      },
-                      "required": [
-                        "id",
-                        "name",
-                        "slug",
-                        "description",
-                        "completed",
-                        "due_date"
-                      ]
-                    }
-                  },
-                  "required": [
-                    "success",
-                    "result"
-                  ]
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not Found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "enum": [
-                        false
-                      ]
-                    },
-                    "errors": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "code": {
-                            "type": "number",
-                            "example": 7002
-                          },
-                          "message": {
-                            "type": "string",
-                            "example": "Not Found"
-                          }
-                        },
-                        "required": [
-                          "code",
-                          "message"
-                        ]
-                      }
-                    }
-                  },
-                  "required": [
-                    "success",
-                    "errors"
-                  ]
-                }
-              }
-            }
-          }
-        }
-      },
-      "put": {
-        "operationId": "put_TaskUpdate",
-        "parameters": [
-          {
-            "schema": {
-              "type": "integer"
-            },
-            "required": true,
-            "name": "id",
-            "in": "path"
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "name": {
-                    "type": "string"
-                  },
-                  "slug": {
-                    "type": "string"
-                  },
-                  "description": {
-                    "type": "string"
-                  },
-                  "completed": {
-                    "type": "boolean"
-                  },
-                  "due_date": {
-                    "type": "string",
-                    "format": "date-time"
-                  }
-                },
-                "required": [
-                  "name",
-                  "slug",
-                  "description",
-                  "completed",
-                  "due_date"
-                ]
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Returns the updated Object",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean"
-                    },
-                    "result": {
-                      "type": "object",
-                      "properties": {
-                        "id": {
-                          "type": "integer"
-                        },
-                        "name": {
-                          "type": "string"
-                        },
-                        "slug": {
-                          "type": "string"
-                        },
-                        "description": {
-                          "type": "string"
-                        },
-                        "completed": {
-                          "type": "boolean"
-                        },
-                        "due_date": {
-                          "type": "string",
-                          "format": "date-time"
-                        }
-                      },
-                      "required": [
-                        "id",
-                        "name",
-                        "slug",
-                        "description",
-                        "completed",
-                        "due_date"
-                      ]
-                    }
-                  },
-                  "required": [
-                    "success",
-                    "result"
-                  ]
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Input Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "enum": [
-                        false
-                      ]
-                    },
-                    "errors": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "code": {
-                            "type": "number",
-                            "example": 7001
-                          },
-                          "message": {
-                            "type": "string",
-                            "example": "Input Validation Error"
-                          },
-                          "path": {
-                            "type": "array",
-                            "items": {
-                              "type": "string",
-                              "example": "body"
-                            }
-                          }
-                        },
-                        "required": [
-                          "code",
-                          "message",
-                          "path"
-                        ]
-                      }
-                    }
-                  },
-                  "required": [
-                    "success",
-                    "errors"
-                  ]
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not Found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "enum": [
-                        false
-                      ]
-                    },
-                    "errors": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "code": {
-                            "type": "number",
-                            "example": 7002
-                          },
-                          "message": {
-                            "type": "string",
-                            "example": "Not Found"
-                          }
-                        },
-                        "required": [
-                          "code",
-                          "message"
-                        ]
-                      }
-                    }
-                  },
-                  "required": [
-                    "success",
-                    "errors"
-                  ]
-                }
-              }
-            }
-          }
-        }
-      },
-      "delete": {
-        "operationId": "delete_TaskDelete",
-        "parameters": [
-          {
-            "schema": {
-              "type": "integer"
-            },
-            "required": true,
-            "name": "id",
-            "in": "path"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Returns the Object if it was successfully deleted",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean"
-                    },
-                    "result": {
-                      "type": "object",
-                      "properties": {
-                        "id": {
-                          "type": "integer"
-                        },
-                        "name": {
-                          "type": "string"
-                        },
-                        "slug": {
-                          "type": "string"
-                        },
-                        "description": {
-                          "type": "string"
-                        },
-                        "completed": {
-                          "type": "boolean"
-                        },
-                        "due_date": {
-                          "type": "string",
-                          "format": "date-time"
-                        }
-                      },
-                      "required": [
-                        "id",
-                        "name",
-                        "slug",
-                        "description",
-                        "completed",
-                        "due_date"
-                      ]
-                    }
-                  },
-                  "required": [
-                    "success",
-                    "result"
-                  ]
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not Found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "enum": [
-                        false
-                      ]
-                    },
-                    "errors": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "code": {
-                            "type": "number",
-                            "example": 7002
-                          },
-                          "message": {
-                            "type": "string",
-                            "example": "Not Found"
-                          }
-                        },
-                        "required": [
-                          "code",
-                          "message"
-                        ]
-                      }
-                    }
-                  },
-                  "required": [
-                    "success",
-                    "errors"
-                  ]
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  },
-  "webhooks": {}
+	"openapi": "3.1.0",
+	"info": {
+		"title": "NGFW.sh API",
+		"version": "1.0.0",
+		"description": "Next-generation firewall management API for router configuration, monitoring, and fleet management.",
+		"contact": {
+			"name": "NGFW.sh Support",
+			"url": "https://ngfw.sh"
+		},
+		"license": {
+			"name": "MIT",
+			"url": "https://opensource.org/licenses/MIT"
+		}
+	},
+	"servers": [
+		{
+			"url": "https://api.ngfw.sh",
+			"description": "Production API"
+		},
+		{
+			"url": "http://localhost:8787",
+			"description": "Local development"
+		}
+	],
+	"security": [
+		{
+			"bearerAuth": []
+		}
+	],
+	"tags": [
+		{
+			"name": "System",
+			"description": "System health, hardware info, and power management"
+		},
+		{
+			"name": "WAN",
+			"description": "WAN connection configuration and status"
+		},
+		{
+			"name": "LAN",
+			"description": "LAN and VLAN configuration"
+		},
+		{
+			"name": "WiFi",
+			"description": "Wireless network and radio configuration"
+		},
+		{
+			"name": "DHCP",
+			"description": "DHCP server, leases, and reservations"
+		},
+		{
+			"name": "Firewall",
+			"description": "Firewall rules, zones, and policies"
+		},
+		{
+			"name": "NAT",
+			"description": "NAT rules and UPnP management"
+		},
+		{
+			"name": "Traffic",
+			"description": "Traffic logs and statistics"
+		},
+		{
+			"name": "DNS",
+			"description": "DNS filtering and blocklists"
+		},
+		{
+			"name": "IDS",
+			"description": "Intrusion detection and prevention"
+		},
+		{
+			"name": "VPN Server",
+			"description": "WireGuard VPN server configuration"
+		},
+		{
+			"name": "VPN Client",
+			"description": "VPN client profiles and connections"
+		},
+		{
+			"name": "QoS",
+			"description": "Quality of Service and traffic shaping"
+		},
+		{
+			"name": "DDNS",
+			"description": "Dynamic DNS configuration"
+		},
+		{
+			"name": "Firmware",
+			"description": "Firmware updates and boot slots"
+		},
+		{
+			"name": "Backup",
+			"description": "Configuration backup and restore"
+		},
+		{
+			"name": "Fleet",
+			"description": "Multi-device fleet management"
+		},
+		{
+			"name": "User",
+			"description": "User profile and authentication"
+		},
+		{
+			"name": "Billing",
+			"description": "Subscription plans and payments"
+		}
+	],
+	"components": {
+		"schemas": {},
+		"parameters": {}
+	},
+	"paths": {
+		"/tasks": {
+			"get": {
+				"operationId": "get_TaskList",
+				"parameters": [
+					{
+						"schema": {
+							"type": "integer",
+							"minimum": 1,
+							"default": 1
+						},
+						"required": false,
+						"name": "page",
+						"in": "query"
+					},
+					{
+						"schema": {
+							"type": "integer",
+							"minimum": 1,
+							"maximum": 100,
+							"default": 20
+						},
+						"required": false,
+						"name": "per_page",
+						"in": "query"
+					},
+					{
+						"schema": {
+							"type": "string",
+							"description": "Search by name, slug, description"
+						},
+						"required": false,
+						"name": "search",
+						"in": "query"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "List objects",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"success": {
+											"type": "boolean"
+										},
+										"result": {
+											"type": "array",
+											"items": {
+												"type": "object",
+												"properties": {
+													"id": {
+														"type": "integer"
+													},
+													"name": {
+														"type": "string"
+													},
+													"slug": {
+														"type": "string"
+													},
+													"description": {
+														"type": "string"
+													},
+													"completed": {
+														"type": "boolean"
+													},
+													"due_date": {
+														"type": "string",
+														"format": "date-time"
+													}
+												},
+												"required": [
+													"id",
+													"name",
+													"slug",
+													"description",
+													"completed",
+													"due_date"
+												]
+											}
+										}
+									},
+									"required": ["success", "result"]
+								}
+							}
+						}
+					}
+				}
+			},
+			"post": {
+				"operationId": "post_TaskCreate",
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"name": {
+										"type": "string"
+									},
+									"slug": {
+										"type": "string"
+									},
+									"description": {
+										"type": "string"
+									},
+									"completed": {
+										"type": "boolean"
+									},
+									"due_date": {
+										"type": "string",
+										"format": "date-time"
+									}
+								},
+								"required": [
+									"name",
+									"slug",
+									"description",
+									"completed",
+									"due_date"
+								]
+							}
+						}
+					}
+				},
+				"responses": {
+					"201": {
+						"description": "Returns the created Object",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"success": {
+											"type": "boolean"
+										},
+										"result": {
+											"type": "object",
+											"properties": {
+												"id": {
+													"type": "integer"
+												},
+												"name": {
+													"type": "string"
+												},
+												"slug": {
+													"type": "string"
+												},
+												"description": {
+													"type": "string"
+												},
+												"completed": {
+													"type": "boolean"
+												},
+												"due_date": {
+													"type": "string",
+													"format": "date-time"
+												}
+											},
+											"required": [
+												"id",
+												"name",
+												"slug",
+												"description",
+												"completed",
+												"due_date"
+											]
+										}
+									},
+									"required": ["success", "result"]
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Input Validation Error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"success": {
+											"type": "boolean",
+											"enum": [false]
+										},
+										"errors": {
+											"type": "array",
+											"items": {
+												"type": "object",
+												"properties": {
+													"code": {
+														"type": "number",
+														"example": 7001
+													},
+													"message": {
+														"type": "string",
+														"example": "Input Validation Error"
+													},
+													"path": {
+														"type": "array",
+														"items": {
+															"type": "string",
+															"example": "body"
+														}
+													}
+												},
+												"required": ["code", "message", "path"]
+											}
+										}
+									},
+									"required": ["success", "errors"]
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/tasks/{id}": {
+			"get": {
+				"operationId": "get_TaskRead",
+				"parameters": [
+					{
+						"schema": {
+							"type": "integer"
+						},
+						"required": true,
+						"name": "id",
+						"in": "path"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Returns a single object if found",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"success": {
+											"type": "boolean"
+										},
+										"result": {
+											"type": "object",
+											"properties": {
+												"id": {
+													"type": "integer"
+												},
+												"name": {
+													"type": "string"
+												},
+												"slug": {
+													"type": "string"
+												},
+												"description": {
+													"type": "string"
+												},
+												"completed": {
+													"type": "boolean"
+												},
+												"due_date": {
+													"type": "string",
+													"format": "date-time"
+												}
+											},
+											"required": [
+												"id",
+												"name",
+												"slug",
+												"description",
+												"completed",
+												"due_date"
+											]
+										}
+									},
+									"required": ["success", "result"]
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "Not Found",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"success": {
+											"type": "boolean",
+											"enum": [false]
+										},
+										"errors": {
+											"type": "array",
+											"items": {
+												"type": "object",
+												"properties": {
+													"code": {
+														"type": "number",
+														"example": 7002
+													},
+													"message": {
+														"type": "string",
+														"example": "Not Found"
+													}
+												},
+												"required": ["code", "message"]
+											}
+										}
+									},
+									"required": ["success", "errors"]
+								}
+							}
+						}
+					}
+				}
+			},
+			"put": {
+				"operationId": "put_TaskUpdate",
+				"parameters": [
+					{
+						"schema": {
+							"type": "integer"
+						},
+						"required": true,
+						"name": "id",
+						"in": "path"
+					}
+				],
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"name": {
+										"type": "string"
+									},
+									"slug": {
+										"type": "string"
+									},
+									"description": {
+										"type": "string"
+									},
+									"completed": {
+										"type": "boolean"
+									},
+									"due_date": {
+										"type": "string",
+										"format": "date-time"
+									}
+								},
+								"required": [
+									"name",
+									"slug",
+									"description",
+									"completed",
+									"due_date"
+								]
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "Returns the updated Object",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"success": {
+											"type": "boolean"
+										},
+										"result": {
+											"type": "object",
+											"properties": {
+												"id": {
+													"type": "integer"
+												},
+												"name": {
+													"type": "string"
+												},
+												"slug": {
+													"type": "string"
+												},
+												"description": {
+													"type": "string"
+												},
+												"completed": {
+													"type": "boolean"
+												},
+												"due_date": {
+													"type": "string",
+													"format": "date-time"
+												}
+											},
+											"required": [
+												"id",
+												"name",
+												"slug",
+												"description",
+												"completed",
+												"due_date"
+											]
+										}
+									},
+									"required": ["success", "result"]
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Input Validation Error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"success": {
+											"type": "boolean",
+											"enum": [false]
+										},
+										"errors": {
+											"type": "array",
+											"items": {
+												"type": "object",
+												"properties": {
+													"code": {
+														"type": "number",
+														"example": 7001
+													},
+													"message": {
+														"type": "string",
+														"example": "Input Validation Error"
+													},
+													"path": {
+														"type": "array",
+														"items": {
+															"type": "string",
+															"example": "body"
+														}
+													}
+												},
+												"required": ["code", "message", "path"]
+											}
+										}
+									},
+									"required": ["success", "errors"]
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "Not Found",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"success": {
+											"type": "boolean",
+											"enum": [false]
+										},
+										"errors": {
+											"type": "array",
+											"items": {
+												"type": "object",
+												"properties": {
+													"code": {
+														"type": "number",
+														"example": 7002
+													},
+													"message": {
+														"type": "string",
+														"example": "Not Found"
+													}
+												},
+												"required": ["code", "message"]
+											}
+										}
+									},
+									"required": ["success", "errors"]
+								}
+							}
+						}
+					}
+				}
+			},
+			"delete": {
+				"operationId": "delete_TaskDelete",
+				"parameters": [
+					{
+						"schema": {
+							"type": "integer"
+						},
+						"required": true,
+						"name": "id",
+						"in": "path"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Returns the Object if it was successfully deleted",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"success": {
+											"type": "boolean"
+										},
+										"result": {
+											"type": "object",
+											"properties": {
+												"id": {
+													"type": "integer"
+												},
+												"name": {
+													"type": "string"
+												},
+												"slug": {
+													"type": "string"
+												},
+												"description": {
+													"type": "string"
+												},
+												"completed": {
+													"type": "boolean"
+												},
+												"due_date": {
+													"type": "string",
+													"format": "date-time"
+												}
+											},
+											"required": [
+												"id",
+												"name",
+												"slug",
+												"description",
+												"completed",
+												"due_date"
+											]
+										}
+									},
+									"required": ["success", "result"]
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "Not Found",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"success": {
+											"type": "boolean",
+											"enum": [false]
+										},
+										"errors": {
+											"type": "array",
+											"items": {
+												"type": "object",
+												"properties": {
+													"code": {
+														"type": "number",
+														"example": 7002
+													},
+													"message": {
+														"type": "string",
+														"example": "Not Found"
+													}
+												},
+												"required": ["code", "message"]
+											}
+										}
+									},
+									"required": ["success", "errors"]
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	},
+	"webhooks": {}
 }

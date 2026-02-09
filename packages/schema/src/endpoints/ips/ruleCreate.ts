@@ -3,7 +3,11 @@ import { z } from "zod";
 import type { AppContext } from "../../types";
 import { ipsRule } from "./base";
 
-const createFields = ipsRule.omit({ id: true, created_at: true, updated_at: true });
+const createFields = ipsRule.omit({
+	id: true,
+	created_at: true,
+	updated_at: true,
+});
 
 export class IpsRuleCreate extends OpenAPIRoute {
 	schema = {

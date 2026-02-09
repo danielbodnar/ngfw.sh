@@ -4,15 +4,15 @@
  * @module composables/useToast
  */
 
-import { ref } from 'vue';
+import { ref } from "vue";
 
-export type ToastType = 'success' | 'error' | 'warning' | 'info';
+export type ToastType = "success" | "error" | "warning" | "info";
 
 export interface Toast {
-  id: string;
-  type: ToastType;
-  message: string;
-  duration?: number;
+	id: string;
+	type: ToastType;
+	message: string;
+	duration?: number;
 }
 
 const toasts = ref<Toast[]>([]);
@@ -38,49 +38,49 @@ const toasts = ref<Toast[]>([]);
  * ```
  */
 export function useToast() {
-  function showToast(type: ToastType, message: string, duration = 3000): void {
-    const id = `toast-${Date.now()}-${Math.random()}`;
-    const toast: Toast = { id, type, message, duration };
+	function showToast(type: ToastType, message: string, duration = 3000): void {
+		const id = `toast-${Date.now()}-${Math.random()}`;
+		const toast: Toast = { id, type, message, duration };
 
-    toasts.value.push(toast);
+		toasts.value.push(toast);
 
-    if (duration > 0) {
-      setTimeout(() => {
-        removeToast(id);
-      }, duration);
-    }
-  }
+		if (duration > 0) {
+			setTimeout(() => {
+				removeToast(id);
+			}, duration);
+		}
+	}
 
-  function removeToast(id: string): void {
-    const index = toasts.value.findIndex((t) => t.id === id);
-    if (index > -1) {
-      toasts.value.splice(index, 1);
-    }
-  }
+	function removeToast(id: string): void {
+		const index = toasts.value.findIndex((t) => t.id === id);
+		if (index > -1) {
+			toasts.value.splice(index, 1);
+		}
+	}
 
-  function success(message: string, duration?: number): void {
-    showToast('success', message, duration);
-  }
+	function success(message: string, duration?: number): void {
+		showToast("success", message, duration);
+	}
 
-  function error(message: string, duration?: number): void {
-    showToast('error', message, duration);
-  }
+	function error(message: string, duration?: number): void {
+		showToast("error", message, duration);
+	}
 
-  function warning(message: string, duration?: number): void {
-    showToast('warning', message, duration);
-  }
+	function warning(message: string, duration?: number): void {
+		showToast("warning", message, duration);
+	}
 
-  function info(message: string, duration?: number): void {
-    showToast('info', message, duration);
-  }
+	function info(message: string, duration?: number): void {
+		showToast("info", message, duration);
+	}
 
-  return {
-    toasts,
-    showToast,
-    removeToast,
-    success,
-    error,
-    warning,
-    info,
-  };
+	return {
+		toasts,
+		showToast,
+		removeToast,
+		success,
+		error,
+		warning,
+		info,
+	};
 }

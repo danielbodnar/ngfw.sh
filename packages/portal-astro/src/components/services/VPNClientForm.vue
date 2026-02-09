@@ -1,82 +1,86 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue';
-import Button from '../ui/Button.vue';
-import Input from '../ui/Input.vue';
-import Toggle from '../ui/Toggle.vue';
+import { ref, watch } from "vue";
+import Button from "../ui/Button.vue";
+import Input from "../ui/Input.vue";
+import Toggle from "../ui/Toggle.vue";
 
 export interface VPNClientFormData {
-  name: string;
-  endpoint: string;
-  public_key: string;
-  private_key: string;
-  preshared_key?: string;
-  allowed_ips: string[];
-  persistent_keepalive: number;
-  enabled: boolean;
+	name: string;
+	endpoint: string;
+	public_key: string;
+	private_key: string;
+	preshared_key?: string;
+	allowed_ips: string[];
+	persistent_keepalive: number;
+	enabled: boolean;
 }
 
 const props = defineProps<{
-  isOpen: boolean;
-  profile?: VPNClientFormData | null;
-  loading?: boolean;
+	isOpen: boolean;
+	profile?: VPNClientFormData | null;
+	loading?: boolean;
 }>();
 
 const emit = defineEmits<{
-  close: [];
-  save: [profile: VPNClientFormData];
-  import: [configText: string];
+	close: [];
+	save: [profile: VPNClientFormData];
+	import: [configText: string];
 }>();
 
 const formData = ref<VPNClientFormData>({
-  name: '',
-  endpoint: '',
-  public_key: '',
-  private_key: '',
-  preshared_key: '',
-  allowed_ips: ['0.0.0.0/0', '::/0'],
-  persistent_keepalive: 25,
-  enabled: true,
+	name: "",
+	endpoint: "",
+	public_key: "",
+	private_key: "",
+	preshared_key: "",
+	allowed_ips: ["0.0.0.0/0", "::/0"],
+	persistent_keepalive: 25,
+	enabled: true,
 });
 
-const allowedIpsString = ref('0.0.0.0/0, ::/0');
-const configText = ref('');
+const allowedIpsString = ref("0.0.0.0/0, ::/0");
+const configText = ref("");
 const showImport = ref(false);
 
-watch(() => props.profile, (newProfile) => {
-  if (newProfile) {
-    formData.value = { ...newProfile };
-    allowedIpsString.value = newProfile.allowed_ips.join(', ');
-  } else {
-    formData.value = {
-      name: '',
-      endpoint: '',
-      public_key: '',
-      private_key: '',
-      preshared_key: '',
-      allowed_ips: ['0.0.0.0/0', '::/0'],
-      persistent_keepalive: 25,
-      enabled: true,
-    };
-    allowedIpsString.value = '0.0.0.0/0, ::/0';
-  }
-}, { immediate: true });
+watch(
+	() => props.profile,
+	(newProfile) => {
+		if (newProfile) {
+			formData.value = { ...newProfile };
+			allowedIpsString.value = newProfile.allowed_ips.join(", ");
+		} else {
+			formData.value = {
+				name: "",
+				endpoint: "",
+				public_key: "",
+				private_key: "",
+				preshared_key: "",
+				allowed_ips: ["0.0.0.0/0", "::/0"],
+				persistent_keepalive: 25,
+				enabled: true,
+			};
+			allowedIpsString.value = "0.0.0.0/0, ::/0";
+		}
+	},
+	{ immediate: true },
+);
 
 const handleSubmit = () => {
-  formData.value.allowed_ips = allowedIpsString.value
-    .split(',')
-    .map(s => s.trim())
-    .filter(Boolean);
-  emit('save', formData.value);
+	formData.value.allowed_ips = allowedIpsString.value
+		.split(",")
+		.map((s) => s.trim())
+		.filter(Boolean);
+	emit("save", formData.value);
 };
 
 const handleImport = () => {
-  emit('import', configText.value);
-  showImport.value = false;
+	emit("import", configText.value);
+	showImport.value = false;
 };
 
 const handleClose = () => {
-  emit('close');
-  showImport.value = false;
+	emit("close");
+	showImport.value = false;
 };
 </script>
 

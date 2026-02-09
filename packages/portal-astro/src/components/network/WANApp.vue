@@ -1,67 +1,67 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
-import { usePolling } from '../../composables/usePolling';
-import Spinner from '../ui/Spinner.vue';
-import Button from '../ui/Button.vue';
-import Card from '../ui/Card.vue';
-import Badge from '../ui/Badge.vue';
-import Input from '../ui/Input.vue';
-import Select from '../ui/Select.vue';
-import { z } from 'zod';
+import { computed, onMounted, ref } from "vue";
+import { z } from "zod";
+import { usePolling } from "../../composables/usePolling";
+import Badge from "../ui/Badge.vue";
+import Button from "../ui/Button.vue";
+import Card from "../ui/Card.vue";
+import Input from "../ui/Input.vue";
+import Select from "../ui/Select.vue";
+import Spinner from "../ui/Spinner.vue";
 
 /**
  * WAN configuration schema for validation.
  */
 const WANConfigSchema = z.object({
-  type: z.enum(['dhcp', 'static', 'pppoe', 'lte']),
-  hostname: z.string().optional(),
-  mac_clone: z.string().optional(),
-  mtu: z.number().min(576).max(9000).default(1500),
-  ip_address: z.string().ip().optional(),
-  netmask: z.string().optional(),
-  gateway: z.string().ip().optional(),
-  dns_primary: z.string().ip().optional(),
-  dns_secondary: z.string().ip().optional(),
-  username: z.string().optional(),
-  password: z.string().optional(),
-  service_name: z.string().optional(),
-  apn: z.string().optional(),
-  pin: z.string().optional(),
+	type: z.enum(["dhcp", "static", "pppoe", "lte"]),
+	hostname: z.string().optional(),
+	mac_clone: z.string().optional(),
+	mtu: z.number().min(576).max(9000).default(1500),
+	ip_address: z.string().ip().optional(),
+	netmask: z.string().optional(),
+	gateway: z.string().ip().optional(),
+	dns_primary: z.string().ip().optional(),
+	dns_secondary: z.string().ip().optional(),
+	username: z.string().optional(),
+	password: z.string().optional(),
+	service_name: z.string().optional(),
+	apn: z.string().optional(),
+	pin: z.string().optional(),
 });
 
 type WANConfig = z.infer<typeof WANConfigSchema>;
 
 interface WANStatus {
-  connected: boolean;
-  uptime: string;
-  interface: string;
-  ip_address: string;
-  gateway: string;
-  dns_servers: string[];
-  rx_bytes: number;
-  tx_bytes: number;
-  rx_packets: number;
-  tx_packets: number;
+	connected: boolean;
+	uptime: string;
+	interface: string;
+	ip_address: string;
+	gateway: string;
+	dns_servers: string[];
+	rx_bytes: number;
+	tx_bytes: number;
+	rx_packets: number;
+	tx_packets: number;
 }
 
 const loading = ref(true);
 const error = ref<string | null>(null);
 const status = ref<WANStatus | null>(null);
 const config = ref<WANConfig>({
-  type: 'dhcp',
-  hostname: '',
-  mac_clone: '',
-  mtu: 1500,
-  ip_address: '',
-  netmask: '',
-  gateway: '',
-  dns_primary: '',
-  dns_secondary: '',
-  username: '',
-  password: '',
-  service_name: '',
-  apn: '',
-  pin: '',
+	type: "dhcp",
+	hostname: "",
+	mac_clone: "",
+	mtu: 1500,
+	ip_address: "",
+	netmask: "",
+	gateway: "",
+	dns_primary: "",
+	dns_secondary: "",
+	username: "",
+	password: "",
+	service_name: "",
+	apn: "",
+	pin: "",
 });
 
 const saving = ref(false);
@@ -72,128 +72,130 @@ const validationErrors = ref<Record<string, string>>({});
  * Uses mock data as backend endpoints don't exist yet.
  */
 async function fetchData(): Promise<void> {
-  loading.value = true;
-  error.value = null;
+	loading.value = true;
+	error.value = null;
 
-  try {
-    // TODO: Replace with real API call when backend is ready
-    // const api = useApi();
-    // const [statusData, configData] = await Promise.all([
-    //   api.getWANStatus(),
-    //   api.getWANConfig(),
-    // ]);
-    // status.value = statusData;
-    // config.value = configData;
+	try {
+		// TODO: Replace with real API call when backend is ready
+		// const api = useApi();
+		// const [statusData, configData] = await Promise.all([
+		//   api.getWANStatus(),
+		//   api.getWANConfig(),
+		// ]);
+		// status.value = statusData;
+		// config.value = configData;
 
-    // Mock data for now
-    await new Promise(resolve => setTimeout(resolve, 500));
+		// Mock data for now
+		await new Promise((resolve) => setTimeout(resolve, 500));
 
-    status.value = {
-      connected: true,
-      uptime: '7d 14h 32m',
-      interface: 'eth0',
-      ip_address: '203.0.113.45',
-      gateway: '203.0.113.1',
-      dns_servers: ['1.1.1.1', '8.8.8.8'],
-      rx_bytes: 45678912345,
-      tx_bytes: 12345678901,
-      rx_packets: 34567890,
-      tx_packets: 23456789,
-    };
+		status.value = {
+			connected: true,
+			uptime: "7d 14h 32m",
+			interface: "eth0",
+			ip_address: "203.0.113.45",
+			gateway: "203.0.113.1",
+			dns_servers: ["1.1.1.1", "8.8.8.8"],
+			rx_bytes: 45678912345,
+			tx_bytes: 12345678901,
+			rx_packets: 34567890,
+			tx_packets: 23456789,
+		};
 
-    config.value = {
-      type: 'dhcp',
-      hostname: 'ngfw-router',
-      mac_clone: '',
-      mtu: 1500,
-      ip_address: '',
-      netmask: '',
-      gateway: '',
-      dns_primary: '',
-      dns_secondary: '',
-      username: '',
-      password: '',
-      service_name: '',
-      apn: '',
-      pin: '',
-    };
-  } catch (err) {
-    error.value = err instanceof Error ? err.message : 'Failed to fetch WAN data';
-  } finally {
-    loading.value = false;
-  }
+		config.value = {
+			type: "dhcp",
+			hostname: "ngfw-router",
+			mac_clone: "",
+			mtu: 1500,
+			ip_address: "",
+			netmask: "",
+			gateway: "",
+			dns_primary: "",
+			dns_secondary: "",
+			username: "",
+			password: "",
+			service_name: "",
+			apn: "",
+			pin: "",
+		};
+	} catch (err) {
+		error.value =
+			err instanceof Error ? err.message : "Failed to fetch WAN data";
+	} finally {
+		loading.value = false;
+	}
 }
 
 /**
  * Save WAN configuration.
  */
 async function saveConfig(): Promise<void> {
-  validationErrors.value = {};
+	validationErrors.value = {};
 
-  const result = WANConfigSchema.safeParse(config.value);
-  if (!result.success) {
-    result.error.errors.forEach((err) => {
-      if (err.path[0]) {
-        validationErrors.value[err.path[0] as string] = err.message;
-      }
-    });
-    return;
-  }
+	const result = WANConfigSchema.safeParse(config.value);
+	if (!result.success) {
+		result.error.errors.forEach((err) => {
+			if (err.path[0]) {
+				validationErrors.value[err.path[0] as string] = err.message;
+			}
+		});
+		return;
+	}
 
-  saving.value = true;
-  error.value = null;
+	saving.value = true;
+	error.value = null;
 
-  try {
-    // TODO: Replace with real API call when backend is ready
-    // const api = useApi();
-    // await api.updateWANConfig(config.value);
+	try {
+		// TODO: Replace with real API call when backend is ready
+		// const api = useApi();
+		// await api.updateWANConfig(config.value);
 
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    await fetchData();
-  } catch (err) {
-    error.value = err instanceof Error ? err.message : 'Failed to save WAN configuration';
-  } finally {
-    saving.value = false;
-  }
+		await new Promise((resolve) => setTimeout(resolve, 1000));
+		await fetchData();
+	} catch (err) {
+		error.value =
+			err instanceof Error ? err.message : "Failed to save WAN configuration";
+	} finally {
+		saving.value = false;
+	}
 }
 
 /**
  * Format bytes to human-readable format.
  */
 function formatBytes(bytes: number): string {
-  if (bytes === 0) return '0 B';
-  const k = 1024;
-  const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return `${(bytes / Math.pow(k, i)).toFixed(2)} ${sizes[i]}`;
+	if (bytes === 0) return "0 B";
+	const k = 1024;
+	const sizes = ["B", "KB", "MB", "GB", "TB"];
+	const i = Math.floor(Math.log(bytes) / Math.log(k));
+	return `${(bytes / k ** i).toFixed(2)} ${sizes[i]}`;
 }
 
 /**
  * Get connection status badge variant.
  */
 const statusVariant = computed(() => {
-  return status.value?.connected ? 'success' : 'danger';
+	return status.value?.connected ? "success" : "danger";
 });
 
 /**
  * Connection type options.
  */
 const connectionTypes = [
-  { value: 'dhcp', label: 'DHCP (Automatic)' },
-  { value: 'static', label: 'Static IP' },
-  { value: 'pppoe', label: 'PPPoE' },
-  { value: 'lte', label: 'LTE/Mobile' },
+	{ value: "dhcp", label: "DHCP (Automatic)" },
+	{ value: "static", label: "Static IP" },
+	{ value: "pppoe", label: "PPPoE" },
+	{ value: "lte", label: "LTE/Mobile" },
 ];
 
 onMounted(() => {
-  void fetchData();
+	void fetchData();
 });
 
 // Auto-refresh every 30 seconds
 usePolling({
-  fetcher: fetchData,
-  interval: 30000,
-  immediate: false,
+	fetcher: fetchData,
+	interval: 30000,
+	immediate: false,
 });
 </script>
 

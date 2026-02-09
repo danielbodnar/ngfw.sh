@@ -1,37 +1,37 @@
 <script setup lang="ts">
-import { computed } from 'vue';
-import Button from '../ui/Button.vue';
-import Card from '../ui/Card.vue';
-import Badge from '../ui/Badge.vue';
-import Toggle from '../ui/Toggle.vue';
+import { computed } from "vue";
+import Badge from "../ui/Badge.vue";
+import Button from "../ui/Button.vue";
+import Card from "../ui/Card.vue";
+import Toggle from "../ui/Toggle.vue";
 
 export interface WiFiNetwork {
-  id: string;
-  ssid: string;
-  band: '2.4GHz' | '5GHz';
-  channel: number;
-  encryption: string;
-  password: string;
-  hidden: boolean;
-  enabled: boolean;
-  clients_connected: number;
-  vlan_id: number | null;
+	id: string;
+	ssid: string;
+	band: "2.4GHz" | "5GHz";
+	channel: number;
+	encryption: string;
+	password: string;
+	hidden: boolean;
+	enabled: boolean;
+	clients_connected: number;
+	vlan_id: number | null;
 }
 
 const props = defineProps<{
-  network: WiFiNetwork;
+	network: WiFiNetwork;
 }>();
 
 const emit = defineEmits<{
-  edit: [network: WiFiNetwork];
-  delete: [networkId: string];
-  toggle: [networkId: string];
+	edit: [network: WiFiNetwork];
+	delete: [networkId: string];
+	toggle: [networkId: string];
 }>();
 
 const statusBadge = computed(() => {
-  return props.network.enabled
-    ? { variant: 'success' as const, label: 'Active' }
-    : { variant: 'secondary' as const, label: 'Disabled' };
+	return props.network.enabled
+		? { variant: "success" as const, label: "Active" }
+		: { variant: "secondary" as const, label: "Disabled" };
 });
 </script>
 

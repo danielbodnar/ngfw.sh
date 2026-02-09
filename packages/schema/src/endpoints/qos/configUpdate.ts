@@ -1,7 +1,7 @@
 import { contentJson, OpenAPIRoute } from "chanfana";
 import { z } from "zod";
 import type { AppContext } from "../../types";
-import { qosConfig, qosAlgorithm } from "./base";
+import { qosAlgorithm, qosConfig } from "./base";
 
 const updateFields = z.object({
 	enabled: z.boolean().optional(),
@@ -80,14 +80,22 @@ export class QosConfigUpdate extends OpenAPIRoute {
 		values.push(Math.floor(Date.now() / 1000));
 
 		const sql = `UPDATE qos_config SET ${setClauses.join(", ")} WHERE id = 1`;
-		await db.prepare(sql).bind(...values).run();
+		await db
+			.prepare(sql)
+			.bind(...values)
+			.run();
 
 		const row = await db
-			.prepare("SELECT id, enabled, algorithm, wan_upload_kbps, wan_download_kbps, updated_at FROM qos_config WHERE id = 1")
+			.prepare(
+				"SELECT id, enabled, algorithm, wan_upload_kbps, wan_download_kbps, updated_at FROM qos_config WHERE id = 1",
+			)
 			.first();
 
 		if (!row) {
-			return c.json({ success: false, error: "QoS configuration not found after update" }, 500);
+			return c.json(
+				{ success: false, error: "QoS configuration not found after update" },
+				500,
+			);
 		}
 
 		return {

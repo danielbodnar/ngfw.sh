@@ -1,42 +1,42 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-import Button from '../ui/Button.vue';
-import Toggle from '../ui/Toggle.vue';
-import Select from '../ui/Select.vue';
-import Card from '../ui/Card.vue';
+import { ref } from "vue";
+import Button from "../ui/Button.vue";
+import Card from "../ui/Card.vue";
+import Select from "../ui/Select.vue";
+import Toggle from "../ui/Toggle.vue";
 
 export interface IPSConfig {
-  enabled: boolean;
-  mode: 'detect' | 'prevent';
-  sensitivity: 'low' | 'medium' | 'high';
-  auto_update: boolean;
-  block_on_threat: boolean;
+	enabled: boolean;
+	mode: "detect" | "prevent";
+	sensitivity: "low" | "medium" | "high";
+	auto_update: boolean;
+	block_on_threat: boolean;
 }
 
 const props = defineProps<{
-  config: IPSConfig;
-  loading?: boolean;
+	config: IPSConfig;
+	loading?: boolean;
 }>();
 
 const emit = defineEmits<{
-  save: [config: IPSConfig];
+	save: [config: IPSConfig];
 }>();
 
 const localConfig = ref<IPSConfig>({ ...props.config });
 
 const modeOptions = [
-  { value: 'detect', label: 'Detect Only (Log threats)' },
-  { value: 'prevent', label: 'Prevent (Block threats)' },
+	{ value: "detect", label: "Detect Only (Log threats)" },
+	{ value: "prevent", label: "Prevent (Block threats)" },
 ];
 
 const sensitivityOptions = [
-  { value: 'low', label: 'Low (Fewer false positives)' },
-  { value: 'medium', label: 'Medium (Balanced)' },
-  { value: 'high', label: 'High (Maximum protection)' },
+	{ value: "low", label: "Low (Fewer false positives)" },
+	{ value: "medium", label: "Medium (Balanced)" },
+	{ value: "high", label: "High (Maximum protection)" },
 ];
 
 const handleSave = () => {
-  emit('save', localConfig.value);
+	emit("save", localConfig.value);
 };
 </script>
 

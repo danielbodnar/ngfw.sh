@@ -1,40 +1,43 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-import Button from '../ui/Button.vue';
-import Input from '../ui/Input.vue';
-import Toggle from '../ui/Toggle.vue';
-import Card from '../ui/Card.vue';
+import { ref } from "vue";
+import Button from "../ui/Button.vue";
+import Card from "../ui/Card.vue";
+import Input from "../ui/Input.vue";
+import Toggle from "../ui/Toggle.vue";
 
 export interface DhcpConfig {
-  enabled: boolean;
-  interface: string;
-  start_ip: string;
-  end_ip: string;
-  lease_time: number;
-  dns_servers: string[];
-  domain_name: string;
-  gateway: string;
+	enabled: boolean;
+	interface: string;
+	start_ip: string;
+	end_ip: string;
+	lease_time: number;
+	dns_servers: string[];
+	domain_name: string;
+	gateway: string;
 }
 
 const props = defineProps<{
-  config: DhcpConfig;
-  loading?: boolean;
+	config: DhcpConfig;
+	loading?: boolean;
 }>();
 
 const emit = defineEmits<{
-  save: [config: DhcpConfig];
+	save: [config: DhcpConfig];
 }>();
 
 const localConfig = ref<DhcpConfig>({ ...props.config });
-const dnsServersString = ref(localConfig.value.dns_servers.join(', '));
+const dnsServersString = ref(localConfig.value.dns_servers.join(", "));
 
 const updateDnsServers = (value: string) => {
-  dnsServersString.value = value;
-  localConfig.value.dns_servers = value.split(',').map(s => s.trim()).filter(Boolean);
+	dnsServersString.value = value;
+	localConfig.value.dns_servers = value
+		.split(",")
+		.map((s) => s.trim())
+		.filter(Boolean);
 };
 
 const handleSave = () => {
-  emit('save', localConfig.value);
+	emit("save", localConfig.value);
 };
 </script>
 

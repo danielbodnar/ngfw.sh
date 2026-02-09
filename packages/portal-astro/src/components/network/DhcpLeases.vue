@@ -1,56 +1,56 @@
 <script setup lang="ts">
-import { computed } from 'vue';
-import Button from '../ui/Button.vue';
-import Card from '../ui/Card.vue';
-import Table from '../ui/Table.vue';
-import Badge from '../ui/Badge.vue';
+import { computed } from "vue";
+import Badge from "../ui/Badge.vue";
+import Button from "../ui/Button.vue";
+import Card from "../ui/Card.vue";
+import Table from "../ui/Table.vue";
 
 export interface DhcpLease {
-  id: string;
-  hostname: string;
-  ip_address: string;
-  mac_address: string;
-  expires: string;
-  static: boolean;
+	id: string;
+	hostname: string;
+	ip_address: string;
+	mac_address: string;
+	expires: string;
+	static: boolean;
 }
 
 const props = defineProps<{
-  leases: DhcpLease[];
-  loading?: boolean;
+	leases: DhcpLease[];
+	loading?: boolean;
 }>();
 
 const emit = defineEmits<{
-  makeStatic: [leaseId: string];
-  release: [leaseId: string];
+	makeStatic: [leaseId: string];
+	release: [leaseId: string];
 }>();
 
 const columns = [
-  { key: 'hostname', label: 'Hostname' },
-  { key: 'ip_address', label: 'IP Address' },
-  { key: 'mac_address', label: 'MAC Address' },
-  { key: 'expires', label: 'Expires' },
-  { key: 'type', label: 'Type' },
-  { key: 'actions', label: 'Actions' },
+	{ key: "hostname", label: "Hostname" },
+	{ key: "ip_address", label: "IP Address" },
+	{ key: "mac_address", label: "MAC Address" },
+	{ key: "expires", label: "Expires" },
+	{ key: "type", label: "Type" },
+	{ key: "actions", label: "Actions" },
 ];
 
 const formatExpires = (expires: string): string => {
-  if (expires === 'Never') return 'Never';
+	if (expires === "Never") return "Never";
 
-  const date = new Date(expires);
-  const now = new Date();
-  const diff = date.getTime() - now.getTime();
+	const date = new Date(expires);
+	const now = new Date();
+	const diff = date.getTime() - now.getTime();
 
-  if (diff < 0) return 'Expired';
+	if (diff < 0) return "Expired";
 
-  const hours = Math.floor(diff / (1000 * 60 * 60));
-  const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+	const hours = Math.floor(diff / (1000 * 60 * 60));
+	const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
 
-  if (hours > 24) {
-    const days = Math.floor(hours / 24);
-    return `${days}d ${hours % 24}h`;
-  }
+	if (hours > 24) {
+		const days = Math.floor(hours / 24);
+		return `${days}d ${hours % 24}h`;
+	}
 
-  return `${hours}h ${minutes}m`;
+	return `${hours}h ${minutes}m`;
 };
 </script>
 

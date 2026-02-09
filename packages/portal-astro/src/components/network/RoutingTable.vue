@@ -1,35 +1,35 @@
 <script setup lang="ts">
-import Button from '../ui/Button.vue';
-import Card from '../ui/Card.vue';
-import Table from '../ui/Table.vue';
+import Button from "../ui/Button.vue";
+import Card from "../ui/Card.vue";
+import Table from "../ui/Table.vue";
 
 export interface Route {
-  id: string;
-  destination: string;
-  gateway: string;
-  interface: string;
-  metric: number;
-  description?: string;
+	id: string;
+	destination: string;
+	gateway: string;
+	interface: string;
+	metric: number;
+	description?: string;
 }
 
 const props = defineProps<{
-  routes: Route[];
-  loading?: boolean;
+	routes: Route[];
+	loading?: boolean;
 }>();
 
 const emit = defineEmits<{
-  add: [];
-  edit: [route: Route];
-  delete: [routeId: string];
+	add: [];
+	edit: [route: Route];
+	delete: [routeId: string];
 }>();
 
 const columns = [
-  { key: 'destination', label: 'Destination' },
-  { key: 'gateway', label: 'Gateway' },
-  { key: 'interface', label: 'Interface' },
-  { key: 'metric', label: 'Metric' },
-  { key: 'description', label: 'Description' },
-  { key: 'actions', label: 'Actions' },
+	{ key: "destination", label: "Destination" },
+	{ key: "gateway", label: "Gateway" },
+	{ key: "interface", label: "Interface" },
+	{ key: "metric", label: "Metric" },
+	{ key: "description", label: "Description" },
+	{ key: "actions", label: "Actions" },
 ];
 </script>
 

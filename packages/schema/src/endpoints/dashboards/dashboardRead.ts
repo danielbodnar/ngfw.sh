@@ -42,7 +42,8 @@ export class DashboardRead extends OpenAPIRoute {
 				id: "network-overview",
 				category: "network-overview",
 				name: "Network Overview",
-				description: "Real-time network status, connected devices, and bandwidth usage",
+				description:
+					"Real-time network status, connected devices, and bandwidth usage",
 				icon: "network",
 				default_view: true,
 				widgets: [
@@ -84,7 +85,8 @@ export class DashboardRead extends OpenAPIRoute {
 				id: "security-events",
 				category: "security-events",
 				name: "Security Events",
-				description: "IPS alerts, blocked threats, and security policy violations",
+				description:
+					"IPS alerts, blocked threats, and security policy violations",
 				icon: "shield",
 				default_view: false,
 				widgets: [
@@ -110,7 +112,10 @@ export class DashboardRead extends OpenAPIRoute {
 						title: "Recent Security Events",
 						data_source: "/api/security/events/recent",
 						refresh_interval: 5000,
-						config: { columns: ["timestamp", "type", "source", "action"], limit: 20 },
+						config: {
+							columns: ["timestamp", "type", "source", "action"],
+							limit: 20,
+						},
 					},
 					{
 						id: "attack-heatmap",
@@ -126,7 +131,8 @@ export class DashboardRead extends OpenAPIRoute {
 				id: "dns-analytics",
 				category: "dns-analytics",
 				name: "DNS Analytics",
-				description: "DNS queries, top domains, blocked queries, and filtering statistics",
+				description:
+					"DNS queries, top domains, blocked queries, and filtering statistics",
 				icon: "dns",
 				default_view: false,
 				widgets: [
@@ -168,7 +174,8 @@ export class DashboardRead extends OpenAPIRoute {
 				id: "wifi-performance",
 				category: "wifi-performance",
 				name: "WiFi Performance",
-				description: "WiFi signal strength, channel utilization, and client connections",
+				description:
+					"WiFi signal strength, channel utilization, and client connections",
 				icon: "wifi",
 				default_view: false,
 				widgets: [
@@ -202,7 +209,10 @@ export class DashboardRead extends OpenAPIRoute {
 						title: "WiFi Clients",
 						data_source: "/api/wifi/clients",
 						refresh_interval: 10000,
-						config: { columns: ["device", "mac", "signal", "bandwidth"], limit: 20 },
+						config: {
+							columns: ["device", "mac", "signal", "bandwidth"],
+							limit: 20,
+						},
 					},
 				],
 			},
@@ -210,7 +220,8 @@ export class DashboardRead extends OpenAPIRoute {
 				id: "wan-health",
 				category: "wan-health",
 				name: "WAN Health",
-				description: "WAN uptime, latency, packet loss, and connection quality metrics",
+				description:
+					"WAN uptime, latency, packet loss, and connection quality metrics",
 				icon: "globe",
 				default_view: false,
 				widgets: [
@@ -252,7 +263,8 @@ export class DashboardRead extends OpenAPIRoute {
 				id: "vpn-metrics",
 				category: "vpn-metrics",
 				name: "VPN Metrics",
-				description: "VPN tunnel status, throughput, connected clients, and data transfer",
+				description:
+					"VPN tunnel status, throughput, connected clients, and data transfer",
 				icon: "vpn",
 				default_view: false,
 				widgets: [
@@ -278,7 +290,16 @@ export class DashboardRead extends OpenAPIRoute {
 						title: "VPN Clients",
 						data_source: "/api/vpn/clients",
 						refresh_interval: 15000,
-						config: { columns: ["user", "ip", "connected_at", "data_sent", "data_received"], limit: 20 },
+						config: {
+							columns: [
+								"user",
+								"ip",
+								"connected_at",
+								"data_sent",
+								"data_received",
+							],
+							limit: 20,
+						},
 					},
 				],
 			},
@@ -286,7 +307,8 @@ export class DashboardRead extends OpenAPIRoute {
 				id: "system-resources",
 				category: "system-resources",
 				name: "System Resources",
-				description: "CPU usage, memory utilization, storage, and temperature monitoring",
+				description:
+					"CPU usage, memory utilization, storage, and temperature monitoring",
 				icon: "cpu",
 				default_view: false,
 				widgets: [
@@ -328,7 +350,8 @@ export class DashboardRead extends OpenAPIRoute {
 				id: "traffic-analysis",
 				category: "traffic-analysis",
 				name: "Traffic Analysis",
-				description: "Protocol breakdown, application usage, and traffic patterns",
+				description:
+					"Protocol breakdown, application usage, and traffic patterns",
 				icon: "chart",
 				default_view: false,
 				widgets: [
@@ -362,7 +385,8 @@ export class DashboardRead extends OpenAPIRoute {
 				id: "firewall-rules",
 				category: "firewall-rules",
 				name: "Firewall Rules",
-				description: "Rule hit counts, blocked connections, and policy effectiveness",
+				description:
+					"Rule hit counts, blocked connections, and policy effectiveness",
 				icon: "firewall",
 				default_view: false,
 				widgets: [
@@ -396,7 +420,8 @@ export class DashboardRead extends OpenAPIRoute {
 				id: "qos-metrics",
 				category: "qos-metrics",
 				name: "QoS Metrics",
-				description: "Traffic shaping stats, bandwidth allocation, and queue performance",
+				description:
+					"Traffic shaping stats, bandwidth allocation, and queue performance",
 				icon: "priority",
 				default_view: false,
 				widgets: [

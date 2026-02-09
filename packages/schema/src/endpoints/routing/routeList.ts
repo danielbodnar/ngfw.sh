@@ -1,7 +1,7 @@
 import { contentJson, OpenAPIRoute } from "chanfana";
 import { z } from "zod";
 import type { AppContext } from "../../types";
-import { staticRoute, routeEntry } from "./base";
+import { routeEntry, staticRoute } from "./base";
 
 export class RouteList extends OpenAPIRoute {
 	schema = {

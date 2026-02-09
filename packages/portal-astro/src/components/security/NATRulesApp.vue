@@ -1,27 +1,39 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
-import { useNAT } from '../../composables/useNAT';
-import { useSelectedDevice } from '../../composables/useSelectedDevice';
-import { usePolling } from '../../composables/usePolling';
-import { useToast } from '../../composables/useToast';
-import Spinner from '../ui/Spinner.vue';
-import Button from '../ui/Button.vue';
-import Card from '../ui/Card.vue';
-import Badge from '../ui/Badge.vue';
-import Modal from '../ui/Modal.vue';
-import type { NATRule, NATRuleCreate, NATRuleUpdate } from '../../lib/api/types';
+import { computed, ref } from "vue";
+import { useNAT } from "../../composables/useNAT";
+import { usePolling } from "../../composables/usePolling";
+import { useSelectedDevice } from "../../composables/useSelectedDevice";
+import { useToast } from "../../composables/useToast";
+import type {
+	NATRule,
+	NATRuleCreate,
+	NATRuleUpdate,
+} from "../../lib/api/types";
+import Badge from "../ui/Badge.vue";
+import Button from "../ui/Button.vue";
+import Card from "../ui/Card.vue";
+import Modal from "../ui/Modal.vue";
+import Spinner from "../ui/Spinner.vue";
 
 // Use globally selected device
 const { deviceId } = useSelectedDevice();
 
 // Fetch NAT rules with auto-refresh
-const { data: rules, loading, error, refetch, create, update, remove } = useNAT(deviceId);
+const {
+	data: rules,
+	loading,
+	error,
+	refetch,
+	create,
+	update,
+	remove,
+} = useNAT(deviceId);
 
 // Auto-refresh every 30 seconds
 usePolling({
-  fetcher: refetch,
-  interval: 30000,
-  immediate: false,
+	fetcher: refetch,
+	interval: 30000,
+	immediate: false,
 });
 
 // Toast notifications
@@ -33,168 +45,178 @@ const editingRule = ref<NATRule | null>(null);
 
 // Form state
 const form = ref<Partial<NATRuleCreate>>({
-  device_id: deviceId.value,
-  name: '',
-  type: 'port_forward',
-  external_ip: '',
-  external_port: 0,
-  internal_ip: '',
-  internal_port: 0,
-  protocol: 'tcp',
-  enabled: true,
-  description: '',
+	device_id: deviceId.value,
+	name: "",
+	type: "port_forward",
+	external_ip: "",
+	external_port: 0,
+	internal_ip: "",
+	internal_port: 0,
+	protocol: "tcp",
+	enabled: true,
+	description: "",
 });
 
 // Form validation
 const formErrors = ref<Record<string, string>>({});
 
 function validateForm(): boolean {
-  formErrors.value = {};
+	formErrors.value = {};
 
-  if (!form.value.name?.trim()) {
-    formErrors.value.name = 'Name is required';
-  }
+	if (!form.value.name?.trim()) {
+		formErrors.value.name = "Name is required";
+	}
 
-  if (!form.value.external_ip?.trim()) {
-    formErrors.value.external_ip = 'External IP is required';
-  }
+	if (!form.value.external_ip?.trim()) {
+		formErrors.value.external_ip = "External IP is required";
+	}
 
-  if (!form.value.internal_ip?.trim()) {
-    formErrors.value.internal_ip = 'Internal IP is required';
-  }
+	if (!form.value.internal_ip?.trim()) {
+		formErrors.value.internal_ip = "Internal IP is required";
+	}
 
-  if (!form.value.external_port || form.value.external_port < 1 || form.value.external_port > 65535) {
-    formErrors.value.external_port = 'Valid port (1-65535) is required';
-  }
+	if (
+		!form.value.external_port ||
+		form.value.external_port < 1 ||
+		form.value.external_port > 65535
+	) {
+		formErrors.value.external_port = "Valid port (1-65535) is required";
+	}
 
-  if (!form.value.internal_port || form.value.internal_port < 1 || form.value.internal_port > 65535) {
-    formErrors.value.internal_port = 'Valid port (1-65535) is required';
-  }
+	if (
+		!form.value.internal_port ||
+		form.value.internal_port < 1 ||
+		form.value.internal_port > 65535
+	) {
+		formErrors.value.internal_port = "Valid port (1-65535) is required";
+	}
 
-  return Object.keys(formErrors.value).length === 0;
+	return Object.keys(formErrors.value).length === 0;
 }
 
 // Reset form to defaults
 function resetForm(): void {
-  form.value = {
-    device_id: deviceId.value,
-    name: '',
-    type: 'port_forward',
-    external_ip: '',
-    external_port: 0,
-    internal_ip: '',
-    internal_port: 0,
-    protocol: 'tcp',
-    enabled: true,
-    description: '',
-  };
-  formErrors.value = {};
+	form.value = {
+		device_id: deviceId.value,
+		name: "",
+		type: "port_forward",
+		external_ip: "",
+		external_port: 0,
+		internal_ip: "",
+		internal_port: 0,
+		protocol: "tcp",
+		enabled: true,
+		description: "",
+	};
+	formErrors.value = {};
 }
 
 // Open modal for creating new rule
 function handleAdd(): void {
-  editingRule.value = null;
-  resetForm();
-  showModal.value = true;
+	editingRule.value = null;
+	resetForm();
+	showModal.value = true;
 }
 
 // Open modal for editing existing rule
 function handleEdit(rule: NATRule): void {
-  editingRule.value = rule;
-  form.value = {
-    device_id: rule.device_id,
-    name: rule.name,
-    type: rule.type,
-    external_ip: rule.external_ip,
-    external_port: rule.external_port,
-    internal_ip: rule.internal_ip,
-    internal_port: rule.internal_port,
-    protocol: rule.protocol,
-    enabled: rule.enabled,
-    description: rule.description,
-  };
-  showModal.value = true;
+	editingRule.value = rule;
+	form.value = {
+		device_id: rule.device_id,
+		name: rule.name,
+		type: rule.type,
+		external_ip: rule.external_ip,
+		external_port: rule.external_port,
+		internal_ip: rule.internal_ip,
+		internal_port: rule.internal_port,
+		protocol: rule.protocol,
+		enabled: rule.enabled,
+		description: rule.description,
+	};
+	showModal.value = true;
 }
 
 // Save rule (create or update)
 async function handleSave(): Promise<void> {
-  if (!validateForm()) return;
+	if (!validateForm()) return;
 
-  try {
-    if (editingRule.value) {
-      // Update existing rule
-      const updates: NATRuleUpdate = {
-        name: form.value.name,
-        type: form.value.type,
-        external_ip: form.value.external_ip,
-        external_port: form.value.external_port,
-        internal_ip: form.value.internal_ip,
-        internal_port: form.value.internal_port,
-        protocol: form.value.protocol,
-        enabled: form.value.enabled,
-        description: form.value.description,
-      };
-      await update(editingRule.value.id, updates);
-      success('NAT rule updated successfully');
-    } else {
-      // Create new rule
-      await create(form.value as NATRuleCreate);
-      success('NAT rule created successfully');
-    }
+	try {
+		if (editingRule.value) {
+			// Update existing rule
+			const updates: NATRuleUpdate = {
+				name: form.value.name,
+				type: form.value.type,
+				external_ip: form.value.external_ip,
+				external_port: form.value.external_port,
+				internal_ip: form.value.internal_ip,
+				internal_port: form.value.internal_port,
+				protocol: form.value.protocol,
+				enabled: form.value.enabled,
+				description: form.value.description,
+			};
+			await update(editingRule.value.id, updates);
+			success("NAT rule updated successfully");
+		} else {
+			// Create new rule
+			await create(form.value as NATRuleCreate);
+			success("NAT rule created successfully");
+		}
 
-    showModal.value = false;
-    resetForm();
-    await refetch();
-  } catch (err) {
-    showError(err instanceof Error ? err.message : 'Failed to save NAT rule');
-  }
+		showModal.value = false;
+		resetForm();
+		await refetch();
+	} catch (err) {
+		showError(err instanceof Error ? err.message : "Failed to save NAT rule");
+	}
 }
 
 // Delete rule
 async function handleDelete(ruleId: string, ruleName: string): Promise<void> {
-  if (!confirm(`Are you sure you want to delete "${ruleName}"?`)) {
-    return;
-  }
+	if (!confirm(`Are you sure you want to delete "${ruleName}"?`)) {
+		return;
+	}
 
-  try {
-    await remove(ruleId);
-    success('NAT rule deleted successfully');
-    await refetch();
-  } catch (err) {
-    showError(err instanceof Error ? err.message : 'Failed to delete NAT rule');
-  }
+	try {
+		await remove(ruleId);
+		success("NAT rule deleted successfully");
+		await refetch();
+	} catch (err) {
+		showError(err instanceof Error ? err.message : "Failed to delete NAT rule");
+	}
 }
 
 // Toggle rule enabled/disabled
 async function handleToggle(rule: NATRule): Promise<void> {
-  try {
-    await update(rule.id, { enabled: !rule.enabled });
-    success(`NAT rule ${!rule.enabled ? 'enabled' : 'disabled'}`);
-    await refetch();
-  } catch (err) {
-    showError(err instanceof Error ? err.message : 'Failed to toggle NAT rule');
-  }
+	try {
+		await update(rule.id, { enabled: !rule.enabled });
+		success(`NAT rule ${!rule.enabled ? "enabled" : "disabled"}`);
+		await refetch();
+	} catch (err) {
+		showError(err instanceof Error ? err.message : "Failed to toggle NAT rule");
+	}
 }
 
 // Cancel modal
 function handleCancel(): void {
-  showModal.value = false;
-  resetForm();
+	showModal.value = false;
+	resetForm();
 }
 
 // Get protocol badge variant
-const getProtocolVariant = (protocol: string): 'info' | 'success' | 'warning' => {
-  if (protocol === 'tcp') return 'info';
-  if (protocol === 'udp') return 'success';
-  return 'warning';
+const getProtocolVariant = (
+	protocol: string,
+): "info" | "success" | "warning" => {
+	if (protocol === "tcp") return "info";
+	if (protocol === "udp") return "success";
+	return "warning";
 };
 
 // Get type display name
 const getTypeDisplay = (type: string): string => {
-  if (type === 'port_forward') return 'Port Forward';
-  if (type === 'source_nat') return 'Source NAT';
-  if (type === 'destination_nat') return 'Destination NAT';
-  return type;
+	if (type === "port_forward") return "Port Forward";
+	if (type === "source_nat") return "Source NAT";
+	if (type === "destination_nat") return "Destination NAT";
+	return type;
 };
 </script>
 

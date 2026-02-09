@@ -1,40 +1,43 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-import Button from '../ui/Button.vue';
-import Input from '../ui/Input.vue';
-import Toggle from '../ui/Toggle.vue';
-import Card from '../ui/Card.vue';
+import { ref } from "vue";
+import Button from "../ui/Button.vue";
+import Card from "../ui/Card.vue";
+import Input from "../ui/Input.vue";
+import Toggle from "../ui/Toggle.vue";
 
 export interface VPNServerConfig {
-  enabled: boolean;
-  port: number;
-  listen_address: string;
-  subnet: string;
-  dns_servers: string[];
-  persistent_keepalive: number;
-  mtu: number;
+	enabled: boolean;
+	port: number;
+	listen_address: string;
+	subnet: string;
+	dns_servers: string[];
+	persistent_keepalive: number;
+	mtu: number;
 }
 
 const props = defineProps<{
-  config: VPNServerConfig;
-  loading?: boolean;
+	config: VPNServerConfig;
+	loading?: boolean;
 }>();
 
 const emit = defineEmits<{
-  save: [config: VPNServerConfig];
+	save: [config: VPNServerConfig];
 }>();
 
 const localConfig = ref<VPNServerConfig>({ ...props.config });
 
 const handleSave = () => {
-  emit('save', localConfig.value);
+	emit("save", localConfig.value);
 };
 
-const dnsServersString = ref(localConfig.value.dns_servers.join(', '));
+const dnsServersString = ref(localConfig.value.dns_servers.join(", "));
 
 const updateDnsServers = (value: string) => {
-  dnsServersString.value = value;
-  localConfig.value.dns_servers = value.split(',').map(s => s.trim()).filter(Boolean);
+	dnsServersString.value = value;
+	localConfig.value.dns_servers = value
+		.split(",")
+		.map((s) => s.trim())
+		.filter(Boolean);
 };
 </script>
 

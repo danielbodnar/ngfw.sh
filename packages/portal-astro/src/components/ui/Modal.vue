@@ -1,55 +1,58 @@
 <script setup lang="ts">
-import { watch, onMounted, onUnmounted } from 'vue';
+import { onMounted, onUnmounted, watch } from "vue";
 
 export interface ModalProps {
-  open: boolean;
-  title?: string;
-  size?: 'sm' | 'md' | 'lg' | 'xl';
+	open: boolean;
+	title?: string;
+	size?: "sm" | "md" | "lg" | "xl";
 }
 
 const props = withDefaults(defineProps<ModalProps>(), {
-  open: false,
-  size: 'md',
+	open: false,
+	size: "md",
 });
 
 const emit = defineEmits<{
-  close: [];
+	close: [];
 }>();
 
 const sizeClasses = {
-  sm: 'max-w-sm',
-  md: 'max-w-md',
-  lg: 'max-w-lg',
-  xl: 'max-w-xl',
+	sm: "max-w-sm",
+	md: "max-w-md",
+	lg: "max-w-lg",
+	xl: "max-w-xl",
 };
 
 const handleBackdropClick = (event: MouseEvent) => {
-  if (event.target === event.currentTarget) {
-    emit('close');
-  }
+	if (event.target === event.currentTarget) {
+		emit("close");
+	}
 };
 
 const handleEscape = (event: KeyboardEvent) => {
-  if (event.key === 'Escape' && props.open) {
-    emit('close');
-  }
+	if (event.key === "Escape" && props.open) {
+		emit("close");
+	}
 };
 
-watch(() => props.open, (isOpen) => {
-  if (isOpen) {
-    document.body.style.overflow = 'hidden';
-  } else {
-    document.body.style.overflow = '';
-  }
-});
+watch(
+	() => props.open,
+	(isOpen) => {
+		if (isOpen) {
+			document.body.style.overflow = "hidden";
+		} else {
+			document.body.style.overflow = "";
+		}
+	},
+);
 
 onMounted(() => {
-  document.addEventListener('keydown', handleEscape);
+	document.addEventListener("keydown", handleEscape);
 });
 
 onUnmounted(() => {
-  document.removeEventListener('keydown', handleEscape);
-  document.body.style.overflow = '';
+	document.removeEventListener("keydown", handleEscape);
+	document.body.style.overflow = "";
 });
 </script>
 

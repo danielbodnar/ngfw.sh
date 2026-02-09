@@ -4,23 +4,23 @@
  * @module composables/useDeviceStatus
  */
 
-import { ref, computed, watch } from 'vue';
-import { useApi } from './useApi';
-import { usePolling } from './usePolling';
-import type { DeviceStatus } from '../lib/api/types';
+import { computed, type ref, watch } from "vue";
+import type { DeviceStatus } from "../lib/api/types";
+import { useApi } from "./useApi";
+import { usePolling } from "./usePolling";
 
 /**
  * Return value from useDeviceStatus.
  */
 export interface UseDeviceStatusReturn {
-  /** Current device status */
-  data: ReturnType<typeof ref<DeviceStatus | null>>;
-  /** Loading state */
-  loading: ReturnType<typeof ref<boolean>>;
-  /** Error message if fetch fails */
-  error: ReturnType<typeof ref<string | null>>;
-  /** Manually refetch status */
-  refetch: () => Promise<void>;
+	/** Current device status */
+	data: ReturnType<typeof ref<DeviceStatus | null>>;
+	/** Loading state */
+	loading: ReturnType<typeof ref<boolean>>;
+	/** Error message if fetch fails */
+	error: ReturnType<typeof ref<string | null>>;
+	/** Manually refetch status */
+	refetch: () => Promise<void>;
 }
 
 /**
@@ -54,35 +54,35 @@ export interface UseDeviceStatusReturn {
  * ```
  */
 export function useDeviceStatus(
-  deviceId: ReturnType<typeof ref<string | null>>,
+	deviceId: ReturnType<typeof ref<string | null>>,
 ): UseDeviceStatusReturn {
-  const api = useApi();
+	const api = useApi();
 
-  const enabled = computed(() => deviceId.value !== null);
+	const enabled = computed(() => deviceId.value !== null);
 
-  const { data, loading, error, refetch } = usePolling<DeviceStatus>({
-    fetcher: async () => {
-      if (!deviceId.value) {
-        throw new Error('No device ID provided');
-      }
-      return api.getDeviceStatus(deviceId.value);
-    },
-    interval: 5000,
-    enabled: enabled.value,
-  });
+	const { data, loading, error, refetch } = usePolling<DeviceStatus>({
+		fetcher: async () => {
+			if (!deviceId.value) {
+				throw new Error("No device ID provided");
+			}
+			return api.getDeviceStatus(deviceId.value);
+		},
+		interval: 5000,
+		enabled: enabled.value,
+	});
 
-  // Reset state when deviceId becomes null
-  watch(deviceId, (newId) => {
-    if (!newId) {
-      data.value = null;
-      error.value = null;
-    }
-  });
+	// Reset state when deviceId becomes null
+	watch(deviceId, (newId) => {
+		if (!newId) {
+			data.value = null;
+			error.value = null;
+		}
+	});
 
-  return {
-    data,
-    loading,
-    error,
-    refetch,
-  };
+	return {
+		data,
+		loading,
+		error,
+		refetch,
+	};
 }

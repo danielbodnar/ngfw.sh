@@ -4,24 +4,24 @@
  * @module composables/useLogs
  */
 
-import { ref, watch } from 'vue';
-import { useApi } from './useApi';
-import type { LogEntry, LogQuery } from '../lib/api/types';
+import { ref, watch } from "vue";
+import type { LogEntry, LogQuery } from "../lib/api/types";
+import { useApi } from "./useApi";
 
 /**
  * Return value from useLogs.
  */
 export interface UseLogsReturn {
-  /** List of log entries */
-  data: ReturnType<typeof ref<LogEntry[]>>;
-  /** Loading state */
-  loading: ReturnType<typeof ref<boolean>>;
-  /** Error message if fetch fails */
-  error: ReturnType<typeof ref<string | null>>;
-  /** Manually refetch logs */
-  refetch: () => Promise<void>;
-  /** Update the query parameters */
-  setQuery: (query: LogQuery) => void;
+	/** List of log entries */
+	data: ReturnType<typeof ref<LogEntry[]>>;
+	/** Loading state */
+	loading: ReturnType<typeof ref<boolean>>;
+	/** Error message if fetch fails */
+	error: ReturnType<typeof ref<string | null>>;
+	/** Manually refetch logs */
+	refetch: () => Promise<void>;
+	/** Update the query parameters */
+	setQuery: (query: LogQuery) => void;
 }
 
 /**
@@ -48,39 +48,43 @@ export interface UseLogsReturn {
  * ```
  */
 export function useLogs(initialQuery: LogQuery = {}): UseLogsReturn {
-  const api = useApi();
-  const data = ref<LogEntry[]>([]);
-  const loading = ref(true);
-  const error = ref<string | null>(null);
-  const query = ref<LogQuery>(initialQuery);
+	const api = useApi();
+	const data = ref<LogEntry[]>([]);
+	const loading = ref(true);
+	const error = ref<string | null>(null);
+	const query = ref<LogQuery>(initialQuery);
 
-  async function refetch(): Promise<void> {
-    loading.value = true;
-    error.value = null;
+	async function refetch(): Promise<void> {
+		loading.value = true;
+		error.value = null;
 
-    try {
-      data.value = await api.queryLogs(query.value);
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to fetch logs';
-    } finally {
-      loading.value = false;
-    }
-  }
+		try {
+			data.value = await api.queryLogs(query.value);
+		} catch (err) {
+			error.value = err instanceof Error ? err.message : "Failed to fetch logs";
+		} finally {
+			loading.value = false;
+		}
+	}
 
-  function setQuery(newQuery: LogQuery): void {
-    query.value = newQuery;
-  }
+	function setQuery(newQuery: LogQuery): void {
+		query.value = newQuery;
+	}
 
-  // Auto-refetch when query changes
-  watch(query, () => {
-    void refetch();
-  }, { deep: true, immediate: true });
+	// Auto-refetch when query changes
+	watch(
+		query,
+		() => {
+			void refetch();
+		},
+		{ deep: true, immediate: true },
+	);
 
-  return {
-    data,
-    loading,
-    error,
-    refetch,
-    setQuery,
-  };
+	return {
+		data,
+		loading,
+		error,
+		refetch,
+		setQuery,
+	};
 }

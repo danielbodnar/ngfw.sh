@@ -4,49 +4,46 @@
  * @module framework
  */
 
-// Core exports
-export * from './core/types';
-export { IntegrationTestBuilder, createTestBuilder } from './core/test-builder';
-
-// Mock exports
-export { MockApiServer, createMockApiServer } from './mocks/api-server';
-export { MockAgentClient, createMockAgentClient } from './mocks/agent-client';
-export { MockFirmwareAdapter, createMockFirmwareAdapter } from './mocks/firmware-adapter';
-
-// Fixture exports
-export {
-  DeviceFixtureBuilder,
-  UserFixtureBuilder,
-  MetricsFixtureBuilder,
-  NetworkConfigFixtureBuilder,
-  deviceFixture,
-  userFixture,
-  metricsFixture,
-  networkConfigFixture,
-} from './fixtures';
 
 // Assertion exports
 export {
-  WebSocketAssertions,
   StateAssertions,
   StorageAssertions,
-  TimingAssertions,
-  wsAssertions,
   stateAssertions,
   storageAssertions,
+  TimingAssertions,
   timingAssertions,
+  WebSocketAssertions,
+  wsAssertions,
 } from './assertions';
-
+export { createTestBuilder, IntegrationTestBuilder } from './core/test-builder';
+// Core exports
+export * from './core/types';
+// Fixture exports
+export {
+  DeviceFixtureBuilder,
+  deviceFixture,
+  MetricsFixtureBuilder,
+  metricsFixture,
+  NetworkConfigFixtureBuilder,
+  networkConfigFixture,
+  UserFixtureBuilder,
+  userFixture,
+} from './fixtures';
 // Isolation exports
 export {
+  createIsolationManager,
   IsolationManager,
-  TransactionIsolation,
   NamespaceIsolation,
-  WebSocketIsolation,
   ProcessIsolation,
   ResourceTracker,
-  createIsolationManager,
+  TransactionIsolation,
+  WebSocketIsolation,
 } from './isolation';
+export { createMockAgentClient, MockAgentClient } from './mocks/agent-client';
+// Mock exports
+export { createMockApiServer, MockApiServer } from './mocks/api-server';
+export { createMockFirmwareAdapter, MockFirmwareAdapter } from './mocks/firmware-adapter';
 
 /**
  * Framework version

@@ -55,7 +55,9 @@ export class Disconnect extends OpenAPIRoute {
 		const db = c.env.DB;
 
 		const profile = await db
-			.prepare("SELECT id, name, type, status, owner_id FROM vpn_client_profiles WHERE id = ?  AND owner_id = ?")
+			.prepare(
+				"SELECT id, name, type, status, owner_id FROM vpn_client_profiles WHERE id = ?  AND owner_id = ?",
+			)
 			.bind(id, userId)
 			.first();
 
@@ -64,7 +66,10 @@ export class Disconnect extends OpenAPIRoute {
 		}
 
 		if (profile.status === "disconnected") {
-			return c.json({ success: false, error: "Profile is already disconnected" }, 409);
+			return c.json(
+				{ success: false, error: "Profile is already disconnected" },
+				409,
+			);
 		}
 
 		await db

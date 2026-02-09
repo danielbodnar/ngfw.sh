@@ -1,7 +1,7 @@
 import { contentJson, OpenAPIRoute } from "chanfana";
 import { z } from "zod";
 import type { AppContext } from "../../types";
-import { ddnsProviderInfo, DDNS_PROVIDERS } from "./base";
+import { DDNS_PROVIDERS, ddnsProviderInfo } from "./base";
 
 export class DdnsProviderList extends OpenAPIRoute {
 	schema = {

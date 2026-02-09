@@ -1,54 +1,54 @@
 {
-  "agent": "monitoring-api",
-  "status": "complete",
-  "timestamp": 1738809600,
-  "files_created": [
-    "packages/schema/src/endpoints/reports/base.ts",
-    "packages/schema/src/endpoints/reports/reportList.ts",
-    "packages/schema/src/endpoints/reports/reportGenerate.ts",
-    "packages/schema/src/endpoints/reports/reportRead.ts",
-    "packages/schema/src/endpoints/reports/reportDelete.ts",
-    "packages/schema/src/endpoints/reports/router.ts",
-    "packages/schema/src/endpoints/logs/base.ts",
-    "packages/schema/src/endpoints/logs/logList.ts",
-    "packages/schema/src/endpoints/logs/logExport.ts",
-    "packages/schema/src/endpoints/logs/router.ts",
-    "packages/schema/src/endpoints/dashboards/base.ts",
-    "packages/schema/src/endpoints/dashboards/dashboardList.ts",
-    "packages/schema/src/endpoints/dashboards/dashboardRead.ts",
-    "packages/schema/src/endpoints/dashboards/router.ts"
-  ],
-  "files_existing": [
-    "packages/schema/src/endpoints/onboarding/base.ts",
-    "packages/schema/src/endpoints/onboarding/routerList.ts",
-    "packages/schema/src/endpoints/onboarding/orderCreate.ts",
-    "packages/schema/src/endpoints/onboarding/statusRead.ts",
-    "packages/schema/src/endpoints/onboarding/router.ts"
-  ],
-  "endpoints_implemented": [
-    "GET /reports - List all reports with filtering (device_id, type, status, limit, offset)",
-    "POST /reports/generate - Generate a new report (security, traffic, bandwidth, firewall, vpn, dns, device, system)",
-    "GET /reports/:id - Get report details with download URL",
-    "DELETE /reports/:id - Delete a report and associated R2 file",
-    "GET /logs - List logs with filtering (device_id, level, category, search, date range, limit, offset)",
-    "POST /logs/export - Export logs to CSV or JSON format (stored in R2 REPORTS bucket)",
-    "GET /onboarding/routers - List 4 router options (ASUS RT-AX92U, GL.iNet Flint 2, Linksys WRT3200ACM, GL.iNet Flint 3)",
-    "POST /onboarding/order - Submit router order with full configuration",
-    "GET /onboarding/status - Get onboarding status and progress",
-    "GET /dashboards - List 10 dashboard categories",
-    "GET /dashboards/:id - Get dashboard with widgets (network-overview, security-events, dns-analytics, wifi-performance, wan-health, vpn-metrics, system-resources, traffic-analysis, firewall-rules, qos-metrics)"
-  ],
-  "notes": [
-    "Reports API uses D1 for metadata and R2 REPORTS bucket for file storage",
-    "Report formats: PDF, CSV, JSON with status tracking (pending, generating, completed, failed)",
-    "Logs API includes comprehensive filtering with JOIN to devices table for owner validation",
-    "Log export generates files on-demand and stores in R2 with download URLs",
-    "Onboarding API already existed with complete implementation including 4 router options from MANIFEST.md",
-    "Onboarding includes full shipping address, WiFi config, WAN config, security presets",
-    "Dashboards provide 10+ categories with detailed widget configurations",
-    "Each dashboard includes multiple widgets (line-chart, bar-chart, pie-chart, gauge, counter, table, heatmap, map)",
-    "All endpoints follow Clerk JWT authentication pattern via security: [{ bearerAuth: [] }]",
-    "Mock data provided for dashboards - production would fetch real-time metrics",
-    "Database migrations will be needed for reports, logs, and onboarding_orders tables"
-  ]
+	"agent": "monitoring-api",
+	"status": "complete",
+	"timestamp": 1738809600,
+	"files_created": [
+		"packages/schema/src/endpoints/reports/base.ts",
+		"packages/schema/src/endpoints/reports/reportList.ts",
+		"packages/schema/src/endpoints/reports/reportGenerate.ts",
+		"packages/schema/src/endpoints/reports/reportRead.ts",
+		"packages/schema/src/endpoints/reports/reportDelete.ts",
+		"packages/schema/src/endpoints/reports/router.ts",
+		"packages/schema/src/endpoints/logs/base.ts",
+		"packages/schema/src/endpoints/logs/logList.ts",
+		"packages/schema/src/endpoints/logs/logExport.ts",
+		"packages/schema/src/endpoints/logs/router.ts",
+		"packages/schema/src/endpoints/dashboards/base.ts",
+		"packages/schema/src/endpoints/dashboards/dashboardList.ts",
+		"packages/schema/src/endpoints/dashboards/dashboardRead.ts",
+		"packages/schema/src/endpoints/dashboards/router.ts"
+	],
+	"files_existing": [
+		"packages/schema/src/endpoints/onboarding/base.ts",
+		"packages/schema/src/endpoints/onboarding/routerList.ts",
+		"packages/schema/src/endpoints/onboarding/orderCreate.ts",
+		"packages/schema/src/endpoints/onboarding/statusRead.ts",
+		"packages/schema/src/endpoints/onboarding/router.ts"
+	],
+	"endpoints_implemented": [
+		"GET /reports - List all reports with filtering (device_id, type, status, limit, offset)",
+		"POST /reports/generate - Generate a new report (security, traffic, bandwidth, firewall, vpn, dns, device, system)",
+		"GET /reports/:id - Get report details with download URL",
+		"DELETE /reports/:id - Delete a report and associated R2 file",
+		"GET /logs - List logs with filtering (device_id, level, category, search, date range, limit, offset)",
+		"POST /logs/export - Export logs to CSV or JSON format (stored in R2 REPORTS bucket)",
+		"GET /onboarding/routers - List 4 router options (ASUS RT-AX92U, GL.iNet Flint 2, Linksys WRT3200ACM, GL.iNet Flint 3)",
+		"POST /onboarding/order - Submit router order with full configuration",
+		"GET /onboarding/status - Get onboarding status and progress",
+		"GET /dashboards - List 10 dashboard categories",
+		"GET /dashboards/:id - Get dashboard with widgets (network-overview, security-events, dns-analytics, wifi-performance, wan-health, vpn-metrics, system-resources, traffic-analysis, firewall-rules, qos-metrics)"
+	],
+	"notes": [
+		"Reports API uses D1 for metadata and R2 REPORTS bucket for file storage",
+		"Report formats: PDF, CSV, JSON with status tracking (pending, generating, completed, failed)",
+		"Logs API includes comprehensive filtering with JOIN to devices table for owner validation",
+		"Log export generates files on-demand and stores in R2 with download URLs",
+		"Onboarding API already existed with complete implementation including 4 router options from MANIFEST.md",
+		"Onboarding includes full shipping address, WiFi config, WAN config, security presets",
+		"Dashboards provide 10+ categories with detailed widget configurations",
+		"Each dashboard includes multiple widgets (line-chart, bar-chart, pie-chart, gauge, counter, table, heatmap, map)",
+		"All endpoints follow Clerk JWT authentication pattern via security: [{ bearerAuth: [] }]",
+		"Mock data provided for dashboards - production would fetch real-time metrics",
+		"Database migrations will be needed for reports, logs, and onboarding_orders tables"
+	]
 }

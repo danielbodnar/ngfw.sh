@@ -12,9 +12,21 @@ export const lanConfig = z.object({
 	ipv6_enabled: z.boolean().default(false),
 	ipv6_address: z.string().nullable().describe("LAN IPv6 address"),
 	ipv6_prefix_length: z.number().int().min(0).max(128).nullable(),
-	dhcp_enabled: z.boolean().default(true).describe("Enable DHCP server on this interface"),
-	vlan_id: z.number().int().min(1).max(4094).nullable().describe("VLAN ID (null for untagged)"),
-	bridge_interfaces: z.string().nullable().describe("Comma-separated list of bridged interfaces"),
+	dhcp_enabled: z
+		.boolean()
+		.default(true)
+		.describe("Enable DHCP server on this interface"),
+	vlan_id: z
+		.number()
+		.int()
+		.min(1)
+		.max(4094)
+		.nullable()
+		.describe("VLAN ID (null for untagged)"),
+	bridge_interfaces: z
+		.string()
+		.nullable()
+		.describe("Comma-separated list of bridged interfaces"),
 	updated_at: z.number().int(),
 });
 

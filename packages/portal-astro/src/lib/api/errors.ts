@@ -10,11 +10,11 @@
  * Includes HTTP status code and detailed message from the server.
  */
 export class ApiError extends Error {
-  constructor(
-    public readonly status: number,
-    message: string,
-  ) {
-    super(message);
-    this.name = 'ApiError';
-  }
+	constructor(
+		public readonly status: number,
+		message: string,
+	) {
+		super(message);
+		this.name = "ApiError";
+	}
 }

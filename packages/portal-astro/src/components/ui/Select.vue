@@ -1,48 +1,51 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed } from "vue";
 
 export interface SelectOption {
-  value: string | number;
-  label: string;
-  disabled?: boolean;
+	value: string | number;
+	label: string;
+	disabled?: boolean;
 }
 
 export interface SelectProps {
-  modelValue?: string | number;
-  label?: string;
-  options: SelectOption[];
-  placeholder?: string;
-  error?: string;
-  help?: string;
-  disabled?: boolean;
-  required?: boolean;
-  id?: string;
+	modelValue?: string | number;
+	label?: string;
+	options: SelectOption[];
+	placeholder?: string;
+	error?: string;
+	help?: string;
+	disabled?: boolean;
+	required?: boolean;
+	id?: string;
 }
 
 const props = withDefaults(defineProps<SelectProps>(), {
-  disabled: false,
-  required: false,
+	disabled: false,
+	required: false,
 });
 
 const emit = defineEmits<{
-  'update:modelValue': [value: string | number];
+	"update:modelValue": [value: string | number];
 }>();
 
-const selectId = computed(() => props.id || `select-${Math.random().toString(36).slice(2, 9)}`);
+const selectId = computed(
+	() => props.id || `select-${Math.random().toString(36).slice(2, 9)}`,
+);
 
 const selectClasses = computed(() => {
-  const base = 'flex h-10 w-full rounded-lg border px-3 py-2 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50';
+	const base =
+		"flex h-10 w-full rounded-lg border px-3 py-2 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50";
 
-  if (props.error) {
-    return `${base} border-red-500 focus-visible:ring-red-500 dark:border-red-400`;
-  }
+	if (props.error) {
+		return `${base} border-red-500 focus-visible:ring-red-500 dark:border-red-400`;
+	}
 
-  return `${base} border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950 focus-visible:ring-blue-500`;
+	return `${base} border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950 focus-visible:ring-blue-500`;
 });
 
 const handleChange = (event: Event) => {
-  const target = event.target as HTMLSelectElement;
-  emit('update:modelValue', target.value);
+	const target = event.target as HTMLSelectElement;
+	emit("update:modelValue", target.value);
 };
 </script>
 

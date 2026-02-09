@@ -388,7 +388,7 @@ async fn test_dispatcher_config_push_shadow_mode_invalid() {
 
     assert_eq!(response.msg_type, MessageType::ConfigFail);
     assert_eq!(response.payload["success"], false);
-    assert!(response.payload["error"].as_str().unwrap().len() > 0);
+    assert!(!response.payload["error"].as_str().unwrap().is_empty());
 }
 
 #[tokio::test]
@@ -564,8 +564,8 @@ async fn test_dispatcher_upgrade_denied_in_shadow() {
 #[tokio::test]
 async fn test_dispatcher_shutdown_cleanup() {
     let config = test_config();
-    let (inbound_tx, inbound_rx) = mpsc::channel(10);
-    let (outbound_tx, mut outbound_rx) = mpsc::channel(10);
+    let (_inbound_tx, inbound_rx) = mpsc::channel(10);
+    let (outbound_tx, _outbound_rx) = mpsc::channel(10);
     let (mode_tx, mode_rx) = watch::channel(ModeConfig {
         mode: AgentMode::Observe,
         section_overrides: Default::default(),

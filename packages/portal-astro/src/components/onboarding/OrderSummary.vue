@@ -1,72 +1,72 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-import Card from '../ui/Card.vue';
-import Badge from '../ui/Badge.vue';
+import { ref } from "vue";
+import Badge from "../ui/Badge.vue";
+import Card from "../ui/Card.vue";
 
 interface RouterOption {
-  id: string;
-  name: string;
-  manufacturer: string;
-  price: number;
-  image: string;
+	id: string;
+	name: string;
+	manufacturer: string;
+	price: number;
+	image: string;
 }
 
 interface OnboardingConfig {
-  deviceName: string;
-  shippingAddress: {
-    fullName: string;
-    addressLine1: string;
-    addressLine2?: string;
-    city: string;
-    state: string;
-    zipCode: string;
-    phoneNumber: string;
-  };
-  wifiConfig: {
-    ssid: string;
-    password: string;
-    hideSsid: boolean;
-  };
-  wanType: string;
-  securityPreset: string;
-  enableIPS: boolean;
-  enableDNSFilter: boolean;
-  enableAutoUpdates: boolean;
+	deviceName: string;
+	shippingAddress: {
+		fullName: string;
+		addressLine1: string;
+		addressLine2?: string;
+		city: string;
+		state: string;
+		zipCode: string;
+		phoneNumber: string;
+	};
+	wifiConfig: {
+		ssid: string;
+		password: string;
+		hideSsid: boolean;
+	};
+	wanType: string;
+	securityPreset: string;
+	enableIPS: boolean;
+	enableDNSFilter: boolean;
+	enableAutoUpdates: boolean;
 }
 
 const props = defineProps<{
-  router: RouterOption;
-  config: OnboardingConfig;
+	router: RouterOption;
+	config: OnboardingConfig;
 }>();
 
 const emit = defineEmits<{
-  submit: [];
-  edit: [section: 'router' | 'config'];
+	submit: [];
+	edit: [section: "router" | "config"];
 }>();
 
 const submitting = ref(false);
 
 const handleSubmit = async () => {
-  submitting.value = true;
-  try {
-    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
-    emit('submit');
-  } finally {
-    submitting.value = false;
-  }
+	submitting.value = true;
+	try {
+		await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate API call
+		emit("submit");
+	} finally {
+		submitting.value = false;
+	}
 };
 
 const wanTypeLabels: Record<string, string> = {
-  dhcp: 'DHCP (Automatic)',
-  static: 'Static IP',
-  pppoe: 'PPPoE',
-  lte: 'LTE/Mobile',
+	dhcp: "DHCP (Automatic)",
+	static: "Static IP",
+	pppoe: "PPPoE",
+	lte: "LTE/Mobile",
 };
 
 const securityPresetLabels: Record<string, string> = {
-  standard: 'Standard',
-  strict: 'Strict',
-  custom: 'Custom',
+	standard: "Standard",
+	strict: "Strict",
+	custom: "Custom",
 };
 </script>
 

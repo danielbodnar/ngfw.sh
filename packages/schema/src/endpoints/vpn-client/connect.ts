@@ -55,7 +55,9 @@ export class Connect extends OpenAPIRoute {
 		const db = c.env.DB;
 
 		const profile = await db
-			.prepare("SELECT id, name, type, status, owner_id FROM vpn_client_profiles WHERE id = ? AND owner_id = ?")
+			.prepare(
+				"SELECT id, name, type, status, owner_id FROM vpn_client_profiles WHERE id = ? AND owner_id = ?",
+			)
 			.bind(id, userId)
 			.first();
 
@@ -64,11 +66,16 @@ export class Connect extends OpenAPIRoute {
 		}
 
 		if (profile.status === "connected") {
-			return c.json({ success: false, error: "Profile is already connected" }, 409);
+			return c.json(
+				{ success: false, error: "Profile is already connected" },
+				409,
+			);
 		}
 
 		await db
-			.prepare("UPDATE vpn_client_profiles SET status = ?, last_connected = ? WHERE id = ?")
+			.prepare(
+				"UPDATE vpn_client_profiles SET status = ?, last_connected = ? WHERE id = ?",
+			)
 			.bind("connecting", Date.now(), id)
 			.run();
 

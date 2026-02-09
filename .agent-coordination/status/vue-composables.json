@@ -1,50 +1,51 @@
 {
-  "agent": "vue-composables",
-  "status": "complete",
-  "timestamp": "2026-02-06T01:45:00Z",
-  "deliverables": {
-    "lib/api": [
-      "lib/api/client.ts",
-      "lib/api/types.ts",
-      "lib/api/errors.ts"
-    ],
-    "lib/utils": [
-      "lib/utils/format.ts",
-      "lib/utils/cn.ts",
-      "lib/utils/date.ts"
-    ],
-    "composables": [
-      "composables/useApi.ts",
-      "composables/useAuth.ts",
-      "composables/usePolling.ts",
-      "composables/useDevices.ts",
-      "composables/useDeviceStatus.ts",
-      "composables/useRegisterDevice.ts",
-      "composables/useRoutes.ts",
-      "composables/useNAT.ts",
-      "composables/useIPS.ts",
-      "composables/useVPNServer.ts",
-      "composables/useVPNClient.ts",
-      "composables/useQoS.ts",
-      "composables/useDDNS.ts",
-      "composables/useReports.ts",
-      "composables/useLogs.ts",
-      "composables/useDashboards.ts",
-      "composables/index.ts"
-    ]
-  },
-  "total_files": 23,
-  "notes": [
-    "All composables follow Vue 3 Composition API patterns",
-    "Each composable returns { data, loading, error, refetch } pattern",
-    "Polling composable includes visibility handling (pauses when tab hidden)",
-    "API client supports all endpoints: fleet, routing, NAT, IPS, VPN, QoS, DDNS, reports, logs, dashboards",
-    "Utility functions match existing portal patterns (formatBytes, formatRate, etc.)",
-    "TypeScript errors for missing 'vue' module are expected - will resolve when astro-setup completes",
-    "Two minor type errors in useAuth and usePolling will be fixed by linter agent"
-  ],
-  "dependencies": {
-    "waited_for": ["astro-setup"],
-    "blocks": ["network-pages", "security-pages", "services-pages", "monitoring-pages"]
-  }
+	"agent": "vue-composables",
+	"status": "complete",
+	"timestamp": "2026-02-06T01:45:00Z",
+	"deliverables": {
+		"lib/api": ["lib/api/client.ts", "lib/api/types.ts", "lib/api/errors.ts"],
+		"lib/utils": [
+			"lib/utils/format.ts",
+			"lib/utils/cn.ts",
+			"lib/utils/date.ts"
+		],
+		"composables": [
+			"composables/useApi.ts",
+			"composables/useAuth.ts",
+			"composables/usePolling.ts",
+			"composables/useDevices.ts",
+			"composables/useDeviceStatus.ts",
+			"composables/useRegisterDevice.ts",
+			"composables/useRoutes.ts",
+			"composables/useNAT.ts",
+			"composables/useIPS.ts",
+			"composables/useVPNServer.ts",
+			"composables/useVPNClient.ts",
+			"composables/useQoS.ts",
+			"composables/useDDNS.ts",
+			"composables/useReports.ts",
+			"composables/useLogs.ts",
+			"composables/useDashboards.ts",
+			"composables/index.ts"
+		]
+	},
+	"total_files": 23,
+	"notes": [
+		"All composables follow Vue 3 Composition API patterns",
+		"Each composable returns { data, loading, error, refetch } pattern",
+		"Polling composable includes visibility handling (pauses when tab hidden)",
+		"API client supports all endpoints: fleet, routing, NAT, IPS, VPN, QoS, DDNS, reports, logs, dashboards",
+		"Utility functions match existing portal patterns (formatBytes, formatRate, etc.)",
+		"TypeScript errors for missing 'vue' module are expected - will resolve when astro-setup completes",
+		"Two minor type errors in useAuth and usePolling will be fixed by linter agent"
+	],
+	"dependencies": {
+		"waited_for": ["astro-setup"],
+		"blocks": [
+			"network-pages",
+			"security-pages",
+			"services-pages",
+			"monitoring-pages"
+		]
+	}
 }

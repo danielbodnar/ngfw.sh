@@ -12,42 +12,42 @@
 // ---------------------------------------------------------------------------
 
 export interface Device {
-  id: string;
-  name: string;
-  model: string | null;
-  serial: string | null;
-  owner_id: string;
-  firmware_version: string | null;
-  status: 'provisioning' | 'online' | 'offline';
-  created_at: number;
-  last_seen: number | null;
+	id: string;
+	name: string;
+	model: string | null;
+	serial: string | null;
+	owner_id: string;
+	firmware_version: string | null;
+	status: "provisioning" | "online" | "offline";
+	created_at: number;
+	last_seen: number | null;
 }
 
 export interface DeviceRegistration {
-  name: string;
-  model?: string;
+	name: string;
+	model?: string;
 }
 
 export interface DeviceRegistrationResponse extends Device {
-  /** Only returned once at registration time. */
-  api_key: string;
-  websocket_url: string;
+	/** Only returned once at registration time. */
+	api_key: string;
+	websocket_url: string;
 }
 
 export interface DeviceStatus {
-  device: Device;
-  connection: {
-    online: boolean;
-    last_seen: number | null;
-  } | null;
-  metrics: {
-    uptime: number;
-    cpu: number;
-    memory: number;
-    temperature: number | null;
-    load: [number, number, number];
-    connections: number;
-  } | null;
+	device: Device;
+	connection: {
+		online: boolean;
+		last_seen: number | null;
+	} | null;
+	metrics: {
+		uptime: number;
+		cpu: number;
+		memory: number;
+		temperature: number | null;
+		load: [number, number, number];
+		connections: number;
+	} | null;
 }
 
 // ---------------------------------------------------------------------------
@@ -55,13 +55,13 @@ export interface DeviceStatus {
 // ---------------------------------------------------------------------------
 
 export class ApiError extends Error {
-  constructor(
-    public readonly status: number,
-    message: string,
-  ) {
-    super(message);
-    this.name = 'ApiError';
-  }
+	constructor(
+		public readonly status: number,
+		message: string,
+	) {
+		super(message);
+		this.name = "ApiError";
+	}
 }
 
 // ---------------------------------------------------------------------------
@@ -69,10 +69,10 @@ export class ApiError extends Error {
 // ---------------------------------------------------------------------------
 
 export interface ApiClient {
-  listDevices(): Promise<Device[]>;
-  registerDevice(data: DeviceRegistration): Promise<DeviceRegistrationResponse>;
-  getDeviceStatus(deviceId: string): Promise<DeviceStatus>;
-  deleteDevice(deviceId: string): Promise<void>;
+	listDevices(): Promise<Device[]>;
+	registerDevice(data: DeviceRegistration): Promise<DeviceRegistrationResponse>;
+	getDeviceStatus(deviceId: string): Promise<DeviceStatus>;
+	deleteDevice(deviceId: string): Promise<void>;
 }
 
 /**
@@ -90,71 +90,73 @@ export interface ApiClient {
  * ```
  */
 export function createApiClient(
-  getToken: () => Promise<string | null>,
+	getToken: () => Promise<string | null>,
 ): ApiClient {
-  const baseUrl = (
-    import.meta.env.VITE_API_URL ?? 'https://specs.ngfw.sh'
-  ).replace(/\/+$/, '');
+	const baseUrl = (
+		import.meta.env.VITE_API_URL ?? "https://specs.ngfw.sh"
+	).replace(/\/+$/, "");
 
-  async function request<T>(
-    path: string,
-    options: RequestInit = {},
-  ): Promise<T> {
-    const token = await getToken();
+	async function request<T>(
+		path: string,
+		options: RequestInit = {},
+	): Promise<T> {
+		const token = await getToken();
 
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
-      ...(options.headers as Record<string, string> | undefined),
-    };
+		const headers: Record<string, string> = {
+			"Content-Type": "application/json",
+			...(options.headers as Record<string, string> | undefined),
+		};
 
-    if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
-    }
+		if (token) {
+			headers["Authorization"] = `Bearer ${token}`;
+		}
 
-    const res = await fetch(`${baseUrl}${path}`, {
-      ...options,
-      headers,
-    });
+		const res = await fetch(`${baseUrl}${path}`, {
+			...options,
+			headers,
+		});
 
-    if (!res.ok) {
-      let message = res.statusText;
-      try {
-        const body = (await res.json()) as { error?: string; message?: string };
-        message = body.error ?? body.message ?? message;
-      } catch {
-        // Response body was not JSON — fall through to statusText.
-      }
-      throw new ApiError(res.status, message);
-    }
+		if (!res.ok) {
+			let message = res.statusText;
+			try {
+				const body = (await res.json()) as { error?: string; message?: string };
+				message = body.error ?? body.message ?? message;
+			} catch {
+				// Response body was not JSON — fall through to statusText.
+			}
+			throw new ApiError(res.status, message);
+		}
 
-    // 204 No Content — nothing to parse.
-    if (res.status === 204) {
-      return undefined as T;
-    }
+		// 204 No Content — nothing to parse.
+		if (res.status === 204) {
+			return undefined as T;
+		}
 
-    return (await res.json()) as T;
-  }
+		return (await res.json()) as T;
+	}
 
-  return {
-    listDevices() {
-      return request<Device[]>('/fleet/devices');
-    },
+	return {
+		listDevices() {
+			return request<Device[]>("/fleet/devices");
+		},
 
-    registerDevice(data) {
-      return request<DeviceRegistrationResponse>('/fleet/devices', {
-        method: 'POST',
-        body: JSON.stringify(data),
-      });
-    },
+		registerDevice(data) {
+			return request<DeviceRegistrationResponse>("/fleet/devices", {
+				method: "POST",
+				body: JSON.stringify(data),
+			});
+		},
 
-    getDeviceStatus(deviceId) {
-      return request<DeviceStatus>(`/fleet/devices/${encodeURIComponent(deviceId)}/status`);
-    },
+		getDeviceStatus(deviceId) {
+			return request<DeviceStatus>(
+				`/fleet/devices/${encodeURIComponent(deviceId)}/status`,
+			);
+		},
 
-    deleteDevice(deviceId) {
-      return request<void>(`/fleet/devices/${encodeURIComponent(deviceId)}`, {
-        method: 'DELETE',
-      });
-    },
-  };
+		deleteDevice(deviceId) {
+			return request<void>(`/fleet/devices/${encodeURIComponent(deviceId)}`, {
+				method: "DELETE",
+			});
+		},
+	};
 }

@@ -1,122 +1,122 @@
 {
-  "agent": "nat-api",
-  "status": "complete",
-  "timestamp": "2026-02-06T00:00:00Z",
-  "deliverables": {
-    "base_schemas": {
-      "path": "packages/schema/src/endpoints/nat/base.ts",
-      "description": "Zod schemas for NAT rules (snat, dnat, masquerade, port_forward) and UPnP leases",
-      "models": ["NatRuleModel", "UpnpLeaseModel"]
-    },
-    "list_endpoints": [
-      {
-        "path": "packages/schema/src/endpoints/nat/natRuleList.ts",
-        "operationId": "nat-rule-list",
-        "method": "GET",
-        "route": "/nat/rules",
-        "description": "List all NAT rules for a device with mock data (4 sample rules)"
-      },
-      {
-        "path": "packages/schema/src/endpoints/nat/upnpList.ts",
-        "operationId": "nat-upnp-list",
-        "method": "GET",
-        "route": "/nat/upnp",
-        "description": "List all active UPnP leases with mock data (4 sample leases)"
-      }
-    ],
-    "crud_endpoints": [
-      {
-        "path": "packages/schema/src/endpoints/nat/natRuleCreate.ts",
-        "operationId": "nat-rule-create",
-        "method": "POST",
-        "route": "/nat/rules",
-        "description": "Create a new NAT rule"
-      },
-      {
-        "path": "packages/schema/src/endpoints/nat/natRuleUpdate.ts",
-        "operationId": "nat-rule-update",
-        "method": "PUT",
-        "route": "/nat/rules/:id",
-        "description": "Update an existing NAT rule"
-      },
-      {
-        "path": "packages/schema/src/endpoints/nat/natRuleDelete.ts",
-        "operationId": "nat-rule-delete",
-        "method": "DELETE",
-        "route": "/nat/rules/:id",
-        "description": "Delete a NAT rule"
-      }
-    ],
-    "router": {
-      "path": "packages/schema/src/endpoints/nat/router.ts",
-      "description": "Hono router registration with Clerk auth middleware",
-      "export": "natRouter"
-    }
-  },
-  "features": {
-    "nat_rule_types": ["snat", "dnat", "masquerade", "port_forward"],
-    "protocols": ["tcp", "udp", "tcp_udp", "icmp", "all"],
-    "mock_data": {
-      "nat_rules": 4,
-      "upnp_leases": 4
-    },
-    "authentication": "Clerk JWT via clerkAuth middleware",
-    "validation": "Zod schemas with OpenAPI 3.1 generation via Chanfana"
-  },
-  "mock_data_samples": {
-    "nat_rules": [
-      {
-        "name": "SSH Access",
-        "type": "port_forward",
-        "description": "Forward external SSH to internal server"
-      },
-      {
-        "name": "Web Server",
-        "type": "port_forward",
-        "description": "HTTP and HTTPS to web server"
-      },
-      {
-        "name": "WAN Masquerade",
-        "type": "masquerade",
-        "description": "NAT masquerade for LAN to WAN traffic"
-      },
-      {
-        "name": "Game Server",
-        "type": "port_forward",
-        "description": "Minecraft server port forwarding (disabled)"
-      }
-    ],
-    "upnp_leases": [
-      {
-        "client_ip": "192.168.1.105",
-        "description": "BitTorrent Client",
-        "protocol": "tcp"
-      },
-      {
-        "client_ip": "192.168.1.150",
-        "description": "Xbox Live",
-        "protocol": "udp"
-      },
-      {
-        "client_ip": "192.168.1.75",
-        "description": "SIP VoIP Phone",
-        "protocol": "tcp"
-      },
-      {
-        "client_ip": "192.168.1.120",
-        "description": "Steam Game Server",
-        "protocol": "udp"
-      }
-    ]
-  },
-  "notes": [
-    "All endpoints follow the fleet endpoint pattern with OpenAPIRoute base class",
-    "Clerk authentication middleware applied to all routes",
-    "Mock data provided in List endpoints for frontend development",
-    "Database integration stubbed with TODO comments for future implementation",
-    "Router exports natRouter for registration in main index.ts",
-    "Supports device_id query parameter for filtering by device",
-    "All routes require Bearer token authentication",
-    "Ready for integration by integration-coordinator agent"
-  ]
+	"agent": "nat-api",
+	"status": "complete",
+	"timestamp": "2026-02-06T00:00:00Z",
+	"deliverables": {
+		"base_schemas": {
+			"path": "packages/schema/src/endpoints/nat/base.ts",
+			"description": "Zod schemas for NAT rules (snat, dnat, masquerade, port_forward) and UPnP leases",
+			"models": ["NatRuleModel", "UpnpLeaseModel"]
+		},
+		"list_endpoints": [
+			{
+				"path": "packages/schema/src/endpoints/nat/natRuleList.ts",
+				"operationId": "nat-rule-list",
+				"method": "GET",
+				"route": "/nat/rules",
+				"description": "List all NAT rules for a device with mock data (4 sample rules)"
+			},
+			{
+				"path": "packages/schema/src/endpoints/nat/upnpList.ts",
+				"operationId": "nat-upnp-list",
+				"method": "GET",
+				"route": "/nat/upnp",
+				"description": "List all active UPnP leases with mock data (4 sample leases)"
+			}
+		],
+		"crud_endpoints": [
+			{
+				"path": "packages/schema/src/endpoints/nat/natRuleCreate.ts",
+				"operationId": "nat-rule-create",
+				"method": "POST",
+				"route": "/nat/rules",
+				"description": "Create a new NAT rule"
+			},
+			{
+				"path": "packages/schema/src/endpoints/nat/natRuleUpdate.ts",
+				"operationId": "nat-rule-update",
+				"method": "PUT",
+				"route": "/nat/rules/:id",
+				"description": "Update an existing NAT rule"
+			},
+			{
+				"path": "packages/schema/src/endpoints/nat/natRuleDelete.ts",
+				"operationId": "nat-rule-delete",
+				"method": "DELETE",
+				"route": "/nat/rules/:id",
+				"description": "Delete a NAT rule"
+			}
+		],
+		"router": {
+			"path": "packages/schema/src/endpoints/nat/router.ts",
+			"description": "Hono router registration with Clerk auth middleware",
+			"export": "natRouter"
+		}
+	},
+	"features": {
+		"nat_rule_types": ["snat", "dnat", "masquerade", "port_forward"],
+		"protocols": ["tcp", "udp", "tcp_udp", "icmp", "all"],
+		"mock_data": {
+			"nat_rules": 4,
+			"upnp_leases": 4
+		},
+		"authentication": "Clerk JWT via clerkAuth middleware",
+		"validation": "Zod schemas with OpenAPI 3.1 generation via Chanfana"
+	},
+	"mock_data_samples": {
+		"nat_rules": [
+			{
+				"name": "SSH Access",
+				"type": "port_forward",
+				"description": "Forward external SSH to internal server"
+			},
+			{
+				"name": "Web Server",
+				"type": "port_forward",
+				"description": "HTTP and HTTPS to web server"
+			},
+			{
+				"name": "WAN Masquerade",
+				"type": "masquerade",
+				"description": "NAT masquerade for LAN to WAN traffic"
+			},
+			{
+				"name": "Game Server",
+				"type": "port_forward",
+				"description": "Minecraft server port forwarding (disabled)"
+			}
+		],
+		"upnp_leases": [
+			{
+				"client_ip": "192.168.1.105",
+				"description": "BitTorrent Client",
+				"protocol": "tcp"
+			},
+			{
+				"client_ip": "192.168.1.150",
+				"description": "Xbox Live",
+				"protocol": "udp"
+			},
+			{
+				"client_ip": "192.168.1.75",
+				"description": "SIP VoIP Phone",
+				"protocol": "tcp"
+			},
+			{
+				"client_ip": "192.168.1.120",
+				"description": "Steam Game Server",
+				"protocol": "udp"
+			}
+		]
+	},
+	"notes": [
+		"All endpoints follow the fleet endpoint pattern with OpenAPIRoute base class",
+		"Clerk authentication middleware applied to all routes",
+		"Mock data provided in List endpoints for frontend development",
+		"Database integration stubbed with TODO comments for future implementation",
+		"Router exports natRouter for registration in main index.ts",
+		"Supports device_id query parameter for filtering by device",
+		"All routes require Bearer token authentication",
+		"Ready for integration by integration-coordinator agent"
+	]
 }

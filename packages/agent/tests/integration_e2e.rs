@@ -30,8 +30,8 @@ impl MockApiServer {
         let received_clone = received.clone();
 
         tokio::spawn(async move {
-            if let Ok((stream, _)) = listener.accept().await {
-                if let Ok(mut ws) = accept_async(stream).await {
+            if let Ok((stream, _)) = listener.accept().await
+                && let Ok(mut ws) = accept_async(stream).await {
                     // Handle AUTH
                     if let Some(Ok(Message::Text(text))) = ws.next().await {
                         let msg: RpcMessage = serde_json::from_str(&text).unwrap();
@@ -58,7 +58,6 @@ impl MockApiServer {
                         }
                     }
                 }
-            }
         });
 
         Self {

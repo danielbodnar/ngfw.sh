@@ -1,65 +1,78 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
-import { useVPNServer } from '../../composables/useVPNServer';
-import { useSelectedDevice } from '../../composables/useSelectedDevice';
-import { usePolling } from '../../composables/usePolling';
-import Spinner from '../ui/Spinner.vue';
-import Button from '../ui/Button.vue';
-import Card from '../ui/Card.vue';
-import Badge from '../ui/Badge.vue';
+import { computed, ref } from "vue";
+import { usePolling } from "../../composables/usePolling";
+import { useSelectedDevice } from "../../composables/useSelectedDevice";
+import { useVPNServer } from "../../composables/useVPNServer";
+import Badge from "../ui/Badge.vue";
+import Button from "../ui/Button.vue";
+import Card from "../ui/Card.vue";
+import Spinner from "../ui/Spinner.vue";
 
 // Use globally selected device
 const { deviceId } = useSelectedDevice();
 
 // Fetch VPN server config and peers with auto-refresh
-const { config, peers, loading, error, refetch, updateConfig, createPeer, deletePeer } = useVPNServer(deviceId);
+const {
+	config,
+	peers,
+	loading,
+	error,
+	refetch,
+	updateConfig,
+	createPeer,
+	deletePeer,
+} = useVPNServer(deviceId);
 
 // Auto-refresh every 30 seconds
 usePolling({
-  fetcher: refetch,
-  interval: 30000,
-  immediate: false,
+	fetcher: refetch,
+	interval: 30000,
+	immediate: false,
 });
 
 // Format timestamp to relative time
 const formatRelativeTime = (timestamp: number): string => {
-  const now = Date.now() / 1000;
-  const diff = now - timestamp;
-  const seconds = Math.floor(diff);
-  const minutes = Math.floor(seconds / 60);
-  const hours = Math.floor(minutes / 60);
-  const days = Math.floor(hours / 24);
+	const now = Date.now() / 1000;
+	const diff = now - timestamp;
+	const seconds = Math.floor(diff);
+	const minutes = Math.floor(seconds / 60);
+	const hours = Math.floor(minutes / 60);
+	const days = Math.floor(hours / 24);
 
-  if (days > 0) return `${days}d ago`;
-  if (hours > 0) return `${hours}h ago`;
-  if (minutes > 0) return `${minutes}m ago`;
-  return 'Just now';
+	if (days > 0) return `${days}d ago`;
+	if (hours > 0) return `${hours}h ago`;
+	if (minutes > 0) return `${minutes}m ago`;
+	return "Just now";
 };
 
 // Format bytes to human-readable
 const formatBytes = (bytes: number): string => {
-  if (bytes === 0) return '0 B';
-  const k = 1024;
-  const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return `${(bytes / Math.pow(k, i)).toFixed(2)} ${sizes[i]}`;
+	if (bytes === 0) return "0 B";
+	const k = 1024;
+	const sizes = ["B", "KB", "MB", "GB", "TB"];
+	const i = Math.floor(Math.log(bytes) / Math.log(k));
+	return `${(bytes / k ** i).toFixed(2)} ${sizes[i]}`;
 };
 
 // Get protocol badge variant
-const getProtocolVariant = (protocol: string): 'success' | 'primary' | 'warning' => {
-  if (protocol === 'wireguard') return 'success';
-  if (protocol === 'openvpn') return 'primary';
-  return 'warning';
+const getProtocolVariant = (
+	protocol: string,
+): "success" | "primary" | "warning" => {
+	if (protocol === "wireguard") return "success";
+	if (protocol === "openvpn") return "primary";
+	return "warning";
 };
 
 // Stats computed from config and peers
 const stats = computed(() => {
-  const peerList = peers.value || [];
-  return {
-    totalPeers: peerList.length,
-    activePeers: peerList.filter((p) => p.enabled).length,
-    connectedPeers: peerList.filter((p) => p.last_handshake && (Date.now() / 1000 - p.last_handshake < 180)).length,
-  };
+	const peerList = peers.value || [];
+	return {
+		totalPeers: peerList.length,
+		activePeers: peerList.filter((p) => p.enabled).length,
+		connectedPeers: peerList.filter(
+			(p) => p.last_handshake && Date.now() / 1000 - p.last_handshake < 180,
+		).length,
+	};
 });
 </script>
 

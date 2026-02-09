@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { computed, watch } from 'vue';
-import { useDevices } from '../../composables/useDevices';
-import { useSelectedDevice } from '../../composables/useSelectedDevice';
-import Select from './Select.vue';
-import Spinner from './Spinner.vue';
-import Badge from './Badge.vue';
+import { computed, watch } from "vue";
+import { useDevices } from "../../composables/useDevices";
+import { useSelectedDevice } from "../../composables/useSelectedDevice";
+import Badge from "./Badge.vue";
+import Select from "./Select.vue";
+import Spinner from "./Spinner.vue";
 
 /**
  * Device selector dropdown component.
@@ -20,49 +20,49 @@ const { deviceId, selectDevice, hasDevice } = useSelectedDevice();
  * Options for the Select component
  */
 const deviceOptions = computed(() => {
-  if (!devices.value) return [];
+	if (!devices.value) return [];
 
-  return devices.value.map((device) => ({
-    value: device.id,
-    label: device.name || device.id,
-    // Include status badge in the display
-    meta: device.status,
-  }));
+	return devices.value.map((device) => ({
+		value: device.id,
+		label: device.name || device.id,
+		// Include status badge in the display
+		meta: device.status,
+	}));
 });
 
 /**
  * Auto-select first device if none is selected
  */
 watch(
-  [devices, hasDevice],
-  ([deviceList, selected]) => {
-    if (!selected && deviceList && deviceList.length > 0) {
-      // Auto-select the first online device, or just the first device
-      const firstOnline = deviceList.find((d) => d.status === 'online');
-      const firstDevice = firstOnline || deviceList[0];
-      selectDevice(firstDevice);
-    }
-  },
-  { immediate: true }
+	[devices, hasDevice],
+	([deviceList, selected]) => {
+		if (!selected && deviceList && deviceList.length > 0) {
+			// Auto-select the first online device, or just the first device
+			const firstOnline = deviceList.find((d) => d.status === "online");
+			const firstDevice = firstOnline || deviceList[0];
+			selectDevice(firstDevice);
+		}
+	},
+	{ immediate: true },
 );
 
 /**
  * Handle device selection change
  */
 function handleChange(value: string) {
-  const device = devices.value?.find((d) => d.id === value);
-  if (device) {
-    selectDevice(device);
-  }
+	const device = devices.value?.find((d) => d.id === value);
+	if (device) {
+		selectDevice(device);
+	}
 }
 
 /**
  * Get status badge variant based on device status
  */
-function getStatusVariant(status: string): 'success' | 'danger' | 'warning' {
-  if (status === 'online') return 'success';
-  if (status === 'offline') return 'danger';
-  return 'warning';
+function getStatusVariant(status: string): "success" | "danger" | "warning" {
+	if (status === "online") return "success";
+	if (status === "offline") return "danger";
+	return "warning";
 }
 </script>
 
