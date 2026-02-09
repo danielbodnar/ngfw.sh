@@ -8,6 +8,7 @@ export interface BadgeProps {
 		| "warning"
 		| "info"
 		| "purple"
+		| "primary"
 		| "default"
 		| "secondary"
 		| "error";
@@ -31,6 +32,8 @@ const badgeClasses = computed(() => {
 		info: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400",
 		purple:
 			"bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400",
+		primary:
+			"bg-blue-600 text-white dark:bg-blue-500 dark:text-white",
 		default:
 			"bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-300",
 		secondary:
