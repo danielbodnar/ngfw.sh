@@ -134,6 +134,7 @@ console.log(`Mock API server listening on http://localhost:${server.port}`);
 console.log(`WebSocket endpoint: ws://localhost:${server.port}/agent/ws`);
 console.log(`Health check: http://localhost:${server.port}/health`);
 console.log(`Status endpoint: http://localhost:${server.port}/status`);
+const maskedApiKey = `****${TEST_API_KEY.slice(-4)}`;
 console.log(
-	`Test credentials: device_id=${TEST_DEVICE_ID}, api_key=${TEST_API_KEY}`,
+	`Test credentials: device_id=${TEST_DEVICE_ID}, api_key=${maskedApiKey} (from TEST_API_KEY constant)`,
 );
