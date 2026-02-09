@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  # Mock API server (uses existing mock-api from tests/integration)
+  mock-api:
+    build:
+      context: ../../tests/integration/mock-api
+      dockerfile: Dockerfile
+    ports:
+      - "8787:8787"
+    environment:
+      - PORT=8787
+      - LOG_LEVEL=debug
+    networks:
+      - test-network
+
+  # Portal frontend
+  portal:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_API_URL=http://mock-api:8787
+      - VITE_CLERK_PUBLISHABLE_KEY=pk_test_dG91Z2gtdW5pY29ybi0yNS5jbGVyay5hY2NvdW50cy5kZXYk
+    depends_on:
+      - mock-api
+    networks:
+      - test-network
+
+  # Playwright test runner
+  playwright:
+    build:
+      context: .
+      dockerfile: Dockerfile.playwright
+    environment:
+      - PLAYWRIGHT_BASE_URL=http://portal:5173
+      - CI=true
+    depends_on:
+      - portal
+      - mock-api
+    volumes:
+      - ./playwright-report:/app/playwright-report
+      - ./test-results:/app/test-results
+    networks:
+      - test-network
+
+networks:
+  test-network:
+    driver: bridge

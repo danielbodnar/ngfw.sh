@@ -53,3 +53,13 @@ console_error_panic_hook = "0.1"
 
 # getrandom needs js feature for wasm32-unknown-unknown target
 getrandom = { version = "0.2", features = ["js"] }
+
+[dev-dependencies]
+# HTTP client for E2E tests
+reqwest = { version = "0.12", features = ["json"] }
+
+# Async runtime for tests
+tokio = { version = "1", features = ["full"] }
+
+# Additional testing utilities
+rand = "0.8"

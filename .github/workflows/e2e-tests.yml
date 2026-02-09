@@ -1,0 +1,285 @@
+name: E2E Tests
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Test environment'
+        required: false
+        default: 'docker'
+        type: choice
+        options:
+          - docker
+          - qemu
+          - both
+
+jobs:
+  prerequisites:
+    name: Check Prerequisites
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Setup QEMU
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: arm64
+
+      - name: Install cross compiler
+        run: cargo install cross
+
+      - name: Run prerequisite checks
+        run: bun run test:e2e:prereq
+
+  smoke-tests-docker:
+    name: Smoke Tests (Docker)
+    runs-on: ubuntu-latest
+    needs: prerequisites
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Setup QEMU for cross-compilation
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: arm64
+
+      - name: Install cross compiler
+        run: cargo install cross
+
+      - name: Run smoke tests (Docker)
+        run: bun run test:e2e:smoke --env docker --fail-fast
+        timeout-minutes: 15
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: smoke-test-results-docker
+          path: test-results/e2e/
+          retention-days: 30
+
+  full-tests-docker:
+    name: Full Test Suite (Docker)
+    runs-on: ubuntu-latest
+    needs: smoke-tests-docker
+    if: github.event_name == 'push' || github.event.inputs.environment == 'both' || github.event.inputs.environment == 'docker'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Setup QEMU for cross-compilation
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: arm64
+
+      - name: Install cross compiler
+        run: cargo install cross
+
+      - name: Run full test suite (Docker)
+        run: bun run test:e2e:docker
+        timeout-minutes: 30
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: full-test-results-docker
+          path: test-results/e2e/
+          retention-days: 30
+
+      - name: Upload test report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-report-docker
+          path: test-results/e2e/*.html
+          retention-days: 30
+
+  performance-tests:
+    name: Performance Tests
+    runs-on: ubuntu-latest
+    needs: smoke-tests-docker
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Setup QEMU for cross-compilation
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: arm64
+
+      - name: Install cross compiler
+        run: cargo install cross
+
+      - name: Run performance tests
+        run: bun run test:e2e:perf --env docker
+        timeout-minutes: 20
+
+      - name: Upload performance results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: performance-test-results
+          path: test-results/e2e/
+          retention-days: 30
+
+  qemu-tests:
+    name: Full Test Suite (QEMU)
+    runs-on: ubuntu-latest
+    needs: smoke-tests-docker
+    if: github.event.inputs.environment == 'qemu' || github.event.inputs.environment == 'both'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Install QEMU and dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qemu-system-arm qemu-efi-aarch64 genisoimage
+
+      - name: Install cross compiler
+        run: cargo install cross
+
+      - name: Run full test suite (QEMU)
+        run: bun run test:e2e:qemu
+        timeout-minutes: 45
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: full-test-results-qemu
+          path: test-results/e2e/
+          retention-days: 30
+
+  report:
+    name: Generate Test Report
+    runs-on: ubuntu-latest
+    needs: [full-tests-docker]
+    if: always()
+    steps:
+      - name: Download all test results
+        uses: actions/download-artifact@v4
+        with:
+          pattern: '*test-results*'
+          path: test-results-combined/
+
+      - name: Publish test results
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        if: always()
+        with:
+          files: test-results-combined/**/*.xml
+          check_name: E2E Test Results
+
+      - name: Comment PR with test results
+        uses: actions/github-script@v7
+        if: github.event_name == 'pull_request' && always()
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+
+            // Find the latest JSON report
+            const resultsDir = 'test-results-combined';
+            let reportData = null;
+
+            try {
+              const files = fs.readdirSync(resultsDir, { recursive: true });
+              const jsonFiles = files.filter(f => f.endsWith('.json'));
+
+              if (jsonFiles.length > 0) {
+                const reportPath = path.join(resultsDir, jsonFiles[0]);
+                reportData = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
+              }
+            } catch (error) {
+              console.error('Failed to read report:', error);
+            }
+
+            if (!reportData) {
+              return;
+            }
+
+            const summary = reportData.summary;
+            const status = summary.success ? '✅ PASSED' : '❌ FAILED';
+            const passRate = summary.passRate.toFixed(1);
+            const duration = (summary.duration / 1000).toFixed(2);
+
+            const body = `## E2E Test Results ${status}
+
+            | Metric | Value |
+            |--------|-------|
+            | Total Tests | ${summary.total} |
+            | Passed | ${summary.passed} |
+            | Failed | ${summary.failed} |
+            | Skipped | ${summary.skipped} |
+            | Pass Rate | ${passRate}% |
+            | Duration | ${duration}s |
+
+            ${summary.failed > 0 ? '### Failed Tests\n' + reportData.results.filter(r => r.status === 'failed').map(r => `- ${r.name}`).join('\n') : ''}
+            `;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: body
+            });

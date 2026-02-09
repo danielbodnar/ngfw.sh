@@ -1,0 +1,43 @@
+# Docker build context optimization
+# Only include necessary files for faster builds
+
+# Node modules
+**/node_modules/
+**/npm-debug.log*
+**/yarn-debug.log*
+**/yarn-error.log*
+
+# Build artifacts
+**/dist/
+**/build/
+**/.next/
+**/.nuxt/
+**/.svelte-kit/
+**/.wrangler/
+
+# Test artifacts
+**/logs/
+**/reports/
+**/*.log
+
+# Development files
+**/.git/
+**/.github/
+**/.vscode/
+**/.idea/
+**/.DS_Store
+
+# Documentation
+**/*.md
+!README.md
+
+# Test files
+**/*.test.ts
+**/*.test.js
+**/*.spec.ts
+**/*.spec.js
+
+# Cache
+**/.cache/
+**/.turbo/
+**/.parcel-cache/

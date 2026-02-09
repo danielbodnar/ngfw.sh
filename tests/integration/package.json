@@ -1,0 +1,24 @@
+{
+  "name": "@ngfw/integration-tests",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Integration test framework for ngfw.sh",
+  "scripts": {
+    "test": "bun test",
+    "test:watch": "bun test --watch",
+    "test:coverage": "bun test --coverage",
+    "test:api-agent": "bun test suites/api-agent",
+    "test:agent-firmware": "bun test suites/agent-firmware",
+    "test:ui-api": "bun test suites/ui-api",
+    "test:api-storage": "bun test suites/api-storage",
+    "test:e2e": "bun test suites/e2e",
+    "mock-api": "bun run ../../packages/agent/tests/integration/mock-api/server.ts"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/node": "latest"
+  },
+  "dependencies": {
+    "zod": "^4.3.6"
+  }
+}

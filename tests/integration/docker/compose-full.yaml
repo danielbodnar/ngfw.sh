@@ -1,0 +1,105 @@
+# Full stack Docker Compose configuration for integration testing
+# Includes: Mock API, Agent, Schema API, and optional Portal
+
+services:
+  # Mock WebSocket API server (simulates Rust API)
+  mock-api:
+    image: oven/bun:1
+    working_dir: /app
+    volumes:
+      - ../mock-api:/app:ro
+    command: bun run server.ts
+    ports:
+      - "8787:8787"
+    healthcheck:
+      test: ["CMD", "bun", "-e", "fetch('http://localhost:8787/health').then(r => { if (!r.ok) process.exit(1) })"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+    networks:
+      - ngfw-test
+
+  # NGFW Agent (aarch64)
+  agent:
+    build:
+      context: ../../..
+      dockerfile: tests/integration/docker/Dockerfile
+    depends_on:
+      mock-api:
+        condition: service_healthy
+    environment:
+      - RUST_LOG=${AGENT_LOG_LEVEL:-info}
+      - AGENT_DEVICE_ID=${AGENT_DEVICE_ID:-test-device-001}
+      - AGENT_API_KEY=${AGENT_API_KEY:-test-api-key-secret-001}
+    tmpfs:
+      - /sys:exec
+    volumes:
+      - /proc:/proc:ro
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: "2"
+    networks:
+      - ngfw-test
+
+  # Schema API (TypeScript Hono + Chanfana)
+  schema-api:
+    build:
+      context: ../../../packages/schema
+      dockerfile: Dockerfile.test
+    environment:
+      - CLERK_SECRET_KEY=${CLERK_SECRET_KEY:-test_clerk_secret}
+      - NODE_ENV=test
+    ports:
+      - "8788:8788"
+    depends_on:
+      - mock-api
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8788/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - ngfw-test
+
+  # Portal (optional, for manual E2E testing)
+  portal:
+    build:
+      context: ../../../packages/portal-astro
+      dockerfile: Dockerfile.test
+    environment:
+      - VITE_CLERK_PUBLISHABLE_KEY=${VITE_CLERK_PUBLISHABLE_KEY:-pk_test_...}
+      - VITE_API_URL=http://schema-api:8788
+    ports:
+      - "4321:4321"
+    depends_on:
+      schema-api:
+        condition: service_healthy
+    networks:
+      - ngfw-test
+
+  # Test runner container
+  test-runner:
+    image: oven/bun:1
+    working_dir: /tests
+    volumes:
+      - ./:/tests
+      - ../reports:/reports
+    command: bun run run-all-tests.ts
+    depends_on:
+      - agent
+      - schema-api
+    environment:
+      - MOCK_API_URL=http://mock-api:8787
+      - SCHEMA_API_URL=http://schema-api:8788
+      - PORTAL_URL=http://portal:4321
+      - CI=${CI:-false}
+    networks:
+      - ngfw-test
+
+networks:
+  ngfw-test:
+    driver: bridge

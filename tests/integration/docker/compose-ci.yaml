@@ -1,0 +1,76 @@
+# CI/CD Docker Compose configuration
+# Optimized for automated testing in CI pipelines
+
+services:
+  mock-api:
+    image: oven/bun:1
+    working_dir: /app
+    volumes:
+      - ../mock-api:/app:ro
+    command: bun run server.ts
+    expose:
+      - "8787"
+    healthcheck:
+      test: ["CMD", "bun", "-e", "fetch('http://localhost:8787/health').then(r => { if (!r.ok) process.exit(1) })"]
+      interval: 3s
+      timeout: 2s
+      retries: 10
+      start_period: 3s
+    networks:
+      - ngfw-test
+
+  agent:
+    build:
+      context: ../../..
+      dockerfile: tests/integration/docker/Dockerfile
+      cache_from:
+        - ghcr.io/danielbodnar/ngfw-agent-test:latest
+    depends_on:
+      mock-api:
+        condition: service_healthy
+    environment:
+      - RUST_LOG=info
+      - AGENT_DEVICE_ID=test-device-001
+      - AGENT_API_KEY=test-api-key-secret-001
+      - CI=true
+    tmpfs:
+      - /sys:exec
+    volumes:
+      - /proc:/proc:ro
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: "2"
+    networks:
+      - ngfw-test
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  test-runner:
+    image: oven/bun:1
+    working_dir: /tests
+    volumes:
+      - ./:/tests:ro
+      - ../reports:/reports
+    command: bun run run-ci-tests.ts
+    depends_on:
+      - agent
+    environment:
+      - MOCK_API_URL=http://mock-api:8787
+      - CI=true
+      - TEST_TIMEOUT=120
+    networks:
+      - ngfw-test
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  ngfw-test:
+    driver: bridge

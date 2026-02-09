@@ -209,6 +209,12 @@ dist
 ### QEMU VM images ###
 tests/integration/qemu/.images/
 
+### Integration test artifacts ###
+tests/integration/logs/
+tests/integration/reports/
+tests/integration/docker/compose-load.yaml
+tests/integration/docker/*.log
+
 .claude
 
 target/

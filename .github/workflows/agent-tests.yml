@@ -1,0 +1,220 @@
+name: Agent Integration Tests
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'packages/agent/**'
+      - 'packages/protocol/**'
+      - '.github/workflows/agent-tests.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'packages/agent/**'
+      - 'packages/protocol/**'
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+
+jobs:
+  test:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    strategy:
+      matrix:
+        rust: [stable, nightly]
+      fail-fast: false
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ matrix.rust }}
+          components: rustfmt, clippy
+
+      - name: Cache cargo registry
+        uses: actions/cache@v4
+        with:
+          path: ~/.cargo/registry
+          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Cache cargo index
+        uses: actions/cache@v4
+        with:
+          path: ~/.cargo/git
+          key: ${{ runner.os }}-cargo-index-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Cache cargo build
+        uses: actions/cache@v4
+        with:
+          path: target
+          key: ${{ runner.os }}-cargo-build-${{ matrix.rust }}-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Setup mock binaries
+        run: |
+          chmod +x packages/agent/tests/integration/mock-bins/*
+          echo "$GITHUB_WORKSPACE/packages/agent/tests/integration/mock-bins" >> $GITHUB_PATH
+
+      - name: Check formatting
+        working-directory: packages/agent
+        run: cargo fmt -- --check
+
+      - name: Run clippy
+        working-directory: packages/agent
+        run: cargo clippy -- -D warnings
+
+      - name: Build agent
+        working-directory: packages/agent
+        run: cargo build --verbose
+
+      - name: Run unit tests
+        working-directory: packages/agent
+        run: cargo test --lib --verbose
+
+      - name: Run WebSocket integration tests
+        working-directory: packages/agent
+        run: cargo test --test integration_websocket -- --test-threads=1 --nocapture
+        env:
+          RUST_LOG: info
+
+      - name: Run dispatcher integration tests
+        working-directory: packages/agent
+        run: cargo test --test integration_dispatcher -- --test-threads=1 --nocapture
+        env:
+          RUST_LOG: info
+
+      - name: Run adapter integration tests
+        working-directory: packages/agent
+        run: cargo test --test integration_adapters -- --test-threads=1 --nocapture
+        env:
+          RUST_LOG: info
+
+      - name: Run metrics integration tests
+        working-directory: packages/agent
+        run: cargo test --test integration_metrics -- --test-threads=1 --nocapture
+        env:
+          RUST_LOG: info
+
+      - name: Run E2E integration tests
+        working-directory: packages/agent
+        run: cargo test --test integration_e2e -- --test-threads=1 --nocapture
+        env:
+          RUST_LOG: info
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-${{ matrix.rust }}
+          path: |
+            target/debug/
+            packages/agent/test-results/
+
+  coverage:
+    name: Code Coverage
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install cargo-tarpaulin
+        run: cargo install cargo-tarpaulin
+
+      - name: Setup mock binaries
+        run: |
+          chmod +x packages/agent/tests/integration/mock-bins/*
+          echo "$GITHUB_WORKSPACE/packages/agent/tests/integration/mock-bins" >> $GITHUB_PATH
+
+      - name: Generate coverage
+        working-directory: packages/agent
+        run: |
+          cargo tarpaulin --tests --out Xml --output-dir coverage -- --test-threads=1
+        env:
+          RUST_LOG: info
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          files: packages/agent/coverage/cobertura.xml
+          flags: agent-integration
+          name: agent-coverage
+
+      - name: Coverage report summary
+        run: |
+          if [ -f packages/agent/coverage/cobertura.xml ]; then
+            echo "Coverage report generated successfully"
+          else
+            echo "Warning: Coverage report not found"
+          fi
+
+  docker-test:
+    name: Docker Environment Tests
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build Docker test environment
+        working-directory: packages/agent/tests/integration
+        run: docker compose -f docker/compose.yaml build
+
+      - name: Run tests in Docker
+        working-directory: packages/agent/tests/integration
+        run: docker compose -f docker/compose.yaml up --abort-on-container-exit
+
+      - name: Cleanup Docker
+        if: always()
+        working-directory: packages/agent/tests/integration
+        run: docker compose -f docker/compose.yaml down -v
+
+  security:
+    name: Security Audit
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Run cargo audit
+        working-directory: packages/agent
+        run: |
+          cargo install cargo-audit
+          cargo audit
+
+      - name: Run cargo deny
+        working-directory: packages/agent
+        run: |
+          cargo install cargo-deny
+          cargo deny check
+
+  summary:
+    name: Test Summary
+    runs-on: ubuntu-latest
+    needs: [test, coverage]
+    if: always()
+
+    steps:
+      - name: Check test results
+        run: |
+          if [ "${{ needs.test.result }}" == "success" ]; then
+            echo "✅ All integration tests passed"
+          else
+            echo "❌ Integration tests failed"
+            exit 1
+          fi

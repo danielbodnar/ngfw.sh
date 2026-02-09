@@ -1,0 +1,160 @@
+{
+  "description": "Baseline RT-AX92U configuration for integration testing",
+  "model": "RT-AX92U",
+  "firmware_version": "3.0.0.4.388.7",
+  "test_credentials": {
+    "device_id": "test-device-001",
+    "api_key": "test-api-key-secret-001",
+    "owner_id": "user_test001"
+  },
+  "nvram": {
+    "model": "RT-AX92U",
+    "firmver": "3.0.0.4",
+    "buildno": "388",
+    "extendno": "7",
+    "serial_no": "TEST-SN-AX92U-001",
+    "productid": "RT-AX92U",
+    "lan_ipaddr": "192.168.1.1",
+    "lan_netmask": "255.255.255.0",
+    "lan_proto": "static",
+    "lan_hwaddr": "00:11:22:33:44:55",
+    "wan0_proto": "dhcp",
+    "wan0_ipaddr": "203.0.113.42",
+    "wan0_netmask": "255.255.255.0",
+    "wan0_gateway": "203.0.113.1",
+    "wan0_dns": "1.1.1.1 1.0.0.1",
+    "wan0_hwaddr": "00:11:22:33:44:56",
+    "wl0_ssid": "NGFW-Test-2G",
+    "wl0_wpa_psk": "test-password-2ghz",
+    "wl0_crypto": "aes",
+    "wl0_auth_mode": "psk2",
+    "wl0_channel": "6",
+    "wl0_country_code": "US",
+    "wl0_txpower": "80",
+    "wl1_ssid": "NGFW-Test-5G",
+    "wl1_wpa_psk": "test-password-5ghz",
+    "wl1_crypto": "aes",
+    "wl1_auth_mode": "psk2",
+    "wl1_channel": "36",
+    "wl1_country_code": "US",
+    "wl1_txpower": "100",
+    "wl2_ssid": "NGFW-Test-6G",
+    "wl2_wpa_psk": "test-password-6ghz",
+    "wl2_crypto": "aes",
+    "wl2_auth_mode": "sae",
+    "wl2_channel": "5",
+    "wl2_country_code": "US",
+    "dhcp_enable_x": "1",
+    "dhcp_start": "192.168.1.100",
+    "dhcp_end": "192.168.1.200",
+    "dhcp_lease": "86400",
+    "dhcp_dns1_x": "192.168.1.1",
+    "dhcp_gateway_x": "192.168.1.1"
+  },
+  "system": {
+    "hostname": "ngfw-test-router",
+    "uptime_seconds": 12345,
+    "cpu": {
+      "user": 50000,
+      "nice": 0,
+      "system": 10000,
+      "idle": 200000,
+      "iowait": 1000,
+      "irq": 500,
+      "softirq": 500,
+      "usage_percent": 23.5
+    },
+    "memory": {
+      "total_kb": 524288,
+      "free_kb": 262144,
+      "available_kb": 314572,
+      "buffers_kb": 10240,
+      "cached_kb": 52428,
+      "usage_percent": 40.2
+    },
+    "thermal_zones": [
+      {
+        "zone": 0,
+        "celsius": 52.3
+      }
+    ]
+  },
+  "interfaces": {
+    "eth0": {
+      "name": "eth0",
+      "status": "up",
+      "ip": "203.0.113.42/24",
+      "mac": "00:11:22:33:44:56",
+      "rx_bytes": 847293847234,
+      "tx_bytes": 234827348123,
+      "rx_packets": 123456789,
+      "tx_packets": 98765432,
+      "rx_errors": 0,
+      "tx_errors": 0
+    },
+    "br0": {
+      "name": "br0",
+      "status": "up",
+      "ip": "192.168.1.1/24",
+      "mac": "00:11:22:33:44:55",
+      "rx_bytes": 234827348123,
+      "tx_bytes": 847293847234,
+      "rx_packets": 98765432,
+      "tx_packets": 123456789,
+      "rx_errors": 0,
+      "tx_errors": 0
+    },
+    "wlan0": {
+      "name": "wlan0",
+      "status": "up",
+      "ip": null,
+      "mac": "00:11:22:33:44:57",
+      "rx_bytes": 12345678901,
+      "tx_bytes": 9876543210,
+      "rx_packets": 1234567,
+      "tx_packets": 987654,
+      "rx_errors": 0,
+      "tx_errors": 0
+    },
+    "wlan1": {
+      "name": "wlan1",
+      "status": "up",
+      "ip": null,
+      "mac": "00:11:22:33:44:58",
+      "rx_bytes": 98765432109,
+      "tx_bytes": 12345678901,
+      "rx_packets": 9876543,
+      "tx_packets": 1234567,
+      "rx_errors": 0,
+      "tx_errors": 0
+    }
+  },
+  "wifi_clients": [
+    {
+      "interface": "wlan0",
+      "mac": "AA:BB:CC:DD:EE:01",
+      "hostname": "phone-test-1",
+      "rssi": -45,
+      "tx_rate": 144,
+      "rx_rate": 144
+    },
+    {
+      "interface": "wlan1",
+      "mac": "AA:BB:CC:DD:EE:02",
+      "hostname": "laptop-test-1",
+      "rssi": -38,
+      "tx_rate": 866,
+      "rx_rate": 866
+    }
+  ],
+  "connection_counts": {
+    "total": 247,
+    "tcp": 183,
+    "udp": 64
+  },
+  "dns_metrics": {
+    "queries": 1247,
+    "blocked": 234,
+    "cached": 847
+  }
+}
