@@ -52,7 +52,7 @@
 	},
 	"dependencies": {
 		"@openauthjs/openauth": "^0.4.3",
-		"hono": "^4.11.7"
+		"hono": "^4.11.9"
 	},
 	"devDependencies": {
 		"oxfmt": "^0.28.0",
@@ -60,7 +60,7 @@
 		"wrangler": "^4.63.0"
 	},
 	"overrides": {
-		"hono": ">=4.11.7",
+		"hono": ">=4.11.9",
 		"undici": ">=7.18.2"
 	}
 }

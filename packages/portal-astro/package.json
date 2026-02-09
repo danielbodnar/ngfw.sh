@@ -27,7 +27,7 @@
 		"@clerk/astro": "^2.17.1",
 		"@clerk/clerk-js": "^5.122.1",
 		"astro": "^5.17.1",
-		"vue": "^3.5.27"
+		"vue": "^3.5.28"
 	},
 	"devDependencies": {
 		"@tailwindcss/vite": "^4.1.18",
@@ -35,12 +35,12 @@
 		"@astrojs/check": "^0.9.6",
 		"typescript": "^5.9.3",
 		"wrangler": "^4.63.0",
-		"@playwright/test": "^1.48.0",
-		"@vitejs/plugin-vue": "^5.2.1",
-		"@vitest/ui": "^3.0.0",
+		"@playwright/test": "^1.58.2",
+		"@vitejs/plugin-vue": "^6.0.4",
+		"@vitest/ui": "^4.0.18",
 		"@vue/test-utils": "^2.4.6",
 		"happy-dom": "^20.0.0",
-		"msw": "^2.6.8",
-		"vitest": "^3.0.0"
+		"msw": "^2.12.9",
+		"vitest": "^4.0.18"
 	}
 }
