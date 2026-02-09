@@ -11,7 +11,7 @@
 		"@cloudflare/vitest-pool-workers": "0.12.10",
 		"@types/node": "25.2.2",
 		"typescript": "5.9.3",
-		"vitest": "~3.0.0",
+		"vitest": "~4.0.18",
 		"wrangler": "4.63.0"
 	},
 	"private": true,
@@ -22,7 +22,7 @@
 		"predeploy": "wrangler d1 migrations apply DB --remote",
 		"schema": "npx chanfana",
 		"seedLocalDb": "wrangler d1 migrations apply DB --local",
-		"test": "wrangler deploy --dry-run && npx vitest run --config tests/vitest.config.mts"
+		"test": "wrangler deploy && npx vitest run --config tests/vitest.config.mts"
 	},
 	"trustedDependencies": [
 		"@clerk/shared"
