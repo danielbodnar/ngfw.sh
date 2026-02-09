@@ -5,11 +5,11 @@
     "": {
       "name": "docs",
       "dependencies": {
-        "@astrojs/cloudflare": "latest",
-        "@astrojs/starlight": "latest",
-        "astro": "latest",
-        "sharp": "latest",
-        "wrangler": "latest",
+        "@astrojs/cloudflare": "^12.6.12",
+        "@astrojs/starlight": "^0.37.6",
+        "astro": "^5.17.1",
+        "sharp": "^0.34.5",
+        "wrangler": "^4.63.0",
       },
     },
   },
