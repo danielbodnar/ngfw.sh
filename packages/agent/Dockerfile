@@ -86,6 +86,7 @@ USER ngfw
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
   CMD sh -c "pidof ngfw-agent >/dev/null 2>&1 || exit 1"
 
+
 # Default command
 CMD ["/usr/local/bin/ngfw-agent", "--config", "/etc/ngfw/config.toml"]
 
