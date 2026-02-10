@@ -1,7 +1,12 @@
-import { getSandbox, proxyTerminal, proxyToSandbox, type Sandbox } from "@cloudflare/sandbox";
+import { getSandbox, proxyToSandbox, type Sandbox, type PtyOptions } from "@cloudflare/sandbox";
 import { Hono } from "hono";
 
 export { Sandbox } from "@cloudflare/sandbox";
+
+/** getSandbox() returns a Proxy that adds these methods at runtime */
+type EnhancedSandbox = Sandbox & {
+	terminal: (request: Request, options?: PtyOptions) => Promise<Response>;
+};
 
 type Env = {
 	Sandbox: DurableObjectNamespace<Sandbox>;
@@ -24,12 +29,12 @@ app.get("/ws/terminal", async (c) => {
 		return c.text("Expected WebSocket upgrade", 426);
 	}
 
-	const sandbox = getSandbox(c.env.Sandbox, SANDBOX_ID);
+	const sandbox = getSandbox(c.env.Sandbox, SANDBOX_ID) as EnhancedSandbox;
 	const url = new URL(c.req.url);
 	const cols = parseInt(url.searchParams.get("cols") || "120");
 	const rows = parseInt(url.searchParams.get("rows") || "30");
 
-	return proxyTerminal(sandbox, SANDBOX_ID, c.req.raw, { cols, rows });
+	return sandbox.terminal(c.req.raw, { cols, rows });
 });
 
 // API: Execute a command in the sandbox

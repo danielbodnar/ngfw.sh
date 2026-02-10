@@ -232,5 +232,5 @@ ZSHRC
 
 WORKDIR /workspace
 
-ENTRYPOINT ["/sandbox"]
+ENTRYPOINT ["/container-server/sandbox"]
 CMD ["zsh"]
