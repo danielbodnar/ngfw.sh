@@ -2,7 +2,7 @@
 	"name": "ngfw.sh",
 	"private": true,
 	"scripts": {
-		"setup": "bun install && bun install --cwd packages/www && bun install --cwd packages/portal && bun install --cwd packages/schema && bun install --cwd docs",
+		"setup": "bun install && bun install --cwd packages/www && bun install --cwd packages/portal && bun install --cwd packages/schema && bun install --cwd packages/sandbox && bun install --cwd docs",
 		"build": "bun run build:www && bun run build:portal && bun run build:schema && bun run build:docs",
 		"build:all": "bun run build:www && bun run build:portal && bun run build:schema && bun run build:api && bun run build:docs",
 		"build:www": "bun run --cwd packages/www build",
@@ -12,12 +12,13 @@
 		"build:agent:musl": "cd packages/agent && cross build --release --target aarch64-unknown-linux-musl",
 		"build:api": "cd packages/api; cargo install -q worker-build; worker-build --release",
 		"build:docs": "bun run --cwd docs build",
-		"dev": "echo 'Run dev servers individually: bun run dev:www, dev:portal, dev:schema, dev:api, or dev:docs'",
+		"dev": "echo 'Run dev servers individually: bun run dev:www, dev:portal, dev:schema, dev:api, dev:docs, or dev:sandbox'",
 		"dev:www": "bun run --cwd packages/www dev",
 		"dev:portal": "bun run --cwd packages/portal dev",
 		"dev:schema": "bun run --cwd packages/schema dev",
 		"dev:api": "wrangler dev --cwd packages/api",
 		"dev:docs": "bun run --cwd docs dev",
+		"dev:sandbox": "bun run --cwd packages/sandbox dev",
 		"lint": "oxlint --config .oxlintrc.json .",
 		"lint:fix": "oxlint --config .oxlintrc.json --fix .",
 		"format": "oxfmt --write .",
@@ -48,7 +49,8 @@
 		"deploy:portal": "bun run --cwd packages/portal-astro deploy",
 		"deploy:schema": "bun run --cwd packages/schema deploy",
 		"deploy:api": "wrangler deploy --cwd packages/api",
-		"deploy:docs": "bun run --cwd docs deploy"
+		"deploy:docs": "bun run --cwd docs deploy",
+		"deploy:sandbox": "bun run --cwd packages/sandbox deploy"
 	},
 	"dependencies": {
 		"@openauthjs/openauth": "^0.4.3",

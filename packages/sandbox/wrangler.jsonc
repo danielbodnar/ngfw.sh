@@ -1,0 +1,40 @@
+{
+	"name": "ngfw-sandbox",
+	"main": "src/index.ts",
+	"compatibility_date": "2025-01-01",
+	"compatibility_flags": ["nodejs_compat"],
+
+	// Sandbox container configuration
+	"containers": [
+		{
+			"class_name": "Sandbox",
+			"image": "./Dockerfile",
+			// "standard" gives 2 vCPU + 2GB RAM — enough for nvim + zellij + dev servers
+			"instance_type": "standard",
+			"max_instances": 3
+		}
+	],
+
+	// Durable Object binding for the Sandbox class (re-exported from @cloudflare/sandbox)
+	"durable_objects": {
+		"bindings": [
+			{
+				"class_name": "Sandbox",
+				"name": "Sandbox"
+			}
+		]
+	},
+
+	// Required migration for Durable Object SQLite storage
+	"migrations": [
+		{
+			"new_sqlite_classes": ["Sandbox"],
+			"tag": "v1"
+		}
+	],
+
+	// Local development settings
+	"dev": {
+		"port": 8800
+	}
+}
