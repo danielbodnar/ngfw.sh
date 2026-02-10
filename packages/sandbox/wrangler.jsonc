@@ -1,7 +1,7 @@
 {
 	"name": "ngfw-sandbox",
 	"main": "src/index.ts",
-	"compatibility_date": "2025-01-01",
+	"compatibility_date": "2026-01-10",
 	"compatibility_flags": ["nodejs_compat"],
 
 	// Sandbox container configuration
@@ -9,8 +9,8 @@
 		{
 			"class_name": "Sandbox",
 			"image": "./Dockerfile",
-			// "standard" gives 2 vCPU + 2GB RAM — enough for nvim + zellij + dev servers
-			"instance_type": "standard",
+			// "standard-1" gives 2 vCPU + 2GB RAM — enough for nvim + zellij + dev servers
+			"instance_type": "standard-1",
 			"max_instances": 3
 		}
 	],

@@ -1,4 +1,4 @@
-import { getSandbox, proxyToSandbox, type Sandbox } from "@cloudflare/sandbox";
+import { getSandbox, proxyTerminal, proxyToSandbox, type Sandbox } from "@cloudflare/sandbox";
 import { Hono } from "hono";
 
 export { Sandbox } from "@cloudflare/sandbox";
@@ -29,7 +29,7 @@ app.get("/ws/terminal", async (c) => {
 	const cols = parseInt(url.searchParams.get("cols") || "120");
 	const rows = parseInt(url.searchParams.get("rows") || "30");
 
-	return sandbox.terminal(c.req.raw, { cols, rows });
+	return proxyTerminal(sandbox, SANDBOX_ID, c.req.raw, { cols, rows });
 });
 
 // API: Execute a command in the sandbox
@@ -54,7 +54,7 @@ app.get("/api/status", async (c) => {
 // API: Clone the repo into the sandbox workspace
 app.post("/api/setup", async (c) => {
 	const sandbox = getSandbox(c.env.Sandbox, SANDBOX_ID);
-	const body = await c.req.json<{ repo?: string; branch?: string }>().catch(() => ({}));
+	const body = await c.req.json<{ repo?: string; branch?: string }>().catch((): { repo?: string; branch?: string } => ({}));
 	const repo = body.repo || "https://github.com/danielbodnar/ngfw.sh.git";
 	const branch = body.branch || "main";
 
@@ -125,9 +125,8 @@ app.delete("/api/processes/:id", async (c) => {
 
 // Proxy preview URLs for exposed ports
 app.all("/preview/*", async (c) => {
-	return proxyToSandbox(c.req.raw, c.env.Sandbox, {
-		prefix: "/preview",
-	});
+	const response = await proxyToSandbox(c.req.raw, c.env);
+	return response ?? c.text("Sandbox not found", 404);
 });
 
 export default app;
