@@ -1296,7 +1296,7 @@ fn get_all_dashboards_with_widgets() -> std::collections::HashMap<&'static str, 
                 "title": "Temperature",
                 "data_source": "/api/system/temperature",
                 "refresh_interval": 10000,
-                "config": { "unit": "\u00b0C", "max": 100 }
+                "config": { "unit": "\u{00b0}C", "max": 100 }
             },
             {
                 "id": "storage",
@@ -2070,7 +2070,7 @@ pub async fn list_reports(
         .map_err(|_| ApiError::internal("Failed to access database"))?;
 
     let mut sql = String::from("SELECT * FROM reports WHERE owner_id = ?");
-    let mut params: Vec<worker::d1::D1Type> = vec![owner_id.into()];
+    let mut params: Vec<wasm_bindgen::JsValue> = vec![owner_id.into()];
 
     if let Some(ref device_id) = query.device_id {
         sql.push_str(" AND device_id = ?");
@@ -2334,7 +2334,7 @@ pub async fn list_logs(
     sql.push_str(" ORDER BY l.timestamp DESC LIMIT ? OFFSET ?");
 
     // Build params: text params first, then numeric limit/offset
-    let mut params: Vec<d1::D1Type> = string_params
+    let mut params: Vec<wasm_bindgen::JsValue> = string_params
         .iter()
         .map(|s| s.as_str().into())
         .collect();
@@ -2433,7 +2433,7 @@ pub async fn export_logs(
     string_params.push(req.date_end.clone());
     sql.push_str(" ORDER BY timestamp DESC");
 
-    let params: Vec<d1::D1Type> = string_params
+    let params: Vec<wasm_bindgen::JsValue> = string_params
         .iter()
         .map(|s| s.as_str().into())
         .collect();

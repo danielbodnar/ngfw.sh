@@ -6,7 +6,7 @@
 
 use crate::middleware::authenticate;
 use crate::models::logs::*;
-use crate::models::{ApiError, IntoApiResponse};
+use crate::models::IntoApiResponse;
 use crate::storage;
 use worker::*;
 
