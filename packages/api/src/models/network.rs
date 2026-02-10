@@ -267,3 +267,29 @@ pub struct DhcpReservation {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
 }
+
+/// Route type
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[serde(rename_all = "lowercase")]
+pub enum RouteType {
+    Static,
+    Dynamic,
+    Policy,
+}
+
+/// Static/policy route request body
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct RouteRequest {
+    pub destination: String,
+    pub gateway: String,
+    pub interface: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub metric: Option<u32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(rename = "type")]
+    pub route_type: Option<RouteType>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub enabled: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub description: Option<String>,
+}

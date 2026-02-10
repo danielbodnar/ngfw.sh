@@ -577,7 +577,49 @@ pub async fn delete_dhcp_reservation(
     Ok(serde_json::json!({ "status": "deleted" }))
 }
 
-// Include more storage functions...
+// Routing
+pub async fn get_routes(device_id: &str, env: &Env) -> ApiResult<Vec<serde_json::Value>> {
+    get_config(device_id, "routes", env).await
+}
+pub async fn create_route(
+    device_id: &str,
+    route: &network::RouteRequest,
+    env: &Env,
+) -> ApiResult<serde_json::Value> {
+    let mut routes: Vec<serde_json::Value> = get_routes(device_id, env).await.unwrap_or_default();
+    let new_id = routes.len() as u32 + 1;
+    let mut route_json = serde_json::to_value(route).unwrap();
+    route_json["id"] = serde_json::json!(new_id.to_string());
+    routes.push(route_json);
+    update_config(device_id, "routes", &routes, env).await?;
+    Ok(serde_json::json!({ "id": new_id, "status": "created" }))
+}
+pub async fn update_route(
+    device_id: &str,
+    route_id: &str,
+    route: &network::RouteRequest,
+    env: &Env,
+) -> ApiResult<serde_json::Value> {
+    let mut routes: Vec<serde_json::Value> = get_routes(device_id, env).await?;
+    if let Some(r) = routes
+        .iter_mut()
+        .find(|r| r.get("id").and_then(|v| v.as_str()) == Some(route_id))
+    {
+        *r = serde_json::to_value(route).unwrap();
+        r["id"] = serde_json::json!(route_id);
+    }
+    update_config(device_id, "routes", &routes, env).await
+}
+pub async fn delete_route(
+    device_id: &str,
+    route_id: &str,
+    env: &Env,
+) -> ApiResult<serde_json::Value> {
+    let mut routes: Vec<serde_json::Value> = get_routes(device_id, env).await?;
+    routes.retain(|r| r.get("id").and_then(|v| v.as_str()) != Some(route_id));
+    update_config(device_id, "routes", &routes, env).await?;
+    Ok(serde_json::json!({ "status": "deleted" }))
+}
 
 // Firewall
 pub async fn get_firewall_rules(device_id: &str, env: &Env) -> ApiResult<Vec<serde_json::Value>> {
@@ -866,6 +908,513 @@ pub async fn get_ids_alerts(
     _env: &Env,
 ) -> ApiResult<Vec<serde_json::Value>> {
     Ok(vec![])
+}
+
+// Dashboards
+pub fn list_dashboards() -> ApiResult<Vec<serde_json::Value>> {
+    Ok(vec![
+        serde_json::json!({
+            "id": "network-overview",
+            "category": "network-overview",
+            "name": "Network Overview",
+            "description": "Real-time network status, connected devices, and bandwidth usage",
+            "icon": "network",
+            "default_view": true
+        }),
+        serde_json::json!({
+            "id": "security-events",
+            "category": "security-events",
+            "name": "Security Events",
+            "description": "IPS alerts, blocked threats, and security policy violations",
+            "icon": "shield",
+            "default_view": false
+        }),
+        serde_json::json!({
+            "id": "dns-analytics",
+            "category": "dns-analytics",
+            "name": "DNS Analytics",
+            "description": "DNS queries, top domains, blocked queries, and filtering statistics",
+            "icon": "dns",
+            "default_view": false
+        }),
+        serde_json::json!({
+            "id": "wifi-performance",
+            "category": "wifi-performance",
+            "name": "WiFi Performance",
+            "description": "WiFi signal strength, channel utilization, and client connections",
+            "icon": "wifi",
+            "default_view": false
+        }),
+        serde_json::json!({
+            "id": "wan-health",
+            "category": "wan-health",
+            "name": "WAN Health",
+            "description": "WAN uptime, latency, packet loss, and connection quality metrics",
+            "icon": "globe",
+            "default_view": false
+        }),
+        serde_json::json!({
+            "id": "vpn-metrics",
+            "category": "vpn-metrics",
+            "name": "VPN Metrics",
+            "description": "VPN tunnel status, throughput, connected clients, and data transfer",
+            "icon": "vpn",
+            "default_view": false
+        }),
+        serde_json::json!({
+            "id": "system-resources",
+            "category": "system-resources",
+            "name": "System Resources",
+            "description": "CPU usage, memory utilization, storage, and temperature monitoring",
+            "icon": "cpu",
+            "default_view": false
+        }),
+        serde_json::json!({
+            "id": "traffic-analysis",
+            "category": "traffic-analysis",
+            "name": "Traffic Analysis",
+            "description": "Protocol breakdown, application usage, and traffic patterns",
+            "icon": "chart",
+            "default_view": false
+        }),
+        serde_json::json!({
+            "id": "firewall-rules",
+            "category": "firewall-rules",
+            "name": "Firewall Rules",
+            "description": "Rule hit counts, blocked connections, and policy effectiveness",
+            "icon": "firewall",
+            "default_view": false
+        }),
+        serde_json::json!({
+            "id": "qos-metrics",
+            "category": "qos-metrics",
+            "name": "QoS Metrics",
+            "description": "Traffic shaping stats, bandwidth allocation, and queue performance",
+            "icon": "priority",
+            "default_view": false
+        }),
+    ])
+}
+
+pub fn get_dashboard(id: &str) -> ApiResult<serde_json::Value> {
+    let dashboards = get_all_dashboards_with_widgets();
+    dashboards
+        .get(id)
+        .cloned()
+        .ok_or_else(|| ApiError::not_found("Dashboard"))
+}
+
+fn get_all_dashboards_with_widgets() -> std::collections::HashMap<&'static str, serde_json::Value> {
+    let mut map = std::collections::HashMap::new();
+
+    map.insert("network-overview", serde_json::json!({
+        "id": "network-overview",
+        "category": "network-overview",
+        "name": "Network Overview",
+        "description": "Real-time network status, connected devices, and bandwidth usage",
+        "icon": "network",
+        "default_view": true,
+        "widgets": [
+            {
+                "id": "wan-status",
+                "type": "gauge",
+                "title": "WAN Status",
+                "data_source": "/api/network/wan/status",
+                "refresh_interval": 5000,
+                "config": { "unit": "Mbps", "max": 1000 }
+            },
+            {
+                "id": "connected-devices",
+                "type": "counter",
+                "title": "Connected Devices",
+                "data_source": "/api/network/devices",
+                "refresh_interval": 10000,
+                "config": { "icon": "devices" }
+            },
+            {
+                "id": "bandwidth-chart",
+                "type": "line-chart",
+                "title": "Bandwidth Usage (24h)",
+                "data_source": "/api/network/bandwidth/history",
+                "refresh_interval": 30000,
+                "config": { "timeRange": "24h", "yAxisUnit": "Mbps" }
+            },
+            {
+                "id": "top-talkers",
+                "type": "table",
+                "title": "Top Bandwidth Consumers",
+                "data_source": "/api/network/top-talkers",
+                "refresh_interval": 15000,
+                "config": { "columns": ["device", "ip", "bandwidth"], "limit": 10 }
+            }
+        ]
+    }));
+
+    map.insert("security-events", serde_json::json!({
+        "id": "security-events",
+        "category": "security-events",
+        "name": "Security Events",
+        "description": "IPS alerts, blocked threats, and security policy violations",
+        "icon": "shield",
+        "default_view": false,
+        "widgets": [
+            {
+                "id": "threat-counter",
+                "type": "counter",
+                "title": "Threats Blocked (24h)",
+                "data_source": "/api/security/threats/count",
+                "refresh_interval": 10000,
+                "config": { "icon": "shield", "color": "red" }
+            },
+            {
+                "id": "threat-types",
+                "type": "pie-chart",
+                "title": "Threat Types",
+                "data_source": "/api/security/threats/by-type",
+                "refresh_interval": 30000,
+                "config": {}
+            },
+            {
+                "id": "recent-events",
+                "type": "table",
+                "title": "Recent Security Events",
+                "data_source": "/api/security/events/recent",
+                "refresh_interval": 5000,
+                "config": {
+                    "columns": ["timestamp", "type", "source", "action"],
+                    "limit": 20
+                }
+            },
+            {
+                "id": "attack-heatmap",
+                "type": "heatmap",
+                "title": "Attack Sources (Geo)",
+                "data_source": "/api/security/attacks/geo",
+                "refresh_interval": 60000,
+                "config": {}
+            }
+        ]
+    }));
+
+    map.insert("dns-analytics", serde_json::json!({
+        "id": "dns-analytics",
+        "category": "dns-analytics",
+        "name": "DNS Analytics",
+        "description": "DNS queries, top domains, blocked queries, and filtering statistics",
+        "icon": "dns",
+        "default_view": false,
+        "widgets": [
+            {
+                "id": "dns-queries",
+                "type": "counter",
+                "title": "DNS Queries (24h)",
+                "data_source": "/api/dns/queries/count",
+                "refresh_interval": 10000,
+                "config": { "icon": "dns" }
+            },
+            {
+                "id": "blocked-queries",
+                "type": "counter",
+                "title": "Blocked Queries",
+                "data_source": "/api/dns/blocked/count",
+                "refresh_interval": 10000,
+                "config": { "icon": "block", "color": "red" }
+            },
+            {
+                "id": "top-domains",
+                "type": "bar-chart",
+                "title": "Top Queried Domains",
+                "data_source": "/api/dns/top-domains",
+                "refresh_interval": 30000,
+                "config": { "limit": 10 }
+            },
+            {
+                "id": "query-types",
+                "type": "pie-chart",
+                "title": "Query Types",
+                "data_source": "/api/dns/query-types",
+                "refresh_interval": 30000,
+                "config": {}
+            }
+        ]
+    }));
+
+    map.insert("wifi-performance", serde_json::json!({
+        "id": "wifi-performance",
+        "category": "wifi-performance",
+        "name": "WiFi Performance",
+        "description": "WiFi signal strength, channel utilization, and client connections",
+        "icon": "wifi",
+        "default_view": false,
+        "widgets": [
+            {
+                "id": "wifi-clients",
+                "type": "counter",
+                "title": "Connected Clients",
+                "data_source": "/api/wifi/clients/count",
+                "refresh_interval": 5000,
+                "config": { "icon": "wifi" }
+            },
+            {
+                "id": "channel-util",
+                "type": "gauge",
+                "title": "Channel Utilization",
+                "data_source": "/api/wifi/channel/utilization",
+                "refresh_interval": 10000,
+                "config": { "unit": "%", "max": 100 }
+            },
+            {
+                "id": "signal-strength",
+                "type": "bar-chart",
+                "title": "Signal Strength Distribution",
+                "data_source": "/api/wifi/signal/distribution",
+                "refresh_interval": 30000,
+                "config": {}
+            },
+            {
+                "id": "client-table",
+                "type": "table",
+                "title": "WiFi Clients",
+                "data_source": "/api/wifi/clients",
+                "refresh_interval": 10000,
+                "config": {
+                    "columns": ["device", "mac", "signal", "bandwidth"],
+                    "limit": 20
+                }
+            }
+        ]
+    }));
+
+    map.insert("wan-health", serde_json::json!({
+        "id": "wan-health",
+        "category": "wan-health",
+        "name": "WAN Health",
+        "description": "WAN uptime, latency, packet loss, and connection quality metrics",
+        "icon": "globe",
+        "default_view": false,
+        "widgets": [
+            {
+                "id": "wan-uptime",
+                "type": "gauge",
+                "title": "WAN Uptime",
+                "data_source": "/api/wan/uptime",
+                "refresh_interval": 30000,
+                "config": { "unit": "%", "max": 100 }
+            },
+            {
+                "id": "latency",
+                "type": "line-chart",
+                "title": "Latency (24h)",
+                "data_source": "/api/wan/latency/history",
+                "refresh_interval": 30000,
+                "config": { "yAxisUnit": "ms" }
+            },
+            {
+                "id": "packet-loss",
+                "type": "line-chart",
+                "title": "Packet Loss",
+                "data_source": "/api/wan/packet-loss",
+                "refresh_interval": 30000,
+                "config": { "yAxisUnit": "%" }
+            },
+            {
+                "id": "speed-test",
+                "type": "gauge",
+                "title": "Current Speed",
+                "data_source": "/api/wan/speed",
+                "refresh_interval": 60000,
+                "config": { "unit": "Mbps", "max": 1000 }
+            }
+        ]
+    }));
+
+    map.insert("vpn-metrics", serde_json::json!({
+        "id": "vpn-metrics",
+        "category": "vpn-metrics",
+        "name": "VPN Metrics",
+        "description": "VPN tunnel status, throughput, connected clients, and data transfer",
+        "icon": "vpn",
+        "default_view": false,
+        "widgets": [
+            {
+                "id": "vpn-clients",
+                "type": "counter",
+                "title": "Connected VPN Clients",
+                "data_source": "/api/vpn/clients/count",
+                "refresh_interval": 10000,
+                "config": { "icon": "vpn" }
+            },
+            {
+                "id": "vpn-throughput",
+                "type": "line-chart",
+                "title": "VPN Throughput",
+                "data_source": "/api/vpn/throughput",
+                "refresh_interval": 10000,
+                "config": { "yAxisUnit": "Mbps" }
+            },
+            {
+                "id": "vpn-clients-table",
+                "type": "table",
+                "title": "VPN Clients",
+                "data_source": "/api/vpn/clients",
+                "refresh_interval": 15000,
+                "config": {
+                    "columns": ["user", "ip", "connected_at", "data_sent", "data_received"],
+                    "limit": 20
+                }
+            }
+        ]
+    }));
+
+    map.insert("system-resources", serde_json::json!({
+        "id": "system-resources",
+        "category": "system-resources",
+        "name": "System Resources",
+        "description": "CPU usage, memory utilization, storage, and temperature monitoring",
+        "icon": "cpu",
+        "default_view": false,
+        "widgets": [
+            {
+                "id": "cpu-usage",
+                "type": "gauge",
+                "title": "CPU Usage",
+                "data_source": "/api/system/cpu",
+                "refresh_interval": 5000,
+                "config": { "unit": "%", "max": 100 }
+            },
+            {
+                "id": "memory-usage",
+                "type": "gauge",
+                "title": "Memory Usage",
+                "data_source": "/api/system/memory",
+                "refresh_interval": 5000,
+                "config": { "unit": "%", "max": 100 }
+            },
+            {
+                "id": "temperature",
+                "type": "gauge",
+                "title": "Temperature",
+                "data_source": "/api/system/temperature",
+                "refresh_interval": 10000,
+                "config": { "unit": "\u00b0C", "max": 100 }
+            },
+            {
+                "id": "storage",
+                "type": "gauge",
+                "title": "Storage Usage",
+                "data_source": "/api/system/storage",
+                "refresh_interval": 60000,
+                "config": { "unit": "%", "max": 100 }
+            }
+        ]
+    }));
+
+    map.insert("traffic-analysis", serde_json::json!({
+        "id": "traffic-analysis",
+        "category": "traffic-analysis",
+        "name": "Traffic Analysis",
+        "description": "Protocol breakdown, application usage, and traffic patterns",
+        "icon": "chart",
+        "default_view": false,
+        "widgets": [
+            {
+                "id": "protocol-breakdown",
+                "type": "pie-chart",
+                "title": "Protocol Breakdown",
+                "data_source": "/api/traffic/protocols",
+                "refresh_interval": 30000,
+                "config": {}
+            },
+            {
+                "id": "app-usage",
+                "type": "bar-chart",
+                "title": "Top Applications",
+                "data_source": "/api/traffic/applications",
+                "refresh_interval": 30000,
+                "config": { "limit": 10 }
+            },
+            {
+                "id": "traffic-history",
+                "type": "line-chart",
+                "title": "Traffic History (7d)",
+                "data_source": "/api/traffic/history",
+                "refresh_interval": 60000,
+                "config": { "timeRange": "7d", "yAxisUnit": "GB" }
+            }
+        ]
+    }));
+
+    map.insert("firewall-rules", serde_json::json!({
+        "id": "firewall-rules",
+        "category": "firewall-rules",
+        "name": "Firewall Rules",
+        "description": "Rule hit counts, blocked connections, and policy effectiveness",
+        "icon": "firewall",
+        "default_view": false,
+        "widgets": [
+            {
+                "id": "blocked-connections",
+                "type": "counter",
+                "title": "Blocked Connections (24h)",
+                "data_source": "/api/firewall/blocked/count",
+                "refresh_interval": 10000,
+                "config": { "icon": "block", "color": "red" }
+            },
+            {
+                "id": "rule-hits",
+                "type": "table",
+                "title": "Top Firewall Rules",
+                "data_source": "/api/firewall/rules/hits",
+                "refresh_interval": 30000,
+                "config": { "columns": ["rule", "hits", "action"], "limit": 20 }
+            },
+            {
+                "id": "block-reasons",
+                "type": "pie-chart",
+                "title": "Block Reasons",
+                "data_source": "/api/firewall/block-reasons",
+                "refresh_interval": 30000,
+                "config": {}
+            }
+        ]
+    }));
+
+    map.insert("qos-metrics", serde_json::json!({
+        "id": "qos-metrics",
+        "category": "qos-metrics",
+        "name": "QoS Metrics",
+        "description": "Traffic shaping stats, bandwidth allocation, and queue performance",
+        "icon": "priority",
+        "default_view": false,
+        "widgets": [
+            {
+                "id": "bandwidth-allocation",
+                "type": "pie-chart",
+                "title": "Bandwidth Allocation",
+                "data_source": "/api/qos/bandwidth",
+                "refresh_interval": 10000,
+                "config": {}
+            },
+            {
+                "id": "queue-stats",
+                "type": "bar-chart",
+                "title": "Queue Statistics",
+                "data_source": "/api/qos/queues",
+                "refresh_interval": 10000,
+                "config": {}
+            },
+            {
+                "id": "priority-traffic",
+                "type": "line-chart",
+                "title": "Priority Traffic",
+                "data_source": "/api/qos/priority",
+                "refresh_interval": 15000,
+                "config": { "yAxisUnit": "Mbps" }
+            }
+        ]
+    }));
+
+    map
 }
 
 // VPN Server
@@ -1251,4 +1800,707 @@ pub async fn apply_config_template(
     _env: &Env,
 ) -> ApiResult<serde_json::Value> {
     Ok(serde_json::json!({"status": "applied"}))
+}
+
+// ========== Onboarding Functions ==========
+
+/// Get the list of available routers for purchase
+pub fn get_onboarding_routers() -> ApiResult<serde_json::Value> {
+    let routers = vec![
+        serde_json::json!({
+            "id": "asus-rt-ax92u",
+            "name": "RT-AX92U",
+            "manufacturer": "ASUS",
+            "firmware": "Merlin NG",
+            "price": 299,
+            "specs": {
+                "cpu": "Quad-core 1.8GHz",
+                "ram": "512MB",
+                "storage": "256MB NAND",
+                "wan_ports": "1x Gigabit",
+                "lan_ports": "4x Gigabit",
+                "wifi": "WiFi 6 (AX6100) Tri-band",
+                "max_devices": 75
+            },
+            "features": [
+                "WiFi 6 (802.11ax) tri-band",
+                "AiMesh support for mesh networking",
+                "AiProtection Pro security",
+                "Advanced QoS and traffic management",
+                "USB 3.0 port for network storage",
+                "ASUSWRT-Merlin custom firmware"
+            ],
+            "image": "https://placehold.co/400x300/1e293b/60a5fa?text=ASUS+RT-AX92U",
+            "recommended": false,
+            "in_stock": true
+        }),
+        serde_json::json!({
+            "id": "gl-inet-flint-2",
+            "name": "Flint 2 (GL-MT6000)",
+            "manufacturer": "GL.iNet",
+            "firmware": "OpenWrt",
+            "price": 199,
+            "specs": {
+                "cpu": "Quad-core 2.0GHz ARM Cortex-A53",
+                "ram": "1GB DDR4",
+                "storage": "8GB eMMC + 128MB NAND",
+                "wan_ports": "1x 2.5Gb",
+                "lan_ports": "4x Gigabit",
+                "wifi": "WiFi 6 (AX6000) Dual-band",
+                "max_devices": 100
+            },
+            "features": [
+                "WiFi 6 dual-band with 160MHz support",
+                "OpenWrt native for maximum flexibility",
+                "2.5Gb WAN port for multi-gig connections",
+                "Pre-configured VPN client support",
+                "Open-source firmware with active community",
+                "Best price-to-performance ratio"
+            ],
+            "image": "https://placehold.co/400x300/1e293b/10b981?text=GL.iNet+Flint+2",
+            "recommended": true,
+            "in_stock": true
+        }),
+        serde_json::json!({
+            "id": "linksys-wrt3200acm",
+            "name": "WRT3200ACM",
+            "manufacturer": "Linksys",
+            "firmware": "OpenWrt",
+            "price": 179,
+            "specs": {
+                "cpu": "Dual-core 1.8GHz ARM",
+                "ram": "512MB DDR3",
+                "storage": "256MB NAND",
+                "wan_ports": "1x Gigabit",
+                "lan_ports": "4x Gigabit",
+                "wifi": "AC3200 Tri-Stream",
+                "max_devices": 60
+            },
+            "features": [
+                "OpenWrt champion with excellent support",
+                "Dual-core 1.8GHz for strong performance",
+                "eSATA + USB 3.0 + USB 2.0 ports",
+                "Proven reliability and stability",
+                "Large community and documentation",
+                "Budget-friendly OpenWrt option"
+            ],
+            "image": "https://placehold.co/400x300/1e293b/8b5cf6?text=Linksys+WRT3200ACM",
+            "recommended": false,
+            "in_stock": true
+        }),
+        serde_json::json!({
+            "id": "gl-inet-flint-3",
+            "name": "Flint 3",
+            "manufacturer": "GL.iNet",
+            "firmware": "OpenWrt",
+            "price": 299,
+            "specs": {
+                "cpu": "Quad-core 2.2GHz",
+                "ram": "2GB DDR4",
+                "storage": "8GB eMMC",
+                "wan_ports": "1x 2.5Gb",
+                "lan_ports": "4x 2.5Gb",
+                "wifi": "WiFi 7 (BE11000)",
+                "max_devices": 150
+            },
+            "features": [
+                "WiFi 7 (802.11be) cutting-edge",
+                "5x 2.5Gb ports for multi-gig network",
+                "2GB RAM for advanced workloads",
+                "Built-in WireGuard and Tailscale",
+                "Future-proof connectivity",
+                "Premium OpenWrt experience"
+            ],
+            "image": "https://placehold.co/400x300/1e293b/f59e0b?text=GL.iNet+Flint+3",
+            "recommended": false,
+            "in_stock": true
+        }),
+    ];
+
+    Ok(serde_json::json!({
+        "success": true,
+        "result": routers
+    }))
+}
+
+/// Create a new router order with pre-configuration
+pub async fn create_onboarding_order(
+    order: &onboarding::OrderSubmission,
+    env: &Env,
+) -> ApiResult<onboarding::OrderResponse> {
+    // Generate order ID
+    let order_id = format!("ORD-{}", uuid::Uuid::new_v4().to_string().replace('-', "")[..12].to_uppercase());
+
+    // Generate device ID (pre-provision)
+    let device_id = format!("DEV-{}", uuid::Uuid::new_v4().to_string().replace('-', "")[..9].to_uppercase());
+
+    // Calculate estimated delivery (9 days from now)
+    let now = chrono::Utc::now();
+    let estimated_delivery = now + chrono::Duration::days(9);
+
+    let response = onboarding::OrderResponse {
+        order_id: order_id.clone(),
+        device_id: device_id.clone(),
+        estimated_delivery: estimated_delivery.to_rfc3339(),
+        tracking_url: None,
+        setup_instructions: "https://docs.ngfw.sh/setup/quick-start".to_string(),
+        status: onboarding::OrderStatus::Pending,
+        created_at: now.to_rfc3339(),
+    };
+
+    // Store order in KV for later retrieval
+    let kv = env
+        .kv("CONFIGS")
+        .map_err(|_| ApiError::internal("Failed to access config store"))?;
+
+    let order_data = serde_json::json!({
+        "order_id": order_id,
+        "device_id": device_id,
+        "router_id": order.router_id,
+        "subscription_plan": order.subscription_plan,
+        "status": "pending",
+        "created_at": now.to_rfc3339()
+    });
+
+    kv.put(
+        &format!("onboarding:order:{}", order_id),
+        serde_json::to_string(&order_data)
+            .map_err(|_| ApiError::internal("Failed to serialize order"))?,
+    )
+    .map_err(|_| ApiError::internal("Failed to store order"))?
+    .execute()
+    .await
+    .map_err(|_| ApiError::internal("Failed to save order"))?;
+
+    // Store device pre-provisioning record
+    let device_data = serde_json::json!({
+        "device_id": device_id,
+        "order_id": order_id,
+        "device_name": order.config.device_name,
+        "status": "provisioning",
+        "created_at": now.to_rfc3339()
+    });
+
+    kv.put(
+        &format!("onboarding:device:{}", device_id),
+        serde_json::to_string(&device_data)
+            .map_err(|_| ApiError::internal("Failed to serialize device"))?,
+    )
+    .map_err(|_| ApiError::internal("Failed to store device"))?
+    .execute()
+    .await
+    .map_err(|_| ApiError::internal("Failed to save device"))?;
+
+    Ok(response)
+}
+
+/// Get the onboarding status for a user
+pub async fn get_onboarding_status(
+    user_id: Option<&str>,
+    env: &Env,
+) -> ApiResult<serde_json::Value> {
+    let now = chrono::Utc::now().to_rfc3339();
+
+    // If a user_id is provided, look up their onboarding state
+    if let Some(uid) = user_id {
+        let kv = env
+            .kv("CONFIGS")
+            .map_err(|_| ApiError::internal("Failed to access config store"))?;
+
+        let key = format!("onboarding:status:{}", uid);
+        if let Some(data) = kv
+            .get(&key)
+            .text()
+            .await
+            .map_err(|_| ApiError::internal("Failed to read onboarding status"))?
+        {
+            let status: serde_json::Value = serde_json::from_str(&data)
+                .map_err(|_| ApiError::internal("Invalid onboarding status format"))?;
+            return Ok(serde_json::json!({
+                "success": true,
+                "result": status
+            }));
+        }
+    }
+
+    // Default: not started
+    Ok(serde_json::json!({
+        "success": true,
+        "result": {
+            "completed": false,
+            "current_step": "router_selection",
+            "last_updated": now
+        }
+    }))
+}
+
+// ========== Report Functions ==========
+
+/// Check if a device belongs to a specific owner via D1
+pub async fn check_device_ownership(
+    device_id: &str,
+    owner_id: &str,
+    env: &Env,
+) -> ApiResult<bool> {
+    let db = env
+        .d1("DB")
+        .map_err(|_| ApiError::internal("Failed to access database"))?;
+
+    let stmt = db
+        .prepare("SELECT id FROM devices WHERE id = ? AND owner_id = ?")
+        .bind(&[device_id.into(), owner_id.into()])
+        .map_err(|_| ApiError::internal("Failed to prepare query"))?;
+
+    let result = stmt
+        .first::<serde_json::Value>(None)
+        .await
+        .map_err(|_| ApiError::internal("Failed to query devices"))?;
+
+    Ok(result.is_some())
+}
+
+/// List reports for a user with optional filters
+pub async fn list_reports(
+    owner_id: &str,
+    query: &report::ReportListQuery,
+    env: &Env,
+) -> ApiResult<serde_json::Value> {
+    let db = env
+        .d1("DB")
+        .map_err(|_| ApiError::internal("Failed to access database"))?;
+
+    let mut sql = String::from("SELECT * FROM reports WHERE owner_id = ?");
+    let mut params: Vec<worker::d1::D1Type> = vec![owner_id.into()];
+
+    if let Some(ref device_id) = query.device_id {
+        sql.push_str(" AND device_id = ?");
+        params.push(device_id.as_str().into());
+    }
+    if let Some(ref report_type) = query.report_type {
+        sql.push_str(" AND type = ?");
+        params.push(report_type.as_str().into());
+    }
+    if let Some(ref status) = query.status {
+        sql.push_str(" AND status = ?");
+        params.push(status.as_str().into());
+    }
+
+    // Count total before applying LIMIT/OFFSET
+    let count_sql = sql.replace("SELECT *", "SELECT COUNT(*) as total");
+    let count_stmt = db
+        .prepare(&count_sql)
+        .bind(&params)
+        .map_err(|_| ApiError::internal("Failed to prepare count query"))?;
+
+    let count_result = count_stmt
+        .first::<serde_json::Value>(None)
+        .await
+        .map_err(|_| ApiError::internal("Failed to count reports"))?;
+
+    let total = count_result
+        .and_then(|v| v.get("total").and_then(|t| t.as_i64()))
+        .unwrap_or(0);
+
+    sql.push_str(" ORDER BY created_at DESC LIMIT ? OFFSET ?");
+    params.push((query.limit as f64).into());
+    params.push((query.offset as f64).into());
+
+    let stmt = db
+        .prepare(&sql)
+        .bind(&params)
+        .map_err(|_| ApiError::internal("Failed to prepare query"))?;
+
+    let results = stmt
+        .all()
+        .await
+        .map_err(|_| ApiError::internal("Failed to list reports"))?;
+
+    let rows = results
+        .results::<serde_json::Value>()
+        .map_err(|_| ApiError::internal("Failed to parse report rows"))?;
+
+    Ok(serde_json::json!({
+        "success": true,
+        "result": rows,
+        "total": total
+    }))
+}
+
+/// Create a new report record in D1
+pub async fn create_report(
+    owner_id: &str,
+    body: &report::GenerateReportRequest,
+    env: &Env,
+) -> ApiResult<report::Report> {
+    let db = env
+        .d1("DB")
+        .map_err(|_| ApiError::internal("Failed to access database"))?;
+
+    let id = uuid::Uuid::new_v4().to_string();
+    let now = chrono::Utc::now().to_rfc3339();
+
+    let stmt = db
+        .prepare(
+            "INSERT INTO reports (id, device_id, owner_id, type, format, status, title, date_start, date_end, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        )
+        .bind(&[
+            id.as_str().into(),
+            body.device_id.as_str().into(),
+            owner_id.into(),
+            body.report_type.as_str().into(),
+            body.format.as_str().into(),
+            "pending".into(),
+            body.title.as_str().into(),
+            body.date_start.as_str().into(),
+            body.date_end.as_str().into(),
+            now.as_str().into(),
+        ])
+        .map_err(|_| ApiError::internal("Failed to prepare insert"))?;
+
+    stmt.run()
+        .await
+        .map_err(|_| ApiError::internal("Failed to insert report"))?;
+
+    Ok(report::Report {
+        id,
+        device_id: body.device_id.clone(),
+        owner_id: owner_id.to_string(),
+        report_type: body.report_type.clone(),
+        format: body.format.clone(),
+        status: "pending".to_string(),
+        title: body.title.clone(),
+        date_start: body.date_start.clone(),
+        date_end: body.date_end.clone(),
+        r2_key: None,
+        file_size: None,
+        created_at: now,
+        completed_at: None,
+        error_message: None,
+    })
+}
+
+/// Get a single report by ID, scoped to owner
+pub async fn get_report(
+    report_id: &str,
+    owner_id: &str,
+    env: &Env,
+) -> ApiResult<serde_json::Value> {
+    let db = env
+        .d1("DB")
+        .map_err(|_| ApiError::internal("Failed to access database"))?;
+
+    let stmt = db
+        .prepare("SELECT * FROM reports WHERE id = ? AND owner_id = ?")
+        .bind(&[report_id.into(), owner_id.into()])
+        .map_err(|_| ApiError::internal("Failed to prepare query"))?;
+
+    let row = stmt
+        .first::<serde_json::Value>(None)
+        .await
+        .map_err(|_| ApiError::internal("Failed to query report"))?
+        .ok_or_else(|| ApiError::not_found("Report"))?;
+
+    let download_url = if row.get("status").and_then(|s| s.as_str()) == Some("completed") {
+        row.get("r2_key")
+            .and_then(|k| k.as_str())
+            .map(|k| format!("https://reports.ngfw.sh/{}", k))
+    } else {
+        None
+    };
+
+    let mut result = row.clone();
+    if let Some(obj) = result.as_object_mut() {
+        obj.insert(
+            "download_url".to_string(),
+            match download_url {
+                Some(url) => serde_json::Value::String(url),
+                None => serde_json::Value::Null,
+            },
+        );
+    }
+
+    Ok(serde_json::json!({
+        "success": true,
+        "result": result
+    }))
+}
+
+/// Delete a report by ID, scoped to owner. Also removes the R2 object if present.
+pub async fn delete_report(
+    report_id: &str,
+    owner_id: &str,
+    env: &Env,
+) -> ApiResult<serde_json::Value> {
+    let db = env
+        .d1("DB")
+        .map_err(|_| ApiError::internal("Failed to access database"))?;
+
+    // Fetch the report to get the r2_key before deleting
+    let stmt = db
+        .prepare("SELECT * FROM reports WHERE id = ? AND owner_id = ?")
+        .bind(&[report_id.into(), owner_id.into()])
+        .map_err(|_| ApiError::internal("Failed to prepare query"))?;
+
+    let row = stmt
+        .first::<serde_json::Value>(None)
+        .await
+        .map_err(|_| ApiError::internal("Failed to query report"))?
+        .ok_or_else(|| ApiError::not_found("Report"))?;
+
+    // Delete the R2 object if it exists
+    if let Some(r2_key) = row.get("r2_key").and_then(|k| k.as_str()) {
+        if !r2_key.is_empty() {
+            let r2 = env
+                .bucket("REPORTS")
+                .map_err(|_| ApiError::internal("Failed to access report storage"))?;
+            let _ = r2.delete(r2_key).await;
+        }
+    }
+
+    // Delete from D1
+    let delete_stmt = db
+        .prepare("DELETE FROM reports WHERE id = ? AND owner_id = ?")
+        .bind(&[report_id.into(), owner_id.into()])
+        .map_err(|_| ApiError::internal("Failed to prepare delete"))?;
+
+    delete_stmt
+        .run()
+        .await
+        .map_err(|_| ApiError::internal("Failed to delete report"))?;
+
+    Ok(serde_json::json!({
+        "success": true,
+        "message": "Report deleted successfully"
+    }))
+}
+
+// ========== Log Functions (D1) ==========
+
+/// List logs from D1, filtered by the authenticated user's devices.
+///
+/// The query joins `logs` with `devices` on `device_id` and filters
+/// by `owner_id` so that only logs belonging to the caller's devices
+/// are returned.  Uses the `idx_logs_device_id_timestamp` index for
+/// efficient ordering.
+pub async fn list_logs(
+    user_id: &str,
+    query: &logs::LogListQuery,
+    env: &Env,
+) -> ApiResult<logs::LogListResponse> {
+    let db = env
+        .d1("DB")
+        .map_err(|_| ApiError::internal("Failed to access D1 database"))?;
+
+    let limit = query.limit.unwrap_or(20).min(1000);
+    let offset = query.offset.unwrap_or(0);
+
+    // -- Build the dynamic WHERE clause --
+    // We accumulate owned Strings so that D1Type::Text can borrow them.
+    let mut sql = String::from(
+        "SELECT l.id, l.device_id, l.timestamp, l.level, l.category, \
+         l.message, l.source, l.metadata \
+         FROM logs l INNER JOIN devices d ON l.device_id = d.id \
+         WHERE d.owner_id = ?",
+    );
+    let mut string_params: Vec<String> = vec![user_id.to_string()];
+
+    if let Some(ref device_id) = query.device_id {
+        sql.push_str(" AND l.device_id = ?");
+        string_params.push(device_id.clone());
+    }
+    if let Some(ref level) = query.level {
+        sql.push_str(" AND l.level = ?");
+        string_params.push(level.clone());
+    }
+    if let Some(ref category) = query.category {
+        sql.push_str(" AND l.category = ?");
+        string_params.push(category.clone());
+    }
+    if let Some(ref search) = query.search {
+        sql.push_str(" AND (l.message LIKE ? OR l.source LIKE ?)");
+        let pattern = format!("%{}%", search);
+        string_params.push(pattern.clone());
+        string_params.push(pattern);
+    }
+    if let Some(ref date_start) = query.date_start {
+        sql.push_str(" AND l.timestamp >= ?");
+        string_params.push(date_start.clone());
+    }
+    if let Some(ref date_end) = query.date_end {
+        sql.push_str(" AND l.timestamp <= ?");
+        string_params.push(date_end.clone());
+    }
+
+    sql.push_str(" ORDER BY l.timestamp DESC LIMIT ? OFFSET ?");
+
+    // Build params: text params first, then numeric limit/offset
+    let mut params: Vec<d1::D1Type> = string_params
+        .iter()
+        .map(|s| s.as_str().into())
+        .collect();
+    params.push((limit as f64).into());
+    params.push((offset as f64).into());
+
+    let stmt = db
+        .prepare(&sql)
+        .bind(&params)
+        .map_err(|_| ApiError::internal("Failed to bind log query parameters"))?;
+
+    let result = stmt
+        .all()
+        .await
+        .map_err(|e| ApiError::internal(format!("D1 query failed: {}", e)))?;
+
+    let rows: Vec<logs::LogEntry> = result
+        .results()
+        .map_err(|e| ApiError::internal(format!("Failed to deserialize log rows: {}", e)))?;
+
+    // -- Total count (for pagination) --
+    let count_stmt = db
+        .prepare(
+            "SELECT COUNT(*) as total FROM logs l \
+             INNER JOIN devices d ON l.device_id = d.id \
+             WHERE d.owner_id = ?",
+        )
+        .bind(&[user_id.into()])
+        .map_err(|_| ApiError::internal("Failed to bind count parameters"))?;
+
+    #[derive(serde::Deserialize)]
+    struct CountRow {
+        total: u64,
+    }
+
+    let total = count_stmt
+        .first::<CountRow>(None)
+        .await
+        .map_err(|e| ApiError::internal(format!("D1 count query failed: {}", e)))?
+        .map(|r| r.total)
+        .unwrap_or(0);
+
+    Ok(logs::LogListResponse {
+        success: true,
+        result: rows,
+        total,
+    })
+}
+
+/// Export logs to R2 as a JSON or CSV file.
+///
+/// 1. Verify the requesting user owns the target device (via D1).
+/// 2. Query matching log rows from D1.
+/// 3. Format as JSON or CSV.
+/// 4. Write to the REPORTS R2 bucket.
+/// 5. Return a 202-style response with the export_id.
+pub async fn export_logs(
+    user_id: &str,
+    req: &logs::LogExportRequest,
+    env: &Env,
+) -> ApiResult<logs::LogExportResponse> {
+    let db = env
+        .d1("DB")
+        .map_err(|_| ApiError::internal("Failed to access D1 database"))?;
+
+    // -- Verify device ownership --
+    let check_stmt = db
+        .prepare("SELECT id FROM devices WHERE id = ? AND owner_id = ?")
+        .bind(&[req.device_id.as_str().into(), user_id.into()])
+        .map_err(|_| ApiError::internal("Failed to bind device check parameters"))?;
+
+    let device_check: Option<serde_json::Value> = check_stmt
+        .first(None)
+        .await
+        .map_err(|e| ApiError::internal(format!("Device check failed: {}", e)))?;
+
+    if device_check.is_none() {
+        return Err(ApiError::not_found("Device not found or access denied"));
+    }
+
+    // -- Build export query --
+    let mut sql = String::from("SELECT * FROM logs WHERE device_id = ?");
+    let mut string_params: Vec<String> = vec![req.device_id.clone()];
+
+    if let Some(ref level) = req.level {
+        sql.push_str(" AND level = ?");
+        string_params.push(level.clone());
+    }
+    if let Some(ref category) = req.category {
+        sql.push_str(" AND category = ?");
+        string_params.push(category.clone());
+    }
+    sql.push_str(" AND timestamp >= ?");
+    string_params.push(req.date_start.clone());
+    sql.push_str(" AND timestamp <= ?");
+    string_params.push(req.date_end.clone());
+    sql.push_str(" ORDER BY timestamp DESC");
+
+    let params: Vec<d1::D1Type> = string_params
+        .iter()
+        .map(|s| s.as_str().into())
+        .collect();
+
+    let stmt = db
+        .prepare(&sql)
+        .bind(&params)
+        .map_err(|_| ApiError::internal("Failed to bind export query parameters"))?;
+
+    let result = stmt
+        .all()
+        .await
+        .map_err(|e| ApiError::internal(format!("D1 export query failed: {}", e)))?;
+
+    let rows: Vec<logs::LogEntry> = result
+        .results()
+        .map_err(|e| ApiError::internal(format!("Failed to deserialize export rows: {}", e)))?;
+
+    // -- Format the export --
+    let export_id = uuid::Uuid::new_v4().to_string();
+
+    let (file_content, extension) = match req.format {
+        logs::ExportFormat::Json => {
+            let json = serde_json::to_string_pretty(&rows)
+                .map_err(|_| ApiError::internal("Failed to serialize export JSON"))?;
+            (json, "json")
+        }
+        logs::ExportFormat::Csv => {
+            let headers = "id,device_id,timestamp,level,category,message,source";
+            let mut csv = String::from(headers);
+            for row in &rows {
+                csv.push('\n');
+                csv.push_str(&format!(
+                    "{},{},{},{},{},{},{}",
+                    csv_escape(&row.id),
+                    csv_escape(&row.device_id),
+                    csv_escape(&row.timestamp),
+                    csv_escape(&row.level),
+                    csv_escape(&row.category),
+                    csv_escape(&row.message),
+                    csv_escape(&row.source),
+                ));
+            }
+            (csv, "csv")
+        }
+    };
+
+    // -- Write to R2 --
+    let r2 = env
+        .bucket("REPORTS")
+        .map_err(|_| ApiError::internal("Failed to access reports storage"))?;
+
+    let r2_key = format!("logs/{}/{}.{}", user_id, export_id, extension);
+    r2.put(&r2_key, file_content.as_bytes().to_vec())
+        .execute()
+        .await
+        .map_err(|_| ApiError::internal("Failed to write export to R2"))?;
+
+    Ok(logs::LogExportResponse {
+        success: true,
+        message: "Log export completed".to_string(),
+        export_id,
+        download_url: Some(format!("https://reports.ngfw.sh/{}", r2_key)),
+    })
+}
+
+/// Escape a value for CSV output (wraps in double quotes, escaping inner quotes).
+fn csv_escape(value: &str) -> String {
+    format!("\"{}\"", value.replace('"', "\"\""))
 }

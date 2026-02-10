@@ -399,3 +399,69 @@ pub async fn delete_reservation(req: Request, ctx: RouteContext<()>) -> Result<R
     let result = storage::delete_dhcp_reservation(&device_id, mac, &ctx.env).await;
     result.into_api_response()
 }
+
+// ========== Routing Handlers ==========
+
+/// GET /routing/routes
+pub async fn get_routes(req: Request, ctx: RouteContext<()>) -> Result<Response> {
+    let auth = authenticate(&req, &ctx.env)
+        .await
+        .map_err(|e| Error::from(e.error.message))?;
+    let device_id = get_device_id(&req)?;
+    check_device_access(&auth, &device_id, &ctx.env)
+        .await
+        .map_err(|e| Error::from(e.error.message))?;
+
+    let routes = storage::get_routes(&device_id, &ctx.env).await;
+    routes.into_api_response()
+}
+
+/// POST /routing/routes
+pub async fn create_route(mut req: Request, ctx: RouteContext<()>) -> Result<Response> {
+    let auth = authenticate(&req, &ctx.env)
+        .await
+        .map_err(|e| Error::from(e.error.message))?;
+    let device_id = get_device_id(&req)?;
+    check_device_access(&auth, &device_id, &ctx.env)
+        .await
+        .map_err(|e| Error::from(e.error.message))?;
+
+    let route: RouteRequest = req.json().await.map_err(|_| Error::from("Invalid JSON"))?;
+    let result = storage::create_route(&device_id, &route, &ctx.env).await;
+    result.into_api_response()
+}
+
+/// PUT /routing/routes/:id
+pub async fn update_route(mut req: Request, ctx: RouteContext<()>) -> Result<Response> {
+    let auth = authenticate(&req, &ctx.env)
+        .await
+        .map_err(|e| Error::from(e.error.message))?;
+    let device_id = get_device_id(&req)?;
+    check_device_access(&auth, &device_id, &ctx.env)
+        .await
+        .map_err(|e| Error::from(e.error.message))?;
+
+    let route_id = ctx
+        .param("id")
+        .ok_or_else(|| Error::from("Missing route ID"))?;
+    let route: RouteRequest = req.json().await.map_err(|_| Error::from("Invalid JSON"))?;
+    let result = storage::update_route(&device_id, route_id, &route, &ctx.env).await;
+    result.into_api_response()
+}
+
+/// DELETE /routing/routes/:id
+pub async fn delete_route(req: Request, ctx: RouteContext<()>) -> Result<Response> {
+    let auth = authenticate(&req, &ctx.env)
+        .await
+        .map_err(|e| Error::from(e.error.message))?;
+    let device_id = get_device_id(&req)?;
+    check_device_access(&auth, &device_id, &ctx.env)
+        .await
+        .map_err(|e| Error::from(e.error.message))?;
+
+    let route_id = ctx
+        .param("id")
+        .ok_or_else(|| Error::from("Missing route ID"))?;
+    let result = storage::delete_route(&device_id, route_id, &ctx.env).await;
+    result.into_api_response()
+}
