@@ -12,7 +12,7 @@
 		"build:agent:musl": "cd packages/agent && cross build --release --target aarch64-unknown-linux-musl",
 		"build:api": "cd packages/api; cargo install -q worker-build; worker-build --release",
 		"build:docs": "bun run --cwd docs build",
-		"generate:api": "cd packages/portal-astro && npm run generate:api",
+		"generate:api": "cd packages/portal-astro && bun run generate:api",
 		"dev": "echo 'Run dev servers individually: bun run dev:www, dev:portal, dev:schema, dev:api, dev:docs, or dev:sandbox'",
 		"dev:www": "bun run --cwd packages/www dev",
 		"dev:portal": "bun run --cwd packages/portal dev",
