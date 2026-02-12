@@ -24,9 +24,9 @@ def main [command: string] {
         "full" => { full_lifecycle }
         "status" => { status }
         _ => {
-            print $"Unknown command: ($command)"
-            print "Usage: nu demo-lifecycle.nu {setup|test|teardown|full|status}"
-            exit 1
+            print -e $"Unknown command: ($command)"
+            print -e "Usage: nu demo-lifecycle.nu {setup|test|teardown|full|status}"
+            error make { msg: $"Unknown command: ($command)" }
         }
     }
 }
@@ -34,7 +34,7 @@ def main [command: string] {
 # Full lifecycle: setup → test → teardown
 def full_lifecycle [] {
     print "🎬 Starting full demo lifecycle"
-    print "================================"
+    print ================================
 
     try {
         setup
@@ -43,32 +43,28 @@ def full_lifecycle [] {
 
         test_demo
 
-        print "\n🎉 Lifecycle completed successfully!"
-        print "Keeping instance running for inspection."
-        print "Run 'nu demo-lifecycle.nu teardown' to cleanup."
-    } catch { |err|
-        print $"❌ Lifecycle failed: ($err)"
-        print "⚠️ Instance may still be running. Check with 'status' command."
-        exit 1
+        print "
+🎉 Lifecycle completed successfully!
+Keeping instance running for inspection.
+Run 'nu demo-lifecycle.nu teardown' to cleanup."
+    } catch {|err|
+        print -e $"❌ Lifecycle failed: ($err)"
+        print -e "⚠️ Instance may still be running. Check with 'status' command."
+        error make { msg: $"Lifecycle failed: ($err)" }
     }
 }
 
 # Setup: Provision and configure demo router
 def setup [] {
     print "🚀 Setting up demo router"
-    print "========================="
+    print =========================
 
     # Check if instance already exists
     let existing = (check_existing_instance)
     if $existing != null {
-        print $"⚠️ Instance already exists: ($existing.id)"
-        print $"   IP: ($existing.main_ip)"
-        print $"   Status: ($existing.status)"
-        print ""
-        print "Options:"
-        print "  1. Run 'nu demo-lifecycle.nu teardown' to remove existing"
-        print "  2. Run 'nu demo-lifecycle.nu test' to test existing"
-        exit 1
+        error make {
+            msg: $"Instance already exists: ($existing.id)\n   IP: ($existing.main_ip)\n   Status: ($existing.status)\n\nOptions:\n  1. Run 'nu demo-lifecycle.nu teardown' to remove existing\n  2. Run 'nu demo-lifecycle.nu test' to test existing"
+        }
     }
 
     # Create Vultr instance
@@ -100,24 +96,25 @@ def setup [] {
     print "✅ Verifying deployment..."
     verify_deployment $instance
 
-    print ""
-    print "🎉 Demo router setup complete!"
-    print $"   Instance ID: ($instance.id)"
-    print $"   IP Address: ($instance.main_ip)"
-    print $"   Container: Running"
-    print ""
-    print "Next: Run 'nu demo-lifecycle.nu test' to test"
+    print $"
+🎉 Demo router setup complete!
+   Instance ID: ($instance.id)
+   IP Address: ($instance.main_ip)
+   Container: Running
+
+Next: Run 'nu demo-lifecycle.nu test' to test"
 }
+
 
 # Test: Run full test suite against demo
 def test_demo [] {
     print "🧪 Testing demo router"
-    print "======================"
+    print ======================
 
     let state = (load_state)
     if $state == null {
-        print "❌ No demo instance found. Run 'setup' first."
-        exit 1
+        print -e "❌ No demo instance found. Run 'setup' first."
+        error make { msg: "No demo instance found. Run 'setup' first." }
     }
 
     let instance = $state
@@ -128,8 +125,8 @@ def test_demo [] {
     if (test_ssh $instance.main_ip) {
         print "✅ SSH connection successful"
     } else {
-        print "❌ SSH connection failed"
-        exit 1
+        print -e "❌ SSH connection failed"
+        error make { msg: "SSH connection failed" }
     }
 
     # Test 2: Container running
@@ -137,8 +134,8 @@ def test_demo [] {
     if (test_container $instance) {
         print "✅ Container is running"
     } else {
-        print "❌ Container is not running"
-        exit 1
+        print -e "❌ Container is not running"
+        error make { msg: "Container is not running" }
     }
 
     # Test 3: Agent health
@@ -146,8 +143,8 @@ def test_demo [] {
     if (test_agent_health $instance) {
         print "✅ Agent is healthy"
     } else {
-        print "❌ Agent health check failed"
-        exit 1
+        print -e "❌ Agent health check failed"
+        error make { msg: "Agent health check failed" }
     }
 
     # Test 4: WebSocket connection (if configured)
@@ -165,7 +162,7 @@ def test_demo [] {
 # Teardown: Destroy demo router
 def teardown [] {
     print "🗑️ Tearing down demo router"
-    print "============================"
+    print ============================
 
     let state = (load_state)
     if $state == null {
@@ -179,10 +176,10 @@ def teardown [] {
 
     # Delete instance
     print "🔥 Deleting Vultr instance..."
-    ^vultr instance delete $instance.id
+    vultr instance delete $instance.id
 
     # Remove state file
-    rm -f $STATE_FILE
+    try { rm --force $STATE_FILE }
 
     print "✅ Demo router destroyed"
 }
@@ -190,7 +187,7 @@ def teardown [] {
 # Status: Show current demo status
 def status [] {
     print "📊 Demo Router Status"
-    print "====================="
+    print =====================
 
     let state = (load_state)
     if $state == null {
@@ -199,10 +196,10 @@ def status [] {
     }
 
     let instance = $state
-    print $"Instance ID: ($instance.id)"
-    print $"IP Address: ($instance.main_ip)"
-    print $"Status: ($instance.status)"
-    print $"Created: ($instance.date_created)"
+    print $"Instance ID: ($instance.id)
+IP Address: ($instance.main_ip)
+Status: ($instance.status)
+Created: ($instance.date_created)"
 
     # Check if instance still exists
     try {
@@ -216,8 +213,8 @@ def status [] {
 
 # Helper functions
 
-def check_existing_instance [] {
-    let instances = (^vultr instance list -o json | from json)
+def check_existing_instance []: nothing -> record {
+    let instances = try { vultr instance list -o json | from json } catch { return null }
     let existing = ($instances | where label == $INSTANCE_LABEL | first)
     if ($existing | is-empty) {
         return null
@@ -226,37 +223,35 @@ def check_existing_instance [] {
     }
 }
 
-def create_instance [] {
+def create_instance []: nothing -> record {
     let output = (^vultr instance create
         --region $REGION
         --plan $PLAN
         --os $OS_ID
         --label $INSTANCE_LABEL
         --host $INSTANCE_LABEL
-        --tags "demo,ngfw,testing,automated"
+        --tags demo,ngfw,testing,automated
         --ipv6
         -o json
     )
-    return ($output | from json)
+    return (try { $output | from json } catch { error make { msg: "Failed to parse instance creation output" } })
 }
 
-def get_instance [instance_id: string] {
-    let output = (^vultr instance get $instance_id -o json)
-    return ($output | from json)
+def get_instance [instance_id: string]: nothing -> record {
+    let output = (vultr instance get $instance_id -o json)
+    return (try { $output | from json } catch { error make { msg: "Failed to parse instance details" } })
 }
 
 def wait_for_active [instance_id: string] {
-    mut retries = 0
-    loop {
+    for retries in 0..60 {
         let instance = (get_instance $instance_id)
         if $instance.status == "active" and $instance.main_ip != "0.0.0.0" {
-            break
+            return
         }
 
-        $retries = $retries + 1
-        if $retries > 60 {
-            print "❌ Timeout waiting for instance to be active"
-            exit 1
+        if $retries >= 59 {
+            print -e "❌ Timeout waiting for instance to be active"
+            error make { msg: "Timeout waiting for instance to be active" }
         }
 
         sleep 5sec
@@ -264,33 +259,35 @@ def wait_for_active [instance_id: string] {
 }
 
 def wait_for_ssh [ip: string] {
-    mut retries = 0
-    loop {
-        try {
-            ^ssh -o ConnectTimeout=5 -o StrictHostKeyChecking=no root@$ip "echo 'SSH ready'" o+e>| ignore
-            break
-        } catch {
-            $retries = $retries + 1
-            if $retries > 60 {
-                print "❌ Timeout waiting for SSH"
-                exit 1
-            }
-            sleep 5sec
+    for retries in 0..60 {
+        let result = (do { ^ssh -o ConnectTimeout=5 -o StrictHostKeyChecking=no $"root@($ip)" "echo 'SSH ready'" } | complete)
+        if $result.exit_code == 0 {
+            return
         }
+
+        if $retries >= 59 {
+            print -e "❌ Timeout waiting for SSH"
+            error make { msg: "Timeout waiting for SSH" }
+        }
+
+        sleep 5sec
     }
 }
 
 def deploy_container [instance: record] {
+    let ip = $instance.main_ip
+
     # Install Docker
-    ^ssh -o StrictHostKeyChecking=no root@$instance.main_ip "
-        apt update -qq &&
-        apt install -y -qq docker.io docker-compose &&
-        systemctl enable docker &&
-        systemctl start docker
-    "
+    let result = (do { ^ssh -o StrictHostKeyChecking=no $"root@($ip)" "apt update -qq && apt install -y -qq docker.io docker-compose && systemctl enable docker && systemctl start docker" } | complete)
+    if $result.exit_code != 0 {
+        error make { msg: $"Failed to install Docker: ($result.stderr)" }
+    }
 
     # Create config directory
-    ^ssh -o StrictHostKeyChecking=no root@$instance.main_ip "mkdir -p /etc/ngfw"
+    let result = (do { ^ssh -o StrictHostKeyChecking=no $"root@($ip)" "mkdir -p /etc/ngfw" } | complete)
+    if $result.exit_code != 0 {
+        error make { msg: $"Failed to create config directory: ($result.stderr)" }
+    }
 
     # Create config file
     let config = $"
@@ -313,63 +310,72 @@ system = true
 "
 
     # Upload config
-    echo $config | ^ssh -o StrictHostKeyChecking=no root@$instance.main_ip "cat > /etc/ngfw/config.toml"
+    $config | ^ssh -o StrictHostKeyChecking=no $"root@($ip)" "cat > /etc/ngfw/config.toml"
 
     # Run container
-    ^ssh -o StrictHostKeyChecking=no root@$instance.main_ip "docker run -d --name ngfw-agent --restart unless-stopped -v /etc/ngfw/config.toml:/etc/ngfw/config.toml:ro ghcr.io/danielbodnar/ngfw-agent:latest || true"
+    let result = (do { ^ssh -o StrictHostKeyChecking=no $"root@($ip)" "docker run -d --name ngfw-agent --restart unless-stopped -v /etc/ngfw/config.toml:/etc/ngfw/config.toml:ro ghcr.io/danielbodnar/ngfw-agent:latest || true" } | complete)
+    if $result.exit_code != 0 {
+        error make { msg: $"Failed to start container: ($result.stderr)" }
+    }
 }
 
-def verify_deployment [instance: record] {
-    let container_status = (^ssh -o StrictHostKeyChecking=no root@$instance.main_ip "docker ps --filter name=ngfw-agent --format '{{.Status}}'")
+def verify_deployment [instance: record]: nothing -> bool {
+    let ip = $instance.main_ip
+    let result = (do { ^ssh -o StrictHostKeyChecking=no $"root@($ip)" "docker ps --filter name=ngfw-agent --format '{{.Status}}'" } | complete)
 
-    if ($container_status | str contains "Up") {
+    if $result.exit_code != 0 {
+        print -e "❌ Container not running"
+        error make { msg: "Container not running" }
+    }
+
+    if ($result.stdout | str contains "Up") {
         return true
     } else {
-        print "❌ Container not running"
-        exit 1
+        print -e "❌ Container not running"
+        error make { msg: "Container not running" }
     }
 }
 
-def test_ssh [ip: string] -> bool {
+def test_ssh [ip: string]: nothing -> bool {
+    let result = (do { ^ssh -o ConnectTimeout=10 -o StrictHostKeyChecking=no $"root@($ip)" "echo 'test'" } | complete)
+    return ($result.exit_code == 0)
+}
+
+def test_container [instance: record]: nothing -> bool {
+    let ip = $instance.main_ip
     try {
-        ^ssh -o ConnectTimeout=10 -o StrictHostKeyChecking=no root@$ip "echo 'test'" o+e>| ignore
-        return true
+        let result = (do { ^ssh -o StrictHostKeyChecking=no $"root@($ip)" "docker ps --filter name=ngfw-agent --format '{{.Status}}'" } | complete)
+        return ($result.exit_code == 0 and ($result.stdout | str contains "Up"))
     } catch {
         return false
     }
 }
 
-def test_container [instance: record] -> bool {
+def test_agent_health [instance: record]: nothing -> bool {
+    let ip = $instance.main_ip
     try {
-        let status = (^ssh -o StrictHostKeyChecking=no root@$instance.main_ip "docker ps --filter name=ngfw-agent --format '{{.Status}}'")
-        return ($status | str contains "Up")
-    } catch {
-        return false
-    }
-}
-
-def test_agent_health [instance: record] -> bool {
-    try {
-        let logs = (^ssh -o StrictHostKeyChecking=no root@$instance.main_ip "docker logs ngfw-agent --tail 50")
+        let result = (do { ^ssh -o StrictHostKeyChecking=no $"root@($ip)" "docker logs ngfw-agent --tail 50" } | complete)
         # Check if agent started successfully
-        return ($logs | str contains "agent" or true)  # Placeholder for actual health check
+        return ($result.exit_code == 0 and ($result.stdout | str contains "agent"))
     } catch {
         return false
     }
 }
 
-def test_websocket_connection [instance: record] -> bool {
+def test_websocket_connection [instance: record]: nothing -> bool {
     # Placeholder - would test actual WebSocket connection
     return false
 }
 
 def save_state [instance: record] {
-    $instance | to json | save -f $STATE_FILE
+    try { $instance | to json | save --force $STATE_FILE } catch {|err|
+        print -e $"Warning: Failed to save state: ($err)"
+    }
 }
 
-def load_state [] -> record {
+def load_state []: nothing -> record {
     if not ($STATE_FILE | path exists) {
         return null
     }
-    return (open $STATE_FILE | from json)
+    try { open $STATE_FILE | from json } catch { return null }
 }
