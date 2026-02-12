@@ -37,10 +37,17 @@ cargo test -p ngfw-protocol            # Protocol crate tests
 cargo test -p ngfw-agent               # Agent tests
 cargo test -p ngfw-agent test_name     # Single Rust test
 
+# Run a single schema test file
+cd packages/schema && npx vitest run tests/integration/tasks.test.ts --config tests/vitest.config.mts
+
+# Run schema tests matching a pattern
+cd packages/schema && npx vitest run -t "should create" --config tests/vitest.config.mts
+
 # Lint & Format
 bun run lint                           # oxlint (config: .oxlintrc.json)
 bun run lint:fix                       # oxlint --fix
 bun run format                         # oxfmt --write
+bun run format:check                   # oxfmt --check
 cargo clippy --all-targets --all-features -- -D warnings
 cargo fmt
 
@@ -51,13 +58,28 @@ bun run db:migrate:remote              # Apply migrations to production
 # Deploy
 bun run deploy                         # Deploy www, portal, schema, docs
 bun run deploy:all                     # Deploy all including Rust API
+
+# Secrets (must be set before first deploy)
+bunx wrangler secret put CLERK_SECRET_KEY --config packages/schema/wrangler.jsonc
+bunx wrangler secret put CLERK_SECRET_KEY --config packages/api/wrangler.toml
 ```
 
 ## Architecture
 
 ### Two API Servers (Shared Bindings)
 
-Both APIs share the same D1 database, KV namespaces (DEVICES, CONFIGS, SESSIONS, CACHE), and R2 buckets (FIRMWARE, BACKUPS, REPORTS):
+Both APIs share the same D1 database, KV namespaces, and R2 buckets:
+
+| Type | Binding | Purpose |
+|------|---------|---------|
+| D1 | `DB` | Users, devices, configs, subscriptions (`ngfw-db`) |
+| KV | `DEVICES` | Device registry and API keys |
+| KV | `CONFIGS` | Device configurations |
+| KV | `SESSIONS` | User sessions |
+| KV | `CACHE` | Blocklist and threat feed cache |
+| R2 | `FIRMWARE` | Firmware images |
+| R2 | `BACKUPS` | Configuration backups |
+| R2 | `REPORTS` | Generated reports |
 
 - **Schema API** (`packages/schema/`, `specs.ngfw.sh`) — TypeScript Hono + Chanfana. Auto-generates OpenAPI 3.1 specs. Handles CRUD, D1 queries, user-facing REST. Endpoints extend Chanfana base classes. Error responses use `ApiException`.
 - **Rust API** (`packages/api/`, `api.ngfw.sh`) — workers-rs compiled to WASM. Handles WebSocket RPC via `AgentConnection` Durable Object, JWT verification against Clerk JWKS. Uses `RefCell` for interior mutability in Durable Objects.
@@ -74,6 +96,46 @@ Three crates in `Cargo.toml` workspace:
 - **`packages/agent/`** (`ngfw-agent`) — Router daemon using Tokio. Connects via WebSocket (`tokio-tungstenite`), manages nftables/dnsmasq/hostapd/WireGuard. Cross-compiled to `aarch64-unknown-linux-gnu`.
 - **`packages/api/`** (`ngfw-api`) — Workers-rs WASM API. `crate-type = ["cdylib"]`. Release profile: `opt-level = "z"`, LTO, `panic = "abort"`, stripped.
 
+### Rust API Structure (packages/api/src/)
+
+```
+lib.rs                       # Entry point (#[event(fetch)] macro)
+handlers/
+  mod.rs, agent.rs, fleet.rs, network.rs, router.rs,
+  security.rs, services.rs, system.rs, user.rs
+middleware/
+  mod.rs, auth.rs, cors.rs, rate_limit.rs
+models/
+  mod.rs, error.rs, fleet.rs, network.rs, rpc.rs,
+  security.rs, services.rs, system.rs, user.rs
+rpc/
+  mod.rs, agent_connection.rs  # Durable Object for WebSocket
+storage/
+  mod.rs                       # KV, D1, R2 abstractions
+```
+
+### Schema API Structure (packages/schema/src/)
+
+```
+index.ts                     # Hono app, CORS, Chanfana OpenAPI registry
+types.ts                     # AppContext type (Hono context with Env bindings)
+endpoints/
+  billing/                   # Plan and subscription management
+  fleet/                     # Device CRUD and status
+  wan/, lan/, wifi/, dhcp/   # Network configuration
+  routing/                   # Static routes
+  nat/                       # NAT rules and UPnP
+  ips/                       # IDS/IPS configuration
+  vpn-server/, vpn-client/   # VPN management
+  qos/                       # QoS traffic shaping
+  ddns/                      # Dynamic DNS
+  reports/, logs/            # Reporting and log queries
+  onboarding/                # Device registration flow
+  dashboards/                # Dashboard data
+```
+
+D1 migrations in `packages/schema/migrations/` (numbered `0001_` through `0008_`). The `predeploy` script auto-applies remote migrations before deploy.
+
 ### RPC Protocol
 
 WebSocket messages use `RpcMessage` envelope: `{ id, type, payload }`. `MessageType` is `SCREAMING_SNAKE_CASE`, `ConfigSection` is lowercase. Agent modes: `observe` (read-only), `shadow` (validate without applying), `takeover` (full control). `ModeConfig` supports per-section overrides.
@@ -81,19 +143,26 @@ WebSocket messages use `RpcMessage` envelope: `{ id, type, payload }`. `MessageT
 ### Schema API Patterns
 
 ```typescript
-// Endpoint pattern: extend Chanfana base class
+// Endpoint pattern: extend Chanfana base class (OpenAPIRoute)
 // Zod 4 for validation, D1 for storage
 // Error format: { success: false, errors: [{ code, message }] }
 // AppContext type defined in src/types.ts provides Hono context with Env bindings
 ```
 
-Endpoints organized by domain under `packages/schema/src/endpoints/` (billing, fleet, wan, lan, wifi, dhcp, routing, nat, ips, vpn-server, vpn-client, qos, ddns, reports, logs, onboarding, dashboards).
+### Test Patterns
 
-D1 migrations in `packages/schema/migrations/` (numbered `0001_` through `0008_`).
+Schema tests use `@cloudflare/vitest-pool-workers` and import `SELF` from `cloudflare:test` for integration testing against the Workers runtime:
+
+```typescript
+import { SELF } from "cloudflare:test";
+const response = await SELF.fetch("http://local.test/endpoint");
+```
 
 ### Authentication
 
-Clerk.com handles auth. Portal uses `@clerk/astro`, Schema API uses `@clerk/backend` with `verifyToken`, Rust API uses `jsonwebtoken` crate with RS256 + JWKS from KV cache. Router agents authenticate with device-specific API keys stored in KV.
+Clerk.com handles auth (instance: `tough-unicorn-25`). Portal uses `@clerk/astro`, Schema API uses `@clerk/backend` with `verifyToken`, Rust API uses `jsonwebtoken` crate with RS256 + JWKS from KV cache. Router agents authenticate with device-specific API keys stored in KV.
+
+Portal needs `VITE_CLERK_PUBLISHABLE_KEY` in `.dev.vars`. Both API packages need `CLERK_SECRET_KEY` as a Wrangler secret (not in config files).
 
 ### Other Packages
 
@@ -108,3 +177,14 @@ Clerk.com handles auth. Portal uses `@clerk/astro`, Schema API uses `@clerk/back
 - **Rust:** Clippy with `-D warnings`, `rustfmt`, no `unwrap()` in production paths, `?` for error propagation
 - **Commits:** Conventional commits via `lumen draft | git commit -F -`
 - **Linting:** oxlint with plugins (unicorn, typescript, oxc, import, jsdoc, jest, vitest, jsx-a11y, promise, node, vue)
+
+## Key Files
+
+| File | Purpose |
+|------|---------|
+| `AGENTS.md` | Complete API specification, RPC protocol, config schemas |
+| `ARCHITECTURE.md` | Full technical architecture reference |
+| `PROJECT.md` | Task tracking, roadmap, development status |
+| `.oxlintrc.json` | Root oxlint configuration |
+| `packages/api/src/rpc/agent_connection.rs` | Durable Object for WebSocket agent connections |
+| `packages/schema/migrations/` | D1 SQL migrations |
