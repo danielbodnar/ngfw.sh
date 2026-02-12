@@ -15,6 +15,11 @@ use tracing::{error, info};
 
 #[tokio::main]
 async fn main() {
+    // Install rustls crypto provider (required for rustls 0.23+)
+    rustls::crypto::ring::default_provider()
+        .install_default()
+        .expect("Failed to install rustls crypto provider");
+
     // Parse CLI args
     let args: Vec<String> = std::env::args().collect();
     let config_path = args
