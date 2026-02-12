@@ -932,10 +932,9 @@ cat mock-sysfs/class/hwmon/hwmon0/temp1_input
 
 ## References
 
-- [Integration Test Framework](README.md) - Overall test framework
+- [Integration Test Framework](./README.md) - Overall test framework
 - [ARCHITECTURE.md](../../ARCHITECTURE.md) - System architecture
 - [PROJECT.md](../../PROJECT.md) - Project status
-- [Agent README](../../packages/agent/README.md) - Agent implementation
 - [API README](../../packages/api/README.md) - Rust API server
 
 ---

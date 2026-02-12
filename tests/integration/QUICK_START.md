@@ -192,7 +192,7 @@ COMPOSE_FILE=docker/compose-full.yaml ./run-docker.sh
 ## Next Steps
 
 - Read [DOCKER_TESTING.md](DOCKER_TESTING.md) for comprehensive guide
-- See [README.md](README.md) for integration test framework
+- See [README.md](./README.md) for integration test framework
 - Check [ARCHITECTURE.md](../../ARCHITECTURE.md) for system overview
 
 ---

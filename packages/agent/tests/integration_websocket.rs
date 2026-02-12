@@ -16,12 +16,14 @@ use tokio_tungstenite::tungstenite::Message;
 use tokio_tungstenite::{WebSocketStream, accept_async};
 
 /// Mock WebSocket server for testing
+#[allow(dead_code)]
 struct MockApiServer {
     addr: SocketAddr,
     messages_rx: Arc<Mutex<mpsc::UnboundedReceiver<RpcMessage>>>,
     clients: Arc<Mutex<Vec<WebSocketStream<tokio::net::TcpStream>>>>,
 }
 
+#[allow(dead_code)]
 impl MockApiServer {
     async fn new() -> (Self, mpsc::UnboundedSender<RpcMessage>) {
         let listener = TcpListener::bind("127.0.0.1:0").await.unwrap();
@@ -73,7 +75,7 @@ impl MockApiServer {
 async fn test_connection_auth_handshake_success() {
     let config = create_test_config("ws://127.0.0.1:9999/ws");
 
-    let (_outbound_tx, mut outbound_rx) = mpsc::channel(10);
+    let (_outbound_tx, outbound_rx) = mpsc::channel(10);
     let (inbound_tx, _inbound_rx) = mpsc::channel::<RpcMessage>(10);
     let (shutdown_tx, shutdown_rx) = watch::channel(false);
 
