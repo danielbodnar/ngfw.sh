@@ -1,7 +1,19 @@
 //! OpenAPI specification generation
 //!
-//! This module defines the complete OpenAPI 3.1 specification for the NGFW.sh API.
+//! This module defines the OpenAPI 3.1 specification for the NGFW.sh API.
 //! The specification is generated at compile time from annotated Rust types.
+//!
+//! ## Current Status
+//!
+//! This PR establishes the schema infrastructure. The spec currently includes:
+//! - All request/response schemas from `ngfw_protocol`
+//! - Security scheme (Clerk JWT bearer auth)
+//! - Server URLs (production + local dev)
+//! - API tags for endpoint organization
+//!
+//! **Paths are not yet defined.** Endpoint paths will be added incrementally via
+//! `#[utoipa::path]` annotations on handler functions. See the workers-rs routing
+//! in `handlers/` for the actual endpoint implementations.
 
 use utoipa::openapi::security::{HttpAuthScheme, HttpBuilder, SecurityScheme};
 use utoipa::openapi::ServerBuilder;
@@ -135,7 +147,7 @@ impl Modify for ServerAddon {
                 .description(Some("Production"))
                 .build(),
             ServerBuilder::new()
-                .url("http://localhost:8787")
+                .url("http://localhost:8788")
                 .description(Some("Local development"))
                 .build(),
         ]);

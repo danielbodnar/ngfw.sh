@@ -1,4 +1,4 @@
-name: Generate OpenAPI Spec
+name: Validate OpenAPI Schema Types
 
 on:
   push:
@@ -17,84 +17,6 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  generate-openapi:
-    name: Generate OpenAPI Specification
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Setup Rust
-        uses: actions-rust-lang/setup-rust-toolchain@v1
-        with:
-          toolchain: stable
-          target: wasm32-unknown-unknown
-
-      - name: Cache Rust dependencies
-        uses: Swatinem/rust-cache@v2
-        with:
-          workspaces: packages/api
-
-      - name: Build API (compiles OpenAPI spec)
-        working-directory: packages/api
-        run: cargo build --release
-
-      - name: Extract OpenAPI specification
-        working-directory: packages/api
-        run: |
-          # Create a small Rust program to output the OpenAPI spec
-          cat > /tmp/extract_openapi.rs << 'EOF'
-          use ngfw_api::ApiDoc;
-          fn main() {
-              println!("{}", ApiDoc::to_pretty_json());
-          }
-          EOF
-          
-          # Build and run the extraction
-          rustc --edition 2024 -L target/release/deps /tmp/extract_openapi.rs -o /tmp/extract_openapi 2>/dev/null || \
-            cargo run --release --example extract_openapi 2>/dev/null || \
-            echo "Note: OpenAPI extraction requires running the Worker. Spec is embedded in build."
-          
-          # Create output directory
-          mkdir -p openapi
-          
-          # For now, create a placeholder that indicates the spec is embedded
-          echo '{"note": "OpenAPI spec is served at /openapi.json endpoint"}' > openapi/info.json
-
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: latest
-
-      - name: Install dependencies
-        run: bun install --frozen-lockfile
-
-      - name: Validate OpenAPI spec (if extracted)
-        if: false  # Enable when extraction works
-        run: |
-          bunx @redocly/cli lint packages/api/openapi/openapi.json
-
-      - name: Upload spec artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: openapi-spec
-          path: packages/api/openapi/
-          retention-days: 30
-
-      # Commit the spec on main branch pushes
-      - name: Commit spec (if changed)
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          
-          # Only commit if there are actual changes to the spec
-          if [[ -f packages/api/openapi/openapi.json ]]; then
-            git add packages/api/openapi/openapi.json
-            git diff --staged --quiet || git commit -m "chore(api): update OpenAPI spec [skip ci]"
-            git push
-          fi
-
   validate-protocol:
     name: Validate Protocol Types
     runs-on: ubuntu-latest
@@ -151,3 +73,34 @@ jobs:
           name: protocol-docs
           path: packages/protocol/target/doc/
           retention-days: 7
+
+  validate-api:
+    name: Validate API Compiles
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Rust
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          toolchain: stable
+          target: wasm32-unknown-unknown
+
+      - name: Cache Rust dependencies
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: packages/api
+
+      - name: Check API compiles for Workers (wasm32)
+        working-directory: packages/api
+        run: cargo check --target wasm32-unknown-unknown
+
+      - name: Verify OpenAPI types are registered
+        working-directory: packages/api
+        run: |
+          # Verify ApiDoc struct exists and references protocol types
+          grep -q "pub struct ApiDoc" src/openapi.rs
+          grep -q "ngfw_protocol::Device" src/openapi.rs
+          grep -q "ngfw_protocol::RpcMessage" src/openapi.rs
+          echo "OpenAPI types are properly registered"

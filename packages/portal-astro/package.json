@@ -10,7 +10,7 @@
 		"preview": "astro preview",
 		"deploy": "astro build && wrangler deploy",
 		"astro": "astro",
-		"generate:api": "openapi-zod-client ../api/openapi.json -o ./src/lib/api/generated/client.ts --export-schemas --with-docs --with-alias --api-client-name ngfwApi",
+		"generate:api": "openapi-zod-client http://localhost:8788/openapi.json -o ./src/lib/api/generated/client.ts --export-schemas --with-docs --with-alias --api-client-name ngfwApi",
 		"generate:api:remote": "openapi-zod-client https://api.ngfw.sh/openapi.json -o ./src/lib/api/generated/client.ts --export-schemas --with-docs --with-alias --api-client-name ngfwApi",
 		"test": "vitest run",
 		"test:watch": "vitest",
