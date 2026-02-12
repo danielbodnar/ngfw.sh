@@ -1,5 +1,5 @@
 /**
- * Typed API client for the NGFW Schema API (specs.ngfw.sh).
+ * Typed API client for the NGFW API (api.ngfw.sh).
  *
  * All requests are authenticated via Clerk JWT tokens passed through
  * the `Authorization: Bearer` header.

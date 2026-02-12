@@ -1,15 +1,35 @@
 {
+	"$schema": "node_modules/wrangler/config-schema.json",
 	"name": "ngfw-docs",
 	"account_id": "5dae265f74e6077ad674a3d855bf9853",
 	"main": "dist/_worker.js/index.js",
-	"compatibility_date": "2026-02-03",
-	"compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+	"compatibility_date": "2026-02-07",
+	"compatibility_flags": ["nodejs_compat"],
+	"upload_source_maps": true,
+
+	// Build configuration for Cloudflare Workers Builds
+	"build": {
+		"command": "bun install && bun run build"
+	},
+
 	"routes": [{ "pattern": "docs.ngfw.sh", "custom_domain": true }],
 	"assets": {
 		"binding": "ASSETS",
 		"directory": "./dist"
 	},
 	"observability": {
-		"enabled": true
+		"enabled": true,
+		"head_sampling_rate": 1,
+		"logs": {
+			"enabled": true,
+			"head_sampling_rate": 1,
+			"persist": true,
+			"invocation_logs": true
+		},
+		"traces": {
+			"enabled": true,
+			"persist": true,
+			"head_sampling_rate": 1
+		}
 	}
 }

@@ -214,7 +214,8 @@ Created: ($instance.date_created)"
 # Helper functions
 
 def check_existing_instance []: nothing -> record {
-    let instances = try { vultr instance list -o json | from json } catch { return null }
+    let response = try { vultr instance list -o json | from json } catch { return null }
+    let instances = ($response.instances? | default [])
     let existing = ($instances | where label == $INSTANCE_LABEL | first)
     if ($existing | is-empty) {
         return null
@@ -234,12 +235,16 @@ def create_instance []: nothing -> record {
         --ipv6
         -o json
     )
-    return (try { $output | from json } catch { error make { msg: "Failed to parse instance creation output" } })
+    let response = (try { $output | from json } catch { error make { msg: "Failed to parse instance creation output" } })
+    # Vultr CLI wraps instance in {instance: {...}}
+    return ($response.instance? | default $response)
 }
 
 def get_instance [instance_id: string]: nothing -> record {
     let output = (vultr instance get $instance_id -o json)
-    return (try { $output | from json } catch { error make { msg: "Failed to parse instance details" } })
+    let response = (try { $output | from json } catch { error make { msg: "Failed to parse instance details" } })
+    # Vultr CLI wraps instance in {instance: {...}}
+    return ($response.instance? | default $response)
 }
 
 def wait_for_active [instance_id: string] {

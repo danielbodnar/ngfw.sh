@@ -1,7 +1,7 @@
 /**
- * TypeScript interfaces for NGFW Schema API.
+ * TypeScript interfaces for NGFW API.
  *
- * All types match the OpenAPI spec at specs.ngfw.sh.
+ * All types match the OpenAPI spec at api.ngfw.sh/openapi.json.
  *
  * @module lib/api/types
  */

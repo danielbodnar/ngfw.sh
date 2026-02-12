@@ -32,12 +32,12 @@ NGFW.sh replaces embedded router web interfaces with an edge-hosted management c
 │   ┌──────────────┐  ┌──────────────┐  ┌──────────────┐  ┌───────────────┐   │
 │   │     Web      │  │    Schema    │  │     Rust     │  │    Config     │   │
 │   │    Portal    │  │     API      │  │     API      │  │     Store     │   │
-│   │              │  │              │  │              │  │               │   │
-│   │  Astro/Vue   │  │    Hono/     │  │  workers-rs  │  │   D1/KV/R2    │   │
-│   │              │  │   Chanfana   │  │              │  │               │   │
-│   └──────────────┘  └──────────────┘  └──────────────┘  └───────────────┘   │
-│         │                  │                 │                  │           │
-│    app.ngfw.sh       specs.ngfw.sh      api.ngfw.sh         (bindings)      │
+│   │              │  │                                 │  │               │   │
+│   │  Astro/Vue   │  │       workers-rs (Rust)        │  │   D1/KV/R2    │   │
+│   │              │  │   REST + WebSocket + OpenAPI   │  │               │   │
+│   └──────────────┘  └─────────────────────────────────┘  └───────────────┘   │
+│         │                         │                              │           │
+│    app.ngfw.sh              api.ngfw.sh                      (bindings)      │
 │                                                                              │
 └─────────────────────────────────────────────────────────────────────────────┘
                                        │
@@ -59,19 +59,25 @@ NGFW.sh replaces embedded router web interfaces with an edge-hosted management c
 
 | Service | Domain | Purpose |
 |---------|--------|---------|
-| Portal | `app.ngfw.sh` | Dashboard SPA (Astro + Vue) |
+| Portal | `app.ngfw.sh` | Dashboard SPA (React - legacy) |
+| Portal Beta | `beta.ngfw.sh` | Dashboard SPA (Astro + Vue - primary) |
 | Marketing | `ngfw.sh` | Marketing site |
-| Schema API | `specs.ngfw.sh` | OpenAPI, CRUD operations, D1 queries |
-| Rust API | `api.ngfw.sh` | WebSocket RPC, Durable Objects, real-time metrics |
+| API | `api.ngfw.sh` | REST, WebSocket RPC, OpenAPI |
 | Docs | `docs.ngfw.sh` | User documentation (Starlight) |
+| Schema API | `specs.ngfw.sh` | **Deprecated** - migrated to Rust API |
 
-### Two API Servers
+### Unified Rust API
 
-The project maintains two separate API servers that share the same D1/KV/R2 bindings:
+**Rust API (`packages/api`)** — workers-rs server on Cloudflare Workers serving all endpoints:
 
-**Schema API (`packages/schema`)** — TypeScript Hono + Chanfana server on Cloudflare Workers. Handles OpenAPI spec generation, CRUD operations, D1 queries, and user-facing REST endpoints. Uses Zod for validation.
+- **REST endpoints**: `/v1/fleet/*`, `/v1/network/*`, `/v1/dns/*`, etc.
+- **WebSocket RPC**: `/agent/ws` via `AgentConnection` Durable Object
+- **OpenAPI spec**: `/openapi.json` generated via utoipa
+- **Authentication**: JWT verification against Clerk JWKS
 
-**Rust API (`packages/api`)** — Rust workers-rs server on Cloudflare Workers. Handles WebSocket connections from router agents via Durable Objects (`AgentConnection`), JWT verification, and real-time RPC. Compiles to WASM.
+The API is compiled to WASM with release optimizations (`opt-level = "z"`, LTO, `panic = "abort"`).
+
+> **Note**: `packages/schema` (TypeScript Hono + Chanfana) is deprecated. All endpoints have been migrated to the Rust API.
 
 ---
 

@@ -3,6 +3,8 @@
 //! This crate provides the canonical definitions for all message types
 //! exchanged over WebSocket between the router agent and the cloud API.
 //! Both `ngfw-api` (WASM) and `ngfw-agent` (native) depend on this crate.
+//!
+//! All types implement [`utoipa::ToSchema`] for automatic OpenAPI 3.1 schema generation.
 
 pub mod agent;
 pub mod fleet;
@@ -14,10 +16,13 @@ pub use fleet::*;
 pub use rpc::*;
 pub use system::*;
 
+// Re-export utoipa for downstream crates
+pub use utoipa;
+
 #[cfg(test)]
 mod tests {
     use super::*;
-    use serde_json::{Value, json};
+    use serde_json::{json, Value};
     use std::collections::HashMap;
 
     // ─── 1. RpcMessage serialization roundtrip ───────────────────────────

@@ -11,7 +11,7 @@ Centralized management, configuration, monitoring, and security — designed wit
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9+-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Rust](https://img.shields.io/badge/Rust-workers--rs-000000?logo=rust&logoColor=white)](https://github.com/cloudflare/workers-rs)
 
-[Website](https://ngfw.sh) · [Dashboard](https://app.ngfw.sh) · [Documentation](https://docs.ngfw.sh) · [API Reference](https://specs.ngfw.sh)
+[Website](https://ngfw.sh) · [Dashboard](https://app.ngfw.sh) · [Documentation](https://docs.ngfw.sh) · [API Reference](https://api.ngfw.sh/openapi.json)
 
 
 <img src="assets/screenshots/03-dashboard.png" alt="Dashboard" width="800"/>
@@ -297,8 +297,8 @@ The router agent connects via persistent WebSocket through Cloudflare Durable Ob
 |:---|:---|:---|
 | `packages/portal` | app.ngfw.sh | Dashboard SPA |
 | `packages/www` | ngfw.sh | Marketing site |
-| `packages/schema` | specs.ngfw.sh | OpenAPI, CRUD, D1 |
-| `packages/api` | api.ngfw.sh | WebSocket RPC, Durable Objects |
+| `packages/api` | api.ngfw.sh | REST API, WebSocket RPC, OpenAPI |
+| `packages/schema` | specs.ngfw.sh | Legacy API (deprecated) |
 | `docs/` | docs.ngfw.sh | Documentation (Starlight) |
 
 </details>
@@ -383,13 +383,13 @@ bun run lint           # Lint with oxlint
 | [PROJECT.md](./PROJECT.md) | Task tracking, roadmap, and development status |
 | [RESEARCH.md](./RESEARCH.md) | Market research and competitive analysis |
 | [docs.ngfw.sh](https://docs.ngfw.sh) | User documentation |
-| [specs.ngfw.sh](https://specs.ngfw.sh) | Interactive API reference (Swagger/ReDoc) |
+| [api.ngfw.sh/openapi.json](https://api.ngfw.sh/openapi.json) | OpenAPI 3.1 specification |
 
 ---
 
 <div align="center">
 
-**[Website](https://ngfw.sh)** · **[Dashboard](https://app.ngfw.sh)** · **[Docs](https://docs.ngfw.sh)** · **[API](https://specs.ngfw.sh)**
+**[Website](https://ngfw.sh)** · **[Dashboard](https://app.ngfw.sh)** · **[Docs](https://docs.ngfw.sh)** · **[API](https://api.ngfw.sh)**
 
 MIT License · Made with ❤️ for families everywhere
 

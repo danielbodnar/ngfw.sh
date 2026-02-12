@@ -1,5 +1,5 @@
 /**
- * Typed API client for the NGFW Schema API (specs.ngfw.sh).
+ * Typed API client for the NGFW API (api.ngfw.sh).
  *
  * All requests are authenticated via Clerk JWT tokens passed through
  * the `Authorization: Bearer` header.
@@ -93,7 +93,7 @@ export function createApiClient(
 	getToken: () => Promise<string | null>,
 ): ApiClient {
 	const baseUrl = (
-		import.meta.env.VITE_API_URL ?? "https://specs.ngfw.sh"
+		import.meta.env.VITE_API_URL ?? "https://api.ngfw.sh"
 	).replace(/\/+$/, "");
 
 	async function request<T>(

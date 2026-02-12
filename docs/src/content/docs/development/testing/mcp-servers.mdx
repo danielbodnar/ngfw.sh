@@ -1,0 +1,144 @@
+---
+title: MCP Server Configuration
+description: Configure Model Context Protocol servers for enhanced development capabilities
+---
+
+This repository is configured with Model Context Protocol (MCP) servers for enhanced development capabilities.
+
+## Configuration Files
+
+### User-level Configuration
+**Location:** `~/.config/Claude/mcp.json`
+
+This configuration enables multiple development tools in your Claude Desktop environment:
+
+#### Playwright Testing
+- **playwright**: Playwright test server integration
+- **playwright-browser-devtools**: Browser DevTools access via MCP
+
+#### Browser Automation
+- **chrome-devtools**: Chrome DevTools Protocol integration with auto-connect
+
+#### Cloudflare Development
+- **cloudflare-docs**: Cloudflare documentation access
+- **cloudflare-sandbox**: Cloudflare sandbox environment
+
+#### Shell Integration
+- **nushell**: Nushell MCP integration for advanced scripting
+
+### Repository-level Configuration  
+**Location:** `.mcp.json` (project root)
+
+This configuration is for repository-specific MCP server settings:
+
+- **playwright-testing**: Playwright MCP server with portal-astro test directory
+
+## Setup Instructions
+
+### 1. Install Playwright MCP Server
+
+```bash
+# Install globally or use bunx
+bun add -g @modelcontextprotocol/server-playwright
+
+# Or install in project (already in devDependencies)
+bun add -D @modelcontextprotocol/server-playwright
+```
+
+### 2. Verify Playwright Installation
+
+```bash
+cd packages/portal-astro
+bunx playwright install
+```
+
+### 3. Restart Claude Desktop
+
+After modifying `~/.config/Claude/mcp.json`, restart Claude Desktop to load the MCP servers.
+
+## Usage
+
+### Running Tests with MCP
+
+The MCP server provides:
+
+- **Test execution** via Playwright commands
+- **Browser automation** with DevTools integration  
+- **Snapshot management** for visual regression testing
+- **Test debugging** with browser inspection
+
+### Environment Variables
+
+- `PLAYWRIGHT_BASE_URL`: Default base URL for tests (http://localhost:4321)
+- `PLAYWRIGHT_TEST_DIR`: Test directory location (./packages/portal-astro/tests/e2e)
+- `PLAYWRIGHT_BROWSERS_PATH`: Browser cache location (~/.cache/ms-playwright)
+
+### Test Commands
+
+```bash
+# Run E2E tests
+cd packages/portal-astro
+bun run test:e2e
+
+# Run with UI mode
+bunx playwright test --ui
+
+# Run specific test file
+bunx playwright test tests/e2e/your-test.spec.ts
+
+# Debug mode
+bunx playwright test --debug
+```
+
+## Available MCP Servers
+
+### Playwright Testing
+- **Purpose**: E2E testing with Playwright
+- **Commands**: Test execution, browser automation, snapshot management
+- **Base URL**: http://localhost:4321
+
+### Chrome DevTools
+- **Purpose**: Browser automation and debugging
+- **Features**: Auto-connect to Chrome instances, DOM inspection, network monitoring
+
+### Cloudflare Docs
+- **Purpose**: Access Cloudflare documentation
+- **Features**: API references, Workers documentation, platform guides
+
+### Cloudflare Sandbox
+- **Purpose**: Cloudflare development environment
+- **Features**: Workers testing, bindings simulation, local development
+
+### Nushell
+- **Purpose**: Advanced shell scripting and automation
+- **Features**: Structured data processing, cross-platform scripting
+
+## Troubleshooting
+
+### MCP Server Not Loading
+
+1. Check the configuration syntax in `~/.config/Claude/mcp.json`
+2. Verify `bunx` is in your PATH
+3. Restart Claude Desktop completely
+4. Check Claude Desktop logs: `~/.config/Claude/logs/`
+
+### Playwright Browser Issues
+
+```bash
+# Reinstall browsers
+bunx playwright install --force
+
+# Clear cache
+rm -rf ~/.cache/ms-playwright
+bunx playwright install
+```
+
+### Port Conflicts
+
+If port 4321 is already in use, update `PLAYWRIGHT_BASE_URL` in the MCP config and `playwright.config.ts`.
+
+## Related Documentation
+
+- [Playwright Documentation](https://playwright.dev)
+- [MCP Specification](https://modelcontextprotocol.io)
+- [Portal-Astro Testing Guide](../packages/portal-astro/TESTING.md)

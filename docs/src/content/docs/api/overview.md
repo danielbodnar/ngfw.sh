@@ -32,8 +32,7 @@ Tokens are JWTs issued by Clerk.com with the following claims:
 
 The complete OpenAPI 3.1 specification is available at:
 
-- **Interactive docs**: [specs.ngfw.sh](https://specs.ngfw.sh)
-- **Raw YAML**: [specs.ngfw.sh/openapi.yaml](https://specs.ngfw.sh/openapi.yaml)
+- **JSON format**: [api.ngfw.sh/openapi.json](https://api.ngfw.sh/openapi.json)
 
 ## Rate Limits
 

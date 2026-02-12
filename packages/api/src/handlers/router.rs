@@ -3,6 +3,7 @@
 use crate::handlers::{agent, dashboard, fleet, logs, network, onboarding, report, security, services, system, user};
 use crate::middleware::{AuthContext, cors};
 use crate::models::ApiError;
+use crate::openapi::ApiDoc;
 use worker::*;
 
 /// Build the main API router with all endpoints.
@@ -14,6 +15,16 @@ pub fn build_router() -> Router<'static, ()> {
     Router::new()
         // Health check (no auth required)
         .get("/health", |_, _| Response::ok("OK"))
+        // ========== OpenAPI specification (no auth required) ==========
+        .get("/openapi.json", |_, _| {
+            Response::ok(ApiDoc::to_pretty_json())
+                .map(|r| r.with_headers({
+                    let headers = Headers::new();
+                    let _ = headers.set("Content-Type", "application/json");
+                    let _ = headers.set("Cache-Control", "public, max-age=3600");
+                    headers
+                }))
+        })
         // ========== Onboarding endpoints (no auth required) ==========
         .get_async("/onboarding/routers", onboarding::list_routers)
         .post_async("/onboarding/order", onboarding::create_order)
