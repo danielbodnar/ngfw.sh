@@ -81,8 +81,8 @@ Both APIs share the same D1 database, KV namespaces, and R2 buckets:
 | R2 | `BACKUPS` | Configuration backups |
 | R2 | `REPORTS` | Generated reports |
 
-- **Schema API** (`packages/schema/`, `specs.ngfw.sh`) — TypeScript Hono + Chanfana. Auto-generates OpenAPI 3.1 specs. Handles CRUD, D1 queries, user-facing REST. Endpoints extend Chanfana base classes. Error responses use `ApiException`.
-- **Rust API** (`packages/api/`, `api.ngfw.sh`) — workers-rs compiled to WASM. Handles WebSocket RPC via `AgentConnection` Durable Object, JWT verification against Clerk JWKS. Uses `RefCell` for interior mutability in Durable Objects.
+- **Rust API** (`packages/api/`, `api.ngfw.sh`) — workers-rs compiled to WASM. Serves REST endpoints, WebSocket RPC via `AgentConnection` Durable Object, OpenAPI 3.1 spec at `/openapi.json`, JWT verification against Clerk JWKS. Uses `RefCell` for interior mutability in Durable Objects.
+- **Schema API** (`packages/schema/`, `specs.ngfw.sh`) — **DEPRECATED**. TypeScript Hono + Chanfana. All endpoints migrated to Rust API.
 
 ### Portal Migration
 

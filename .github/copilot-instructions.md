@@ -5,22 +5,23 @@
 Cloud-managed next-generation firewall with edge-hosted management and on-premises router agents.
 
 ```
-packages/portal-astro/ → Astro + Vue 3 portal (app.ngfw.sh) - PRIMARY UI
-packages/portal/       → React portal (LEGACY - being phased out)
+packages/portal-astro/ → Astro + Vue 3 portal (beta.ngfw.sh) - PRIMARY UI
+packages/portal/       → React portal (app.ngfw.sh) - LEGACY
 packages/www/          → Marketing site (ngfw.sh)
-packages/schema/       → Hono + Chanfana REST API (specs.ngfw.sh)
-packages/api/          → Rust WebSocket API (api.ngfw.sh)
+packages/api/          → Rust API (api.ngfw.sh) - REST + WebSocket + OpenAPI
+packages/schema/       → TypeScript API (specs.ngfw.sh) - DEPRECATED
 packages/agent/        → Rust router agent daemon
-packages/protocol/     → Shared Rust types
+packages/protocol/     → Shared Rust types with utoipa OpenAPI generation
 docs/                  → Starlight docs (docs.ngfw.sh)
 scripts/               → Nushell automation
 ```
 
 **Key architectural decisions:**
-- All cloud services deploy to Cloudflare Workers (TypeScript + Rust WASM)
-- Two separate APIs share the same D1/KV/R2 bindings:
-  - `packages/schema/` — REST/CRUD with OpenAPI generation
-  - `packages/api/` — WebSocket RPC via Durable Objects
+- All cloud services deploy to Cloudflare Workers (Rust WASM for API, TypeScript for frontends)
+- Single Rust API serves REST endpoints, WebSocket RPC, and OpenAPI spec:
+  - REST: `/v1/fleet/*`, `/v1/network/*`, etc.
+  - WebSocket: `/agent/ws` via Durable Objects
+  - OpenAPI: `/openapi.json` (generated via utoipa)
 - Router agents connect via WebSocket to manage nftables, dnsmasq, hostapd, WireGuard
 
 > **⚠️ Migration:** New UI work goes in `packages/portal-astro/` (Astro + Vue 3), not `packages/portal/` (React)
