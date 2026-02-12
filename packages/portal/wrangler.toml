@@ -4,6 +4,10 @@ compatibility_date = "2026-02-07"
 compatibility_flags = ["nodejs_compat"]
 upload_source_maps = true
 
+# Build configuration for Cloudflare Workers Builds
+[build]
+command = "bun install && bun run build"
+
 # Custom domains for the portal
 routes = [
 	{ pattern = "app.ngfw.sh", custom_domain = true },

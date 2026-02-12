@@ -11,7 +11,7 @@ Centralized management, configuration, monitoring, and security — designed wit
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9+-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Rust](https://img.shields.io/badge/Rust-workers--rs-000000?logo=rust&logoColor=white)](https://github.com/cloudflare/workers-rs)
 
-[Website](https://ngfw.sh) · [Dashboard](https://app.ngfw.sh) · [Documentation](https://docs.ngfw.sh) · [API Reference](https://specs.ngfw.sh)
+[Website](https://ngfw.sh) · [Dashboard](https://app.ngfw.sh) · [Documentation](https://docs.ngfw.sh) · [API Reference](https://api.ngfw.sh/openapi.json)
 
 
 <img src="assets/screenshots/03-dashboard.png" alt="Dashboard" width="800"/>

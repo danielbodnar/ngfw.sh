@@ -6,6 +6,11 @@
 	"compatibility_flags": ["nodejs_compat"],
 	"upload_source_maps": true,
 
+	// Build configuration for Cloudflare Workers Builds
+	"build": {
+		"command": "bun install"
+	},
+
 	// Custom domain for sandbox access
 	"routes": [{ "pattern": "sandbox.ngfw.sh", "custom_domain": true }],
 

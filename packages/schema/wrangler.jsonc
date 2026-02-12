@@ -7,6 +7,11 @@
 	"name": "ngfw-specs",
 	"upload_source_maps": true,
 	"routes": [{ "pattern": "specs.ngfw.sh", "custom_domain": true }],
+
+	// Build configuration for Cloudflare Workers Builds
+	"build": {
+		"command": "bun install"
+	},
 	"observability": {
 		"enabled": true,
 		"head_sampling_rate": 1,
