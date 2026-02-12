@@ -1,0 +1,2107 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "NGFW.sh API",
+    "description": "Cloud-managed next-generation firewall and router administration API.\n\nProvides RESTful endpoints for:\n- Fleet management (devices, templates, commands)\n- Network configuration (WAN, LAN, WiFi, DHCP, routing)\n- Security (firewall, NAT, DNS filtering, IPS)\n- Services (VPN, QoS, DDNS)\n- System management (firmware, backups, logs)",
+    "contact": {
+      "name": "NGFW.sh Support",
+      "url": "https://ngfw.sh/support",
+      "email": "support@ngfw.sh"
+    },
+    "license": {
+      "name": "MIT",
+      "url": "https://github.com/danielbodnar/ngfw.sh/blob/main/LICENSE"
+    },
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://api.ngfw.sh",
+      "description": "Production"
+    },
+    {
+      "url": "http://localhost:8788",
+      "description": "Local development"
+    }
+  ],
+  "paths": {},
+  "components": {
+    "schemas": {
+      "AgentInfo": {
+        "type": "object",
+        "description": "Agent configuration information.\n\nContains metadata about the running agent instance.",
+        "required": [
+          "version",
+          "device_id",
+          "firmware_version",
+          "model",
+          "mode"
+        ],
+        "properties": {
+          "device_id": {
+            "type": "string",
+            "description": "Unique device identifier"
+          },
+          "firmware_version": {
+            "type": "string",
+            "description": "Router firmware version"
+          },
+          "mode": {
+            "$ref": "#/components/schemas/AgentMode",
+            "description": "Current operating mode"
+          },
+          "model": {
+            "type": "string",
+            "description": "Router model (e.g., RT-AX88U)"
+          },
+          "version": {
+            "type": "string",
+            "description": "Agent software version"
+          }
+        },
+        "example": {
+          "device_id": "dev_abc123",
+          "firmware_version": "3.0.0.4.386",
+          "mode": "observe",
+          "model": "RT-AX88U",
+          "version": "1.2.0"
+        }
+      },
+      "AgentMode": {
+        "type": "string",
+        "description": "Operating mode for the agent or a specific subsystem.\n\nControls how the agent interacts with router configuration:\n- `observe`: Read-only monitoring\n- `shadow`: Validate configs without applying\n- `takeover`: Full configuration control",
+        "enum": [
+          "observe",
+          "shadow",
+          "takeover"
+        ],
+        "example": "observe"
+      },
+      "AlertMessage": {
+        "type": "object",
+        "description": "Security alert from agent.\n\nAgent sends this when a security event is detected.",
+        "required": [
+          "timestamp",
+          "severity",
+          "alert_type",
+          "source",
+          "description"
+        ],
+        "properties": {
+          "alert_type": {
+            "$ref": "#/components/schemas/AlertType",
+            "description": "Type of security event"
+          },
+          "description": {
+            "type": "string",
+            "description": "Human-readable description"
+          },
+          "details": {
+            "description": "Additional details about the alert"
+          },
+          "severity": {
+            "$ref": "#/components/schemas/AlertSeverity",
+            "description": "Alert severity level"
+          },
+          "source": {
+            "type": "string",
+            "description": "Source of the threat (IP, hostname, etc.)"
+          },
+          "timestamp": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Unix timestamp of the alert"
+          }
+        }
+      },
+      "AlertSeverity": {
+        "type": "string",
+        "description": "Alert severity levels.",
+        "enum": [
+          "low",
+          "medium",
+          "high",
+          "critical"
+        ],
+        "example": "high"
+      },
+      "AlertType": {
+        "type": "string",
+        "description": "Security alert types.",
+        "enum": [
+          "intrusion_attempt",
+          "malware_detected",
+          "brute_force",
+          "port_scan",
+          "ddos_attempt",
+          "policy_violation",
+          "config_change",
+          "system_anomaly"
+        ],
+        "example": "intrusion_attempt"
+      },
+      "ApplyTemplateRequest": {
+        "type": "object",
+        "description": "Request to apply a template to devices.",
+        "required": [
+          "device_ids"
+        ],
+        "properties": {
+          "device_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of device IDs to apply the template to"
+          },
+          "merge": {
+            "type": "boolean",
+            "description": "If true, merge with existing config; if false, replace entirely"
+          }
+        },
+        "example": {
+          "device_ids": [
+            "dev_abc123",
+            "dev_xyz789"
+          ],
+          "merge": true
+        }
+      },
+      "AuditLogEntry": {
+        "type": "object",
+        "description": "Audit log entry for tracking user actions.",
+        "required": [
+          "id",
+          "timestamp",
+          "user_id",
+          "action",
+          "resource_type",
+          "resource_id",
+          "ip_address",
+          "user_agent"
+        ],
+        "properties": {
+          "action": {
+            "type": "string",
+            "description": "Action performed (e.g., \"create\", \"update\", \"delete\")"
+          },
+          "changes": {
+            "description": "Details of changes made"
+          },
+          "device_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Device affected (if applicable)"
+          },
+          "id": {
+            "type": "string",
+            "description": "Unique log entry identifier"
+          },
+          "ip_address": {
+            "type": "string",
+            "description": "IP address of the request"
+          },
+          "resource_id": {
+            "type": "string",
+            "description": "ID of the resource affected"
+          },
+          "resource_type": {
+            "type": "string",
+            "description": "Type of resource affected"
+          },
+          "timestamp": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Unix timestamp of the action"
+          },
+          "user_agent": {
+            "type": "string",
+            "description": "User agent string"
+          },
+          "user_id": {
+            "type": "string",
+            "description": "User who performed the action"
+          }
+        }
+      },
+      "AuthRequest": {
+        "type": "object",
+        "description": "Authentication request from agent.\n\nFirst message sent by agent after WebSocket connection is established.",
+        "required": [
+          "device_id",
+          "api_key",
+          "firmware_version"
+        ],
+        "properties": {
+          "api_key": {
+            "type": "string",
+            "description": "API key for authentication"
+          },
+          "device_id": {
+            "type": "string",
+            "description": "Device identifier"
+          },
+          "firmware_version": {
+            "type": "string",
+            "description": "Current firmware version"
+          }
+        }
+      },
+      "AuthResponse": {
+        "type": "object",
+        "description": "Authentication response from server.",
+        "required": [
+          "success"
+        ],
+        "properties": {
+          "error": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Error message if authentication failed"
+          },
+          "server_time": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64",
+            "description": "Server time for clock sync (Unix timestamp)"
+          },
+          "success": {
+            "type": "boolean",
+            "description": "Whether authentication was successful"
+          }
+        }
+      },
+      "BackupInfo": {
+        "type": "object",
+        "description": "Configuration backup metadata.",
+        "required": [
+          "id",
+          "created_at",
+          "size_bytes",
+          "encrypted",
+          "firmware_version"
+        ],
+        "properties": {
+          "created_at": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Unix timestamp of when backup was created"
+          },
+          "description": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "User-provided description"
+          },
+          "encrypted": {
+            "type": "boolean",
+            "description": "Whether the backup is encrypted"
+          },
+          "firmware_version": {
+            "type": "string",
+            "description": "Firmware version at time of backup"
+          },
+          "id": {
+            "type": "string",
+            "description": "Unique backup identifier"
+          },
+          "size_bytes": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Size of the backup file in bytes",
+            "minimum": 0
+          }
+        }
+      },
+      "BootSlot": {
+        "type": "object",
+        "description": "Boot slot information for dual-boot systems.",
+        "required": [
+          "id",
+          "active",
+          "bootable"
+        ],
+        "properties": {
+          "active": {
+            "type": "boolean",
+            "description": "Whether this is the currently active slot"
+          },
+          "bootable": {
+            "type": "boolean",
+            "description": "Whether this slot contains a bootable image"
+          },
+          "firmware_version": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Firmware version in this slot"
+          },
+          "id": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Slot identifier (0 or 1)",
+            "minimum": 0
+          },
+          "install_date": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Date the firmware was installed"
+          }
+        }
+      },
+      "CommandResult": {
+        "type": "object",
+        "description": "Result of a command execution.",
+        "required": [
+          "command_id",
+          "status",
+          "started_at"
+        ],
+        "properties": {
+          "command_id": {
+            "type": "string",
+            "description": "Unique command identifier"
+          },
+          "completed_at": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64",
+            "description": "Unix timestamp when execution completed"
+          },
+          "error": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Error message (if failed)"
+          },
+          "result": {
+            "description": "Command output data (if successful)"
+          },
+          "started_at": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Unix timestamp when execution started"
+          },
+          "status": {
+            "$ref": "#/components/schemas/CommandStatus",
+            "description": "Current execution status"
+          }
+        }
+      },
+      "CommandStatus": {
+        "type": "string",
+        "description": "Command execution status values.",
+        "enum": [
+          "pending",
+          "running",
+          "completed",
+          "failed",
+          "timeout"
+        ],
+        "example": "completed"
+      },
+      "CommandType": {
+        "type": "string",
+        "description": "Available device command types.",
+        "enum": [
+          "reboot",
+          "shutdown",
+          "refresh_status",
+          "apply_config",
+          "run_diagnostics",
+          "clear_cache",
+          "restart_service"
+        ],
+        "example": "reboot"
+      },
+      "ConfigAck": {
+        "type": "object",
+        "description": "Configuration acknowledgment from agent.",
+        "required": [
+          "section",
+          "version",
+          "success"
+        ],
+        "properties": {
+          "error": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Error message if application failed"
+          },
+          "section": {
+            "$ref": "#/components/schemas/ConfigSection",
+            "description": "Configuration section that was updated"
+          },
+          "success": {
+            "type": "boolean",
+            "description": "Whether the configuration was applied successfully"
+          },
+          "version": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Version number that was applied",
+            "minimum": 0
+          }
+        }
+      },
+      "ConfigPush": {
+        "type": "object",
+        "description": "Configuration push to agent.\n\nServer sends this to apply configuration changes to a specific section.",
+        "required": [
+          "section",
+          "config",
+          "version"
+        ],
+        "properties": {
+          "config": {
+            "description": "New configuration data"
+          },
+          "section": {
+            "$ref": "#/components/schemas/ConfigSection",
+            "description": "Configuration section being updated"
+          },
+          "version": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Version number for conflict detection",
+            "minimum": 0
+          }
+        }
+      },
+      "ConfigSection": {
+        "type": "string",
+        "description": "Configuration section identifiers.\n\nRouter configuration is divided into logical sections for granular updates.",
+        "enum": [
+          "wan",
+          "lan",
+          "wifi",
+          "dhcp",
+          "firewall",
+          "nat",
+          "dns",
+          "ids",
+          "vpn",
+          "qos",
+          "system",
+          "full"
+        ],
+        "example": "firewall"
+      },
+      "ConfigTemplate": {
+        "type": "object",
+        "description": "A reusable configuration template.\n\nTemplates allow saving and applying configuration presets to multiple devices.",
+        "required": [
+          "id",
+          "name",
+          "version",
+          "config",
+          "created_at",
+          "updated_at",
+          "created_by"
+        ],
+        "properties": {
+          "config": {
+            "description": "The configuration data"
+          },
+          "created_at": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Unix timestamp of creation"
+          },
+          "created_by": {
+            "type": "string",
+            "description": "User ID who created the template"
+          },
+          "description": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Optional description"
+          },
+          "id": {
+            "type": "string",
+            "description": "Unique template identifier"
+          },
+          "name": {
+            "type": "string",
+            "description": "Template name"
+          },
+          "updated_at": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Unix timestamp of last update"
+          },
+          "version": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Version number (incremented on each update)",
+            "minimum": 0
+          }
+        }
+      },
+      "ConnectionCounts": {
+        "type": "object",
+        "description": "Connection counts by protocol.",
+        "required": [
+          "total",
+          "tcp",
+          "udp"
+        ],
+        "properties": {
+          "tcp": {
+            "type": "integer",
+            "format": "int32",
+            "description": "TCP connections",
+            "minimum": 0
+          },
+          "total": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Total active connections",
+            "minimum": 0
+          },
+          "udp": {
+            "type": "integer",
+            "format": "int32",
+            "description": "UDP connections",
+            "minimum": 0
+          }
+        }
+      },
+      "CpuInfo": {
+        "type": "object",
+        "description": "CPU information.",
+        "required": [
+          "model",
+          "cores",
+          "frequency_mhz",
+          "usage_percent"
+        ],
+        "properties": {
+          "cores": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Number of CPU cores",
+            "minimum": 0
+          },
+          "frequency_mhz": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Clock frequency in MHz",
+            "minimum": 0
+          },
+          "model": {
+            "type": "string",
+            "description": "CPU model name"
+          },
+          "usage_percent": {
+            "type": "number",
+            "format": "float",
+            "description": "Current CPU usage percentage (0-100)"
+          }
+        }
+      },
+      "CreateTemplateRequest": {
+        "type": "object",
+        "description": "Request to create a new configuration template.",
+        "required": [
+          "name",
+          "config"
+        ],
+        "properties": {
+          "config": {
+            "description": "The configuration data"
+          },
+          "description": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Optional description"
+          },
+          "name": {
+            "type": "string",
+            "description": "Template name"
+          }
+        },
+        "example": {
+          "config": {
+            "firewall": {
+              "enabled": true
+            }
+          },
+          "description": "Standard configuration for office routers",
+          "name": "Office Router Standard"
+        }
+      },
+      "Device": {
+        "type": "object",
+        "description": "A managed router device in the fleet.\n\nRepresents a single router registered with the NGFW.sh service.",
+        "required": [
+          "id",
+          "name",
+          "model",
+          "serial",
+          "firmware_version",
+          "status",
+          "created_at",
+          "tags"
+        ],
+        "properties": {
+          "agent_mode": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/ModeConfig",
+                "description": "Current agent operating mode configuration"
+              }
+            ]
+          },
+          "created_at": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Unix timestamp of when the device was registered"
+          },
+          "firmware_version": {
+            "type": "string",
+            "description": "Current firmware version running on the device"
+          },
+          "id": {
+            "type": "string",
+            "description": "Unique device identifier (UUID format)"
+          },
+          "last_seen": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64",
+            "description": "Unix timestamp of last communication with the device"
+          },
+          "location": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Physical location of the device"
+          },
+          "model": {
+            "type": "string",
+            "description": "Router model (e.g., RT-AX88U, GT-AX11000)"
+          },
+          "name": {
+            "type": "string",
+            "description": "Human-readable device name set by the user"
+          },
+          "notes": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "User notes about the device"
+          },
+          "serial": {
+            "type": "string",
+            "description": "Device serial number"
+          },
+          "status": {
+            "$ref": "#/components/schemas/DeviceStatus",
+            "description": "Current device status"
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "User-defined tags for organizing devices"
+          }
+        },
+        "example": {
+          "created_at": 1690000000,
+          "firmware_version": "3.0.0.4.386",
+          "id": "dev_abc123",
+          "last_seen": 1700000000,
+          "model": "RT-AX88U",
+          "name": "Living Room Router",
+          "serial": "ABC123456789",
+          "status": "online",
+          "tags": [
+            "home",
+            "primary"
+          ]
+        }
+      },
+      "DeviceApplicationResult": {
+        "type": "object",
+        "description": "Result of applying a template to a single device.",
+        "required": [
+          "device_id",
+          "success"
+        ],
+        "properties": {
+          "device_id": {
+            "type": "string",
+            "description": "Device identifier"
+          },
+          "error": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Error message if failed"
+          },
+          "success": {
+            "type": "boolean",
+            "description": "Whether application was successful"
+          }
+        }
+      },
+      "DeviceCommand": {
+        "type": "object",
+        "description": "Command to send to a device.\n\nUsed to trigger actions on managed routers.",
+        "required": [
+          "command"
+        ],
+        "properties": {
+          "command": {
+            "$ref": "#/components/schemas/CommandType",
+            "description": "Type of command to execute"
+          },
+          "payload": {
+            "description": "Optional command-specific payload"
+          }
+        },
+        "example": {
+          "command": "reboot",
+          "payload": null
+        }
+      },
+      "DeviceRegistration": {
+        "type": "object",
+        "description": "Response after successful device registration.\n\nContains credentials the agent needs to connect to the cloud service.",
+        "required": [
+          "device_id",
+          "api_key",
+          "websocket_url"
+        ],
+        "properties": {
+          "api_key": {
+            "type": "string",
+            "description": "API key for WebSocket authentication"
+          },
+          "device_id": {
+            "type": "string",
+            "description": "Assigned device identifier"
+          },
+          "websocket_url": {
+            "type": "string",
+            "description": "WebSocket URL to connect to"
+          }
+        }
+      },
+      "DeviceStatus": {
+        "type": "string",
+        "description": "Device status values.\n\nIndicates the current operational state of a device.",
+        "enum": [
+          "online",
+          "offline",
+          "updating",
+          "error",
+          "provisioning"
+        ],
+        "example": "online"
+      },
+      "DeviceStatusUpdate": {
+        "type": "object",
+        "description": "Device status update from the agent.\n\nPeriodic status report sent by the agent to the cloud service.",
+        "required": [
+          "uptime",
+          "cpu",
+          "memory",
+          "load",
+          "interfaces",
+          "connections",
+          "firmware"
+        ],
+        "properties": {
+          "connections": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Number of active network connections",
+            "minimum": 0
+          },
+          "cpu": {
+            "type": "number",
+            "format": "float",
+            "description": "CPU usage percentage (0-100)"
+          },
+          "firmware": {
+            "type": "string",
+            "description": "Current firmware version"
+          },
+          "interfaces": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InterfaceStatus"
+            },
+            "description": "Status of network interfaces"
+          },
+          "load": {
+            "type": "array",
+            "items": {
+              "type": "number",
+              "format": "float"
+            },
+            "description": "Load averages (1, 5, 15 minutes)"
+          },
+          "memory": {
+            "type": "number",
+            "format": "float",
+            "description": "Memory usage percentage (0-100)"
+          },
+          "temperature": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "format": "float",
+            "description": "CPU temperature in Celsius (if available)"
+          },
+          "uptime": {
+            "type": "integer",
+            "format": "int64",
+            "description": "System uptime in seconds",
+            "minimum": 0
+          },
+          "wan_ip": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Public WAN IP address (if available)"
+          }
+        }
+      },
+      "DnsMetrics": {
+        "type": "object",
+        "description": "DNS resolver metrics.",
+        "required": [
+          "queries",
+          "blocked",
+          "cached"
+        ],
+        "properties": {
+          "blocked": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Queries blocked by filtering rules",
+            "minimum": 0
+          },
+          "cached": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Queries served from cache",
+            "minimum": 0
+          },
+          "queries": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Total DNS queries processed",
+            "minimum": 0
+          }
+        }
+      },
+      "ExecCommand": {
+        "type": "object",
+        "description": "Execute command on agent.\n\nServer sends this to execute a shell command on the device.",
+        "required": [
+          "command_id",
+          "command"
+        ],
+        "properties": {
+          "args": {
+            "type": [
+              "array",
+              "null"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "description": "Command arguments"
+          },
+          "command": {
+            "type": "string",
+            "description": "Command to execute"
+          },
+          "command_id": {
+            "type": "string",
+            "description": "Unique command identifier for correlation"
+          },
+          "timeout_secs": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int32",
+            "description": "Execution timeout in seconds",
+            "minimum": 0
+          }
+        }
+      },
+      "ExecResult": {
+        "type": "object",
+        "description": "Command execution result from agent.",
+        "required": [
+          "command_id",
+          "exit_code",
+          "duration_ms"
+        ],
+        "properties": {
+          "command_id": {
+            "type": "string",
+            "description": "Command identifier (matches ExecCommand.command_id)"
+          },
+          "duration_ms": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Execution duration in milliseconds",
+            "minimum": 0
+          },
+          "exit_code": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Process exit code"
+          },
+          "stderr": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Standard error (if captured)"
+          },
+          "stdout": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Standard output (if captured)"
+          }
+        }
+      },
+      "FanInfo": {
+        "type": "object",
+        "description": "Fan status information.",
+        "required": [
+          "name",
+          "rpm"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Fan name"
+          },
+          "percent": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int32",
+            "description": "Speed as percentage of maximum",
+            "minimum": 0
+          },
+          "rpm": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Current speed in RPM",
+            "minimum": 0
+          }
+        }
+      },
+      "FirmwareChannel": {
+        "type": "string",
+        "description": "Firmware release channels.",
+        "enum": [
+          "stable",
+          "beta",
+          "nightly"
+        ],
+        "example": "stable"
+      },
+      "FirmwareInfo": {
+        "type": "object",
+        "description": "Firmware information.",
+        "required": [
+          "version",
+          "build_date",
+          "channel",
+          "hash"
+        ],
+        "properties": {
+          "build_date": {
+            "type": "string",
+            "description": "Build date (ISO 8601 format)"
+          },
+          "channel": {
+            "$ref": "#/components/schemas/FirmwareChannel",
+            "description": "Release channel"
+          },
+          "hash": {
+            "type": "string",
+            "description": "Build hash (git commit or build ID)"
+          },
+          "version": {
+            "type": "string",
+            "description": "Firmware version string"
+          }
+        }
+      },
+      "FirmwareUpdate": {
+        "type": "object",
+        "description": "Available firmware update information.",
+        "required": [
+          "version",
+          "build_date",
+          "channel",
+          "size_bytes",
+          "changelog",
+          "download_url",
+          "signature"
+        ],
+        "properties": {
+          "build_date": {
+            "type": "string",
+            "description": "Build date (ISO 8601 format)"
+          },
+          "changelog": {
+            "type": "string",
+            "description": "Release notes / changelog"
+          },
+          "channel": {
+            "$ref": "#/components/schemas/FirmwareChannel",
+            "description": "Release channel"
+          },
+          "download_url": {
+            "type": "string",
+            "description": "URL to download the firmware"
+          },
+          "signature": {
+            "type": "string",
+            "description": "Cryptographic signature for verification"
+          },
+          "size_bytes": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Size of the firmware file in bytes",
+            "minimum": 0
+          },
+          "version": {
+            "type": "string",
+            "description": "Version string of the update"
+          }
+        }
+      },
+      "HardwareInfo": {
+        "type": "object",
+        "description": "Detailed hardware information.",
+        "required": [
+          "cpu",
+          "memory",
+          "storage",
+          "interfaces"
+        ],
+        "properties": {
+          "cpu": {
+            "$ref": "#/components/schemas/CpuInfo",
+            "description": "CPU information"
+          },
+          "fans": {
+            "type": [
+              "array",
+              "null"
+            ],
+            "items": {
+              "$ref": "#/components/schemas/FanInfo"
+            },
+            "description": "Cooling fans (if available)"
+          },
+          "interfaces": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InterfaceHardware"
+            },
+            "description": "Network interface hardware"
+          },
+          "memory": {
+            "$ref": "#/components/schemas/MemoryInfo",
+            "description": "Memory information"
+          },
+          "storage": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StorageInfo"
+            },
+            "description": "Storage devices"
+          },
+          "temperature_sensors": {
+            "type": [
+              "array",
+              "null"
+            ],
+            "items": {
+              "$ref": "#/components/schemas/TemperatureSensor"
+            },
+            "description": "Temperature sensors (if available)"
+          }
+        }
+      },
+      "InterfaceHardware": {
+        "type": "object",
+        "description": "Network interface hardware information.",
+        "required": [
+          "name",
+          "driver",
+          "link"
+        ],
+        "properties": {
+          "driver": {
+            "type": "string",
+            "description": "Driver name"
+          },
+          "duplex": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Duplex mode (full, half)"
+          },
+          "link": {
+            "type": "boolean",
+            "description": "Whether link is detected"
+          },
+          "name": {
+            "type": "string",
+            "description": "Interface name"
+          },
+          "speed_mbps": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int32",
+            "description": "Link speed in Mbps",
+            "minimum": 0
+          }
+        }
+      },
+      "InterfaceInfo": {
+        "type": "object",
+        "description": "Detailed network interface information.",
+        "required": [
+          "name",
+          "status",
+          "rx_bytes",
+          "tx_bytes",
+          "rx_rate",
+          "tx_rate",
+          "mtu"
+        ],
+        "properties": {
+          "ip": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "IPv4 address"
+          },
+          "ip6": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "IPv6 address"
+          },
+          "mac": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "MAC address"
+          },
+          "mtu": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Maximum transmission unit",
+            "minimum": 0
+          },
+          "name": {
+            "type": "string",
+            "description": "Interface name (e.g., eth0, wlan0)"
+          },
+          "rx_bytes": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Total bytes received",
+            "minimum": 0
+          },
+          "rx_rate": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Current receive rate (bytes/sec)",
+            "minimum": 0
+          },
+          "status": {
+            "$ref": "#/components/schemas/InterfaceInfoStatus",
+            "description": "Interface operational status"
+          },
+          "tx_bytes": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Total bytes transmitted",
+            "minimum": 0
+          },
+          "tx_rate": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Current transmit rate (bytes/sec)",
+            "minimum": 0
+          }
+        }
+      },
+      "InterfaceInfoStatus": {
+        "type": "string",
+        "description": "Network interface status values.",
+        "enum": [
+          "up",
+          "down",
+          "unknown"
+        ],
+        "example": "up"
+      },
+      "InterfaceMetrics": {
+        "type": "object",
+        "description": "Network interface metrics.",
+        "required": [
+          "name",
+          "status",
+          "rx_bytes",
+          "tx_bytes",
+          "rx_rate",
+          "tx_rate"
+        ],
+        "properties": {
+          "ip": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "IPv4 address"
+          },
+          "name": {
+            "type": "string",
+            "description": "Interface name (e.g., eth0, wlan0)"
+          },
+          "rx_bytes": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Total bytes received",
+            "minimum": 0
+          },
+          "rx_rate": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Current receive rate (bytes/sec)",
+            "minimum": 0
+          },
+          "status": {
+            "type": "string",
+            "description": "Interface status (up, down, etc.)"
+          },
+          "tx_bytes": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Total bytes transmitted",
+            "minimum": 0
+          },
+          "tx_rate": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Current transmit rate (bytes/sec)",
+            "minimum": 0
+          }
+        }
+      },
+      "InterfaceRates": {
+        "type": "object",
+        "description": "Network interface transfer rates.",
+        "required": [
+          "rx_rate",
+          "tx_rate"
+        ],
+        "properties": {
+          "rx_rate": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Current receive rate (bytes/sec)",
+            "minimum": 0
+          },
+          "tx_rate": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Current transmit rate (bytes/sec)",
+            "minimum": 0
+          }
+        }
+      },
+      "InterfaceStatus": {
+        "type": "object",
+        "description": "Network interface status information.",
+        "required": [
+          "name",
+          "status",
+          "rx_bytes",
+          "tx_bytes",
+          "rx_rate",
+          "tx_rate"
+        ],
+        "properties": {
+          "ip": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "IPv4 address assigned to the interface"
+          },
+          "name": {
+            "type": "string",
+            "description": "Interface name (e.g., eth0, wlan0)"
+          },
+          "rx_bytes": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Total bytes received",
+            "minimum": 0
+          },
+          "rx_rate": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Current receive rate in bytes/sec",
+            "minimum": 0
+          },
+          "status": {
+            "type": "string",
+            "description": "Interface status (up, down, etc.)"
+          },
+          "tx_bytes": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Total bytes transmitted",
+            "minimum": 0
+          },
+          "tx_rate": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Current transmit rate in bytes/sec",
+            "minimum": 0
+          }
+        }
+      },
+      "LogLevel": {
+        "type": "string",
+        "description": "Log severity levels.",
+        "enum": [
+          "debug",
+          "info",
+          "warn",
+          "error",
+          "critical"
+        ],
+        "example": "info"
+      },
+      "LogMessage": {
+        "type": "object",
+        "description": "Log message from agent.\n\nAgent forwards selected log entries to the server.",
+        "required": [
+          "timestamp",
+          "level",
+          "component",
+          "message"
+        ],
+        "properties": {
+          "component": {
+            "type": "string",
+            "description": "Component that generated the log"
+          },
+          "details": {
+            "description": "Additional structured details"
+          },
+          "level": {
+            "$ref": "#/components/schemas/LogLevel",
+            "description": "Log severity level"
+          },
+          "message": {
+            "type": "string",
+            "description": "Log message text"
+          },
+          "timestamp": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Unix timestamp of the log entry"
+          }
+        }
+      },
+      "MemoryInfo": {
+        "type": "object",
+        "description": "Memory information.",
+        "required": [
+          "total_mb",
+          "used_mb",
+          "free_mb",
+          "percent_used"
+        ],
+        "properties": {
+          "free_mb": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Free memory in MB",
+            "minimum": 0
+          },
+          "percent_used": {
+            "type": "number",
+            "format": "float",
+            "description": "Memory usage percentage (0-100)"
+          },
+          "total_mb": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Total memory in MB",
+            "minimum": 0
+          },
+          "used_mb": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Used memory in MB",
+            "minimum": 0
+          }
+        }
+      },
+      "MessageType": {
+        "type": "string",
+        "description": "Message types for RPC communication.\n\nDefines all message types exchanged between agent and server over WebSocket.",
+        "enum": [
+          "CONFIG_PUSH",
+          "CONFIG_FULL",
+          "EXEC",
+          "REBOOT",
+          "UPGRADE",
+          "STATUS_REQUEST",
+          "PING",
+          "MODE_UPDATE",
+          "AUTH",
+          "AUTH_OK",
+          "AUTH_FAIL",
+          "STATUS",
+          "STATUS_OK",
+          "CONFIG_ACK",
+          "CONFIG_FAIL",
+          "EXEC_RESULT",
+          "LOG",
+          "ALERT",
+          "METRICS",
+          "PONG",
+          "MODE_ACK",
+          "ERROR"
+        ],
+        "example": "STATUS"
+      },
+      "MetricsPayload": {
+        "type": "object",
+        "description": "Metrics payload from agent.\n\nLightweight metrics sent frequently (every 5 seconds) for real-time monitoring.",
+        "required": [
+          "timestamp",
+          "cpu",
+          "memory",
+          "interfaces",
+          "connections",
+          "dns"
+        ],
+        "properties": {
+          "connections": {
+            "$ref": "#/components/schemas/ConnectionCounts",
+            "description": "Connection counts by protocol"
+          },
+          "cpu": {
+            "type": "number",
+            "format": "float",
+            "description": "CPU usage percentage (0-100)"
+          },
+          "dns": {
+            "$ref": "#/components/schemas/DnsMetrics",
+            "description": "DNS resolver metrics"
+          },
+          "interfaces": {
+            "type": "object",
+            "description": "Per-interface transfer rates (keyed by interface name)",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/InterfaceRates"
+            },
+            "propertyNames": {
+              "type": "string"
+            }
+          },
+          "memory": {
+            "type": "number",
+            "format": "float",
+            "description": "Memory usage percentage (0-100)"
+          },
+          "temperature": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "format": "float",
+            "description": "CPU temperature in Celsius"
+          },
+          "timestamp": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Unix timestamp of the metrics sample"
+          }
+        }
+      },
+      "ModeAckPayload": {
+        "type": "object",
+        "description": "Agent→Server: mode change acknowledgment.\n\nResponse from the agent confirming whether the mode change was successful.",
+        "required": [
+          "success",
+          "mode_config"
+        ],
+        "properties": {
+          "error": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Error message if the mode change failed"
+          },
+          "mode_config": {
+            "$ref": "#/components/schemas/ModeConfig",
+            "description": "The current mode configuration after the change attempt"
+          },
+          "success": {
+            "type": "boolean",
+            "description": "Whether the mode change was successful"
+          }
+        }
+      },
+      "ModeConfig": {
+        "type": "object",
+        "description": "Mode configuration with optional per-section overrides.\n\nAllows fine-grained control where different router subsystems\ncan operate in different modes (e.g., firewall in takeover mode\nwhile WiFi remains in observe mode).",
+        "required": [
+          "mode"
+        ],
+        "properties": {
+          "mode": {
+            "$ref": "#/components/schemas/AgentMode",
+            "description": "Base operating mode for the agent"
+          },
+          "section_overrides": {
+            "type": "object",
+            "description": "Per-section overrides (e.g., Firewall=takeover while WiFi=observe)",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/AgentMode"
+            },
+            "propertyNames": {
+              "type": "string",
+              "description": "Configuration section identifiers.\n\nRouter configuration is divided into logical sections for granular updates.",
+              "enum": [
+                "wan",
+                "lan",
+                "wifi",
+                "dhcp",
+                "firewall",
+                "nat",
+                "dns",
+                "ids",
+                "vpn",
+                "qos",
+                "system",
+                "full"
+              ],
+              "example": "firewall"
+            }
+          }
+        }
+      },
+      "ModeUpdatePayload": {
+        "type": "object",
+        "description": "Server→Agent: mode change request.\n\nSent from the cloud API to instruct an agent to change its operating mode.",
+        "required": [
+          "mode_config"
+        ],
+        "properties": {
+          "mode_config": {
+            "$ref": "#/components/schemas/ModeConfig",
+            "description": "The new mode configuration to apply"
+          }
+        }
+      },
+      "RegisterDeviceRequest": {
+        "type": "object",
+        "description": "Request to register a new device in the fleet.\n\nSent by users to add a router to their account using an activation code.",
+        "required": [
+          "name",
+          "activation_code"
+        ],
+        "properties": {
+          "activation_code": {
+            "type": "string",
+            "description": "Activation code from the router's setup screen"
+          },
+          "location": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Physical location of the device"
+          },
+          "name": {
+            "type": "string",
+            "description": "Human-readable name for the device"
+          },
+          "notes": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Notes about the device"
+          },
+          "tags": {
+            "type": [
+              "array",
+              "null"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "description": "Optional tags for organizing the device"
+          }
+        },
+        "example": {
+          "activation_code": "NGFW-XXXX-YYYY-ZZZZ",
+          "name": "Office Router",
+          "tags": [
+            "office",
+            "primary"
+          ]
+        }
+      },
+      "RpcMessage": {
+        "type": "object",
+        "description": "RPC message envelope.\n\nAll WebSocket communication between agent and server uses this envelope format.",
+        "required": [
+          "id",
+          "type",
+          "payload"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique message identifier for correlation"
+          },
+          "payload": {
+            "description": "Message payload (structure depends on msg_type)"
+          },
+          "type": {
+            "$ref": "#/components/schemas/MessageType",
+            "description": "Message type discriminator"
+          }
+        },
+        "example": {
+          "id": "msg_abc123",
+          "payload": {},
+          "type": "STATUS"
+        }
+      },
+      "StatusPayload": {
+        "type": "object",
+        "description": "Status payload from agent.\n\nDetailed status information sent periodically by the agent.",
+        "required": [
+          "uptime",
+          "cpu",
+          "memory",
+          "load",
+          "interfaces",
+          "connections",
+          "firmware"
+        ],
+        "properties": {
+          "connections": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Number of active connections",
+            "minimum": 0
+          },
+          "cpu": {
+            "type": "number",
+            "format": "float",
+            "description": "CPU usage percentage (0-100)"
+          },
+          "firmware": {
+            "type": "string",
+            "description": "Current firmware version"
+          },
+          "interfaces": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InterfaceMetrics"
+            },
+            "description": "Network interface metrics"
+          },
+          "load": {
+            "type": "array",
+            "items": {
+              "type": "number",
+              "format": "float"
+            },
+            "description": "Load averages (1, 5, 15 minutes)"
+          },
+          "memory": {
+            "type": "number",
+            "format": "float",
+            "description": "Memory usage percentage (0-100)"
+          },
+          "temperature": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "format": "float",
+            "description": "CPU temperature in Celsius"
+          },
+          "uptime": {
+            "type": "integer",
+            "format": "int64",
+            "description": "System uptime in seconds",
+            "minimum": 0
+          },
+          "wan_ip": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Public WAN IP address"
+          }
+        }
+      },
+      "StorageInfo": {
+        "type": "object",
+        "description": "Storage device information.",
+        "required": [
+          "device",
+          "mount_point",
+          "filesystem",
+          "total_mb",
+          "used_mb",
+          "percent_used"
+        ],
+        "properties": {
+          "device": {
+            "type": "string",
+            "description": "Device name (e.g., /dev/sda1)"
+          },
+          "filesystem": {
+            "type": "string",
+            "description": "Filesystem type (e.g., ext4, btrfs)"
+          },
+          "mount_point": {
+            "type": "string",
+            "description": "Mount point path"
+          },
+          "percent_used": {
+            "type": "number",
+            "format": "float",
+            "description": "Usage percentage (0-100)"
+          },
+          "total_mb": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Total capacity in MB",
+            "minimum": 0
+          },
+          "used_mb": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Used space in MB",
+            "minimum": 0
+          }
+        }
+      },
+      "SystemStatus": {
+        "type": "object",
+        "description": "System status response.\n\nHigh-level system information and resource usage.",
+        "required": [
+          "uptime",
+          "cpu_percent",
+          "memory_percent",
+          "load",
+          "firmware_version",
+          "model",
+          "serial"
+        ],
+        "properties": {
+          "cpu_percent": {
+            "type": "number",
+            "format": "float",
+            "description": "CPU usage percentage (0-100)"
+          },
+          "firmware_version": {
+            "type": "string",
+            "description": "Current firmware version"
+          },
+          "load": {
+            "type": "array",
+            "items": {
+              "type": "number",
+              "format": "float"
+            },
+            "description": "Load averages (1, 5, 15 minutes)"
+          },
+          "memory_percent": {
+            "type": "number",
+            "format": "float",
+            "description": "Memory usage percentage (0-100)"
+          },
+          "model": {
+            "type": "string",
+            "description": "Router model"
+          },
+          "serial": {
+            "type": "string",
+            "description": "Device serial number"
+          },
+          "temperature": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "format": "float",
+            "description": "CPU temperature in Celsius"
+          },
+          "uptime": {
+            "type": "integer",
+            "format": "int64",
+            "description": "System uptime in seconds",
+            "minimum": 0
+          }
+        }
+      },
+      "TemperatureSensor": {
+        "type": "object",
+        "description": "Temperature sensor reading.",
+        "required": [
+          "name",
+          "temperature_c"
+        ],
+        "properties": {
+          "critical_c": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "format": "float",
+            "description": "Critical temperature threshold in Celsius"
+          },
+          "name": {
+            "type": "string",
+            "description": "Sensor name"
+          },
+          "temperature_c": {
+            "type": "number",
+            "format": "float",
+            "description": "Current temperature in Celsius"
+          }
+        }
+      },
+      "TemplateApplicationResult": {
+        "type": "object",
+        "description": "Result of applying a template to devices.",
+        "required": [
+          "template_id",
+          "results"
+        ],
+        "properties": {
+          "results": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DeviceApplicationResult"
+            },
+            "description": "Results for each device"
+          },
+          "template_id": {
+            "type": "string",
+            "description": "Template that was applied"
+          }
+        }
+      },
+      "UpgradeCommand": {
+        "type": "object",
+        "description": "Firmware upgrade command.\n\nServer sends this to initiate a firmware upgrade on the device.",
+        "required": [
+          "version",
+          "download_url",
+          "checksum",
+          "signature"
+        ],
+        "properties": {
+          "checksum": {
+            "type": "string",
+            "description": "SHA256 checksum of the firmware file"
+          },
+          "download_url": {
+            "type": "string",
+            "description": "URL to download the firmware"
+          },
+          "force": {
+            "type": "boolean",
+            "description": "Force upgrade even if current version is newer"
+          },
+          "signature": {
+            "type": "string",
+            "description": "Cryptographic signature for verification"
+          },
+          "version": {
+            "type": "string",
+            "description": "Target firmware version"
+          }
+        }
+      },
+      "WebhookConfig": {
+        "type": "object",
+        "description": "Webhook configuration for receiving event notifications.",
+        "required": [
+          "id",
+          "url",
+          "events",
+          "enabled",
+          "created_at"
+        ],
+        "properties": {
+          "created_at": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Unix timestamp of creation"
+          },
+          "enabled": {
+            "type": "boolean",
+            "description": "Whether the webhook is active"
+          },
+          "events": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WebhookEvent"
+            },
+            "description": "List of events to subscribe to"
+          },
+          "id": {
+            "type": "string",
+            "description": "Unique webhook identifier"
+          },
+          "url": {
+            "type": "string",
+            "description": "URL to send webhook events to"
+          }
+        },
+        "example": {
+          "created_at": 1700000000,
+          "enabled": true,
+          "events": [
+            "device_online",
+            "threat_detected"
+          ],
+          "id": "wh_abc123",
+          "url": "https://example.com/webhook"
+        }
+      },
+      "WebhookEvent": {
+        "type": "string",
+        "description": "Webhook event types.",
+        "enum": [
+          "device_online",
+          "device_offline",
+          "threat_detected",
+          "config_changed",
+          "firmware_available"
+        ],
+        "example": "device_online"
+      }
+    },
+    "securitySchemes": {
+      "clerk_jwt": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "Clerk JWT token from authentication"
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "fleet",
+      "description": "Fleet and device management"
+    },
+    {
+      "name": "onboarding",
+      "description": "Device onboarding and provisioning"
+    },
+    {
+      "name": "system",
+      "description": "System status, firmware, and backups"
+    },
+    {
+      "name": "network",
+      "description": "WAN, LAN, WiFi, DHCP, and routing configuration"
+    },
+    {
+      "name": "security",
+      "description": "Firewall, NAT, DNS filtering, and IPS"
+    },
+    {
+      "name": "services",
+      "description": "VPN, QoS, and DDNS services"
+    },
+    {
+      "name": "logs",
+      "description": "System and traffic logs"
+    },
+    {
+      "name": "reports",
+      "description": "Analytics and reports"
+    },
+    {
+      "name": "dashboard",
+      "description": "Dashboard widgets"
+    },
+    {
+      "name": "user",
+      "description": "User profile and billing"
+    }
+  ]
+}
