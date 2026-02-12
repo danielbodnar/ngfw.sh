@@ -10,6 +10,8 @@
 		"preview": "astro preview",
 		"deploy": "astro build && wrangler deploy",
 		"astro": "astro",
+		"generate:api": "openapi-zod-client ../api/openapi.json -o ./src/lib/api/generated/client.ts --export-schemas --with-docs --with-alias --api-client-name ngfwApi",
+		"generate:api:remote": "openapi-zod-client https://api.ngfw.sh/openapi.json -o ./src/lib/api/generated/client.ts --export-schemas --with-docs --with-alias --api-client-name ngfwApi",
 		"test": "vitest run",
 		"test:watch": "vitest",
 		"test:ui": "vitest --ui",
@@ -41,6 +43,7 @@
 		"@vue/test-utils": "^2.4.6",
 		"happy-dom": "^20.5.3",
 		"msw": "^2.12.9",
-		"vitest": "^4.0.18"
+		"vitest": "^4.0.18",
+		"openapi-zod-client": "^1.20.1"
 	}
 }
