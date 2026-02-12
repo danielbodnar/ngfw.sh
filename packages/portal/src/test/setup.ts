@@ -10,7 +10,7 @@ import "@testing-library/jest-dom/vitest";
 import "./mocks/clerk";
 
 // Mock environment variables
-process.env.VITE_API_URL = "https://specs.ngfw.sh";
+process.env.VITE_API_URL = "https://api.ngfw.sh";
 process.env.VITE_CLERK_PUBLISHABLE_KEY = "pk_test_mock_key";
 process.env.DEMO_INSTANCE = "false";
 

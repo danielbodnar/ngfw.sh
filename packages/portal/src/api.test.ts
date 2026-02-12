@@ -47,7 +47,7 @@ describe("createApiClient", () => {
 
 			expect(devices).toEqual(mockResponse);
 			expect(globalThis.fetch).toHaveBeenCalledWith(
-				"https://specs.ngfw.sh/fleet/devices",
+				"https://api.ngfw.sh/fleet/devices",
 				expect.objectContaining({
 					headers: expect.objectContaining({
 						Authorization: "Bearer test-token",
@@ -88,7 +88,7 @@ describe("createApiClient", () => {
 			await api.listDevices();
 
 			const url = vi.mocked(globalThis.fetch).mock.calls[0]?.[0];
-			expect(url).toBe("https://specs.ngfw.sh/fleet/devices");
+			expect(url).toBe("https://api.ngfw.sh/fleet/devices");
 		});
 
 		it("should throw ApiError on 401 Unauthorized", async () => {
@@ -161,7 +161,7 @@ describe("createApiClient", () => {
 
 			expect(result).toEqual(mockResponse);
 			expect(globalThis.fetch).toHaveBeenCalledWith(
-				"https://specs.ngfw.sh/fleet/devices",
+				"https://api.ngfw.sh/fleet/devices",
 				expect.objectContaining({
 					method: "POST",
 					body: JSON.stringify({ name: "Test Device", model: "RT-AX92U" }),
@@ -238,7 +238,7 @@ describe("createApiClient", () => {
 
 			expect(status).toEqual(mockStatus);
 			expect(globalThis.fetch).toHaveBeenCalledWith(
-				"https://specs.ngfw.sh/fleet/devices/device-123/status",
+				"https://api.ngfw.sh/fleet/devices/device-123/status",
 				expect.any(Object),
 			);
 		});
@@ -259,7 +259,7 @@ describe("createApiClient", () => {
 			await api.getDeviceStatus("device/with/slashes");
 
 			expect(globalThis.fetch).toHaveBeenCalledWith(
-				"https://specs.ngfw.sh/fleet/devices/device%2Fwith%2Fslashes/status",
+				"https://api.ngfw.sh/fleet/devices/device%2Fwith%2Fslashes/status",
 				expect.any(Object),
 			);
 		});
@@ -318,7 +318,7 @@ describe("createApiClient", () => {
 
 			expect(result).toBeUndefined();
 			expect(globalThis.fetch).toHaveBeenCalledWith(
-				"https://specs.ngfw.sh/fleet/devices/device-123",
+				"https://api.ngfw.sh/fleet/devices/device-123",
 				expect.objectContaining({
 					method: "DELETE",
 				}),
@@ -336,7 +336,7 @@ describe("createApiClient", () => {
 			await api.deleteDevice("device/123");
 
 			expect(globalThis.fetch).toHaveBeenCalledWith(
-				"https://specs.ngfw.sh/fleet/devices/device%2F123",
+				"https://api.ngfw.sh/fleet/devices/device%2F123",
 				expect.objectContaining({ method: "DELETE" }),
 			);
 		});

@@ -40,7 +40,8 @@ const error = ref<string | null>(null);
 const loadRouters = async () => {
 	try {
 		loading.value = true;
-		const response = await fetch("https://specs.ngfw.sh/onboarding/routers");
+		const apiUrl = import.meta.env.VITE_API_BASE_URL || "https://api.ngfw.sh";
+		const response = await fetch(`${apiUrl}/onboarding/routers`);
 		const data = await response.json();
 
 		if (data.success) {
