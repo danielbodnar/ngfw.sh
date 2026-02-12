@@ -39,10 +39,13 @@ pub async fn connection_loop(
 
             attempt += 1;
 
-            // Build WebSocket URL with query params
+            // Build WebSocket URL with query params (including api_key for auth)
             let ws_url = format!(
-                "{}?device_id={}&owner_id={}",
-                config.agent.websocket_url, config.agent.device_id, config.agent.device_id
+                "{}?device_id={}&owner_id={}&api_key={}",
+                config.agent.websocket_url,
+                config.agent.device_id,
+                config.agent.device_id,
+                config.agent.api_key
             );
 
             info!(
