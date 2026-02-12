@@ -1,8 +1,13 @@
 {
+	"$schema": "node_modules/wrangler/config-schema.json",
 	"name": "ngfw-sandbox",
 	"main": "src/index.ts",
-	"compatibility_date": "2026-01-10",
+	"compatibility_date": "2026-02-07",
 	"compatibility_flags": ["nodejs_compat"],
+	"upload_source_maps": true,
+
+	// Custom domain for sandbox access
+	"routes": [{ "pattern": "sandbox.ngfw.sh", "custom_domain": true }],
 
 	// Sandbox container configuration
 	"containers": [
@@ -32,6 +37,23 @@
 			"tag": "v1"
 		}
 	],
+
+	// Observability - logs and traces for debugging
+	"observability": {
+		"enabled": true,
+		"head_sampling_rate": 1,
+		"logs": {
+			"enabled": true,
+			"head_sampling_rate": 1,
+			"persist": true,
+			"invocation_logs": true
+		},
+		"traces": {
+			"enabled": true,
+			"persist": true,
+			"head_sampling_rate": 1
+		}
+	},
 
 	// Local development settings
 	"dev": {

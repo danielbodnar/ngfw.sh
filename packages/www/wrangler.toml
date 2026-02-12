@@ -1,7 +1,8 @@
 name = "ngfw-www"
 account_id = "5dae265f74e6077ad674a3d855bf9853"
-compatibility_date = "2026-02-03"
-workers_dev = true
+compatibility_date = "2026-02-07"
+compatibility_flags = ["nodejs_compat"]
+upload_source_maps = true
 
 # Custom domains for the landing page
 routes = [
@@ -13,10 +14,18 @@ routes = [
 directory = "./dist"
 not_found_handling = "single-page-application"
 
+# Observability - logs and traces for debugging
 [observability]
 enabled = true
 head_sampling_rate = 1
 
 [observability.logs]
 enabled = true
+head_sampling_rate = 1
+persist = true
+invocation_logs = true
+
+[observability.traces]
+enabled = true
+persist = true
 head_sampling_rate = 1

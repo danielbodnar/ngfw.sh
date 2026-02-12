@@ -1,17 +1,24 @@
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
 	"account_id": "5dae265f74e6077ad674a3d855bf9853",
-	"compatibility_date": "2026-02-03",
+	"compatibility_date": "2026-02-07",
+	"compatibility_flags": ["nodejs_compat"],
 	"main": "src/index.ts",
 	"name": "ngfw-specs",
 	"upload_source_maps": true,
-	"workers_dev": true,
 	"routes": [{ "pattern": "specs.ngfw.sh", "custom_domain": true }],
 	"observability": {
 		"enabled": true,
 		"head_sampling_rate": 1,
 		"logs": {
 			"enabled": true,
+			"head_sampling_rate": 1,
+			"persist": true,
+			"invocation_logs": true
+		},
+		"traces": {
+			"enabled": true,
+			"persist": true,
 			"head_sampling_rate": 1
 		}
 	},

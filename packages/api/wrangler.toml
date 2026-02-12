@@ -1,6 +1,7 @@
 name = "ngfw-api"
 main = "build/worker/shim.mjs"
-compatibility_date = "2026-02-03"
+compatibility_date = "2026-02-07"
+upload_source_maps = true
 
 # Routes
 routes = [
@@ -10,9 +11,9 @@ routes = [
 [build]
 command = "cargo install -q worker-build && worker-build --release"
 
-# Observability
+# Observability - logs and traces for debugging
 [observability]
-enabled = false
+enabled = true
 head_sampling_rate = 1
 
 [observability.logs]

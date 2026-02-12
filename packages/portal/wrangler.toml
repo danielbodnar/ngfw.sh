@@ -1,7 +1,8 @@
 name = "ngfw-portal"
 account_id = "5dae265f74e6077ad674a3d855bf9853"
-compatibility_date = "2026-02-03"
-workers_dev = true
+compatibility_date = "2026-02-07"
+compatibility_flags = ["nodejs_compat"]
+upload_source_maps = true
 
 # Custom domains for the portal
 routes = [
@@ -16,12 +17,20 @@ VITE_CLERK_PUBLISHABLE_KEY = "pk_test_dG91Z2gtdW5pY29ybi0yNS5jbGVyay5hY2NvdW50cy
 directory = "./dist"
 not_found_handling = "single-page-application"
 
+# Observability - logs and traces for debugging
 [observability]
 enabled = true
 head_sampling_rate = 1
 
 [observability.logs]
 enabled = true
+head_sampling_rate = 1
+persist = true
+invocation_logs = true
+
+[observability.traces]
+enabled = true
+persist = true
 head_sampling_rate = 1
 
 # Note: VITE_CLERK_PUBLISHABLE_KEY is set at build time via .dev.vars
