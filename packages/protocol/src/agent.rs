@@ -3,27 +3,38 @@
 use std::collections::HashMap;
 
 use serde::{Deserialize, Serialize};
+#[allow(unused_imports)]
+use serde_json::json;
+use utoipa::ToSchema;
 
 use crate::rpc::ConfigSection;
 
 /// Operating mode for the agent or a specific subsystem
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default, ToSchema)]
 #[serde(rename_all = "lowercase")]
 pub enum AgentMode {
-    /// Read-only: collect metrics, send logs/alerts, report config state
+    /// Read-only mode: collect metrics, send logs/alerts, report configuration state without making changes
     #[default]
     Observe,
-    /// Validate and diff proposed configs without applying
+    /// Shadow mode: validate and diff proposed configurations without applying them
     Shadow,
-    /// Full control: validate, apply, rollback configurations
+    /// Takeover mode: full control with ability to validate, apply, and rollback configurations
     Takeover,
 }
 
-/// Mode configuration with optional per-section overrides
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+/// Agent mode configuration with optional per-section overrides
+#[derive(Debug, Clone, Default, Serialize, Deserialize, ToSchema)]
+#[schema(example = json!({
+    "mode": "observe",
+    "section_overrides": {
+        "firewall": "takeover",
+        "wifi": "shadow"
+    }
+}))]
 pub struct ModeConfig {
+    /// Base operating mode for all sections
     pub mode: AgentMode,
-    /// Per-section overrides (e.g., Firewall=takeover while WiFi=observe)
+    /// Per-section mode overrides (e.g., Firewall=takeover while WiFi=observe)
     #[serde(default)]
     pub section_overrides: HashMap<ConfigSection, AgentMode>,
 }
@@ -35,27 +46,36 @@ impl ModeConfig {
     }
 }
 
-/// Server→Agent: mode change request
-#[derive(Debug, Clone, Serialize, Deserialize)]
+/// Server→Agent: mode change request payload
+#[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
 pub struct ModeUpdatePayload {
+    /// New mode configuration to apply
     pub mode_config: ModeConfig,
 }
 
-/// Agent→Server: mode change acknowledgment
-#[derive(Debug, Clone, Serialize, Deserialize)]
+/// Agent→Server: mode change acknowledgment payload
+#[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
 pub struct ModeAckPayload {
+    /// Whether mode change was successful
     pub success: bool,
+    /// Actual mode configuration now active
     pub mode_config: ModeConfig,
+    /// Error message if mode change failed
     #[serde(skip_serializing_if = "Option::is_none")]
     pub error: Option<String>,
 }
 
-/// Agent configuration (subset relevant to protocol)
-#[derive(Debug, Clone, Serialize, Deserialize)]
+/// Agent identification and status information
+#[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
 pub struct AgentInfo {
+    /// Agent software version
     pub version: String,
+    /// Device identifier (UUID)
     pub device_id: String,
+    /// Firmware version running on the device
     pub firmware_version: String,
+    /// Hardware model
     pub model: String,
+    /// Current operating mode
     pub mode: AgentMode,
 }
