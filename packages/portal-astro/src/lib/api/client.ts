@@ -1,9 +1,16 @@
 /**
- * Typed API client for the NGFW API (api.ngfw.sh).
+ * @deprecated This client is now available via the generated API module.
+ * Import from '../lib/api/generated' instead:
  *
- * All requests are authenticated via Clerk JWT tokens passed through
- * the `Authorization: Bearer` header.
+ * ```ts
+ * import { createApiClient, type ApiClient } from '../lib/api/generated'
+ * ```
  *
+ * This file is kept temporarily until the Rust API's OpenAPI spec includes
+ * endpoint paths and the generated Zodios client can fully replace this
+ * manual implementation.
+ *
+ * @see ../lib/api/generated/index.ts
  * @module lib/api/client
  */
 

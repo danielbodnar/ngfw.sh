@@ -5,7 +5,7 @@
  */
 
 import { onMounted, ref } from "vue";
-import type { Report, ReportCreate } from "../lib/api/types";
+import type { Report, ReportCreate } from "../lib/api/generated";
 import { useApi } from "./useApi";
 
 /**

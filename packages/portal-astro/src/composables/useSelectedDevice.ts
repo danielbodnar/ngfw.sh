@@ -1,5 +1,5 @@
 import { computed, ref, watch } from "vue";
-import type { Device } from "../lib/api/types";
+import type { Device } from "../lib/api/generated";
 
 /**
  * Selected device storage key

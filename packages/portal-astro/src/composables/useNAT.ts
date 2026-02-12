@@ -5,7 +5,7 @@
  */
 
 import { onMounted, ref } from "vue";
-import type { NATRule, NATRuleCreate, NATRuleUpdate } from "../lib/api/types";
+import type { NATRule, NATRuleCreate, NATRuleUpdate } from "../lib/api/generated";
 import { useApi } from "./useApi";
 
 /**

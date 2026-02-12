@@ -2,7 +2,7 @@
 import { computed, ref } from "vue";
 import { useLogs } from "../../composables/useLogs";
 import { usePolling } from "../../composables/usePolling";
-import type { LogQuery } from "../../lib/api/types";
+import type { LogQuery } from "../../lib/api/generated";
 import Badge from "../ui/Badge.vue";
 import Button from "../ui/Button.vue";
 import Card from "../ui/Card.vue";

@@ -5,7 +5,7 @@
  */
 
 import { ref, watch } from "vue";
-import type { LogEntry, LogQuery } from "../lib/api/types";
+import type { LogEntry, LogQuery } from "../lib/api/generated";
 import { useApi } from "./useApi";
 
 /**

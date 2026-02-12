@@ -4,7 +4,7 @@
  * @module composables/useApi
  */
 
-import { type ApiClient, createApiClient } from "../lib/api/client";
+import { type ApiClient, createApiClient } from "../lib/api/generated";
 import { useAuth } from "./useAuth";
 
 /**

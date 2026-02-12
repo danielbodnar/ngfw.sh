@@ -5,7 +5,7 @@
  */
 
 import { computed, type ref, watch } from "vue";
-import type { DeviceStatus } from "../lib/api/types";
+import type { DeviceStatus } from "../lib/api/generated";
 import { useApi } from "./useApi";
 import { usePolling } from "./usePolling";
 
