@@ -10,7 +10,8 @@
 		"preview": "astro preview",
 		"deploy": "astro build && wrangler deploy",
 		"astro": "astro",
-		"generate:api": "openapi-zod-client http://localhost:8788/openapi.json -o ./src/lib/api/generated/client.ts --export-schemas --with-docs --with-alias --api-client-name ngfwApi",
+		"generate:api": "cargo run --bin generate-openapi -p ngfw-protocol --manifest-path ../../Cargo.toml > ./src/lib/api/generated/openapi.json && openapi-zod-client ./src/lib/api/generated/openapi.json -o ./src/lib/api/generated/client.ts --export-schemas --with-docs --with-alias --api-client-name ngfwApi",
+		"generate:api:file": "openapi-zod-client ./src/lib/api/generated/openapi.json -o ./src/lib/api/generated/client.ts --export-schemas --with-docs --with-alias --api-client-name ngfwApi",
 		"generate:api:remote": "openapi-zod-client https://api.ngfw.sh/openapi.json -o ./src/lib/api/generated/client.ts --export-schemas --with-docs --with-alias --api-client-name ngfwApi",
 		"test": "vitest run",
 		"test:watch": "vitest",
@@ -28,22 +29,24 @@
 		"@astrojs/vue": "^5.1.4",
 		"@clerk/astro": "^2.17.1",
 		"@clerk/clerk-js": "^5.122.1",
+		"@zodios/core": "^10.9.6",
 		"astro": "^5.17.1",
-		"vue": "^3.5.28"
+		"vue": "^3.5.28",
+		"zod": "^3.24.4"
 	},
 	"devDependencies": {
-		"@tailwindcss/vite": "^4.1.18",
-		"tailwindcss": "^4.1.18",
 		"@astrojs/check": "^0.9.6",
-		"typescript": "^5.9.3",
-		"wrangler": "^4.63.0",
 		"@playwright/test": "^1.58.2",
+		"@tailwindcss/vite": "^4.1.18",
 		"@vitejs/plugin-vue": "^6.0.4",
 		"@vitest/ui": "^4.0.18",
 		"@vue/test-utils": "^2.4.6",
 		"happy-dom": "^20.5.3",
 		"msw": "^2.12.9",
+		"openapi-zod-client": "^1.18.3",
+		"tailwindcss": "^4.1.18",
+		"typescript": "^5.9.3",
 		"vitest": "^4.0.18",
-		"openapi-zod-client": "^1.20.1"
+		"wrangler": "^4.63.0"
 	}
 }
