@@ -4,7 +4,7 @@ import { z } from "zod";
 import { useDevices } from "../../composables/useDevices";
 import { usePolling } from "../../composables/usePolling";
 import { useRoutes } from "../../composables/useRoutes";
-import type { RouteCreate, RouteUpdate } from "../../lib/api/types";
+import type { RouteCreate, RouteUpdate } from "../../lib/api/generated";
 import Badge from "../ui/Badge.vue";
 import Button from "../ui/Button.vue";
 import Card from "../ui/Card.vue";

@@ -1,8 +1,16 @@
 /**
- * TypeScript interfaces for NGFW API.
+ * @deprecated These types are now available via the generated API client.
+ * Import from '../lib/api/generated' instead:
  *
- * All types match the OpenAPI spec at api.ngfw.sh/openapi.json.
+ * ```ts
+ * import type { Device, DeviceStatus } from '../lib/api/generated'
+ * ```
  *
+ * This file is kept temporarily while portal-specific types are migrated
+ * to the Rust API's OpenAPI spec. Once all types appear in the generated
+ * client, this file will be removed.
+ *
+ * @see ../lib/api/generated/index.ts
  * @module lib/api/types
  */
 

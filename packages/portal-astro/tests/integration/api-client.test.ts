@@ -6,7 +6,7 @@
  */
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { createApiClient } from "../../src/lib/api/client";
+import { createApiClient } from "../../src/lib/api/generated";
 import { ApiError } from "../../src/lib/api/errors";
 import { devices, mockToken, natRules } from "../fixtures";
 import { setupMockServer } from "../utils/test-utils";

@@ -8,7 +8,7 @@ import { ref } from "vue";
 import type {
 	DeviceRegistration,
 	DeviceRegistrationResponse,
-} from "../lib/api/types";
+} from "../lib/api/generated";
 import { useApi } from "./useApi";
 
 /**

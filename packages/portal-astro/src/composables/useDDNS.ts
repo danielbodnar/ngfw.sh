@@ -9,7 +9,7 @@ import type {
 	DDNSConfig,
 	DDNSConfigCreate,
 	DDNSConfigUpdate,
-} from "../lib/api/types";
+} from "../lib/api/generated";
 import { useApi } from "./useApi";
 
 /**

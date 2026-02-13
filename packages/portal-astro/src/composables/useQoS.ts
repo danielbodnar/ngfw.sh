@@ -5,7 +5,7 @@
  */
 
 import { onMounted, ref } from "vue";
-import type { QoSRule, QoSRuleCreate, QoSRuleUpdate } from "../lib/api/types";
+import type { QoSRule, QoSRuleCreate, QoSRuleUpdate } from "../lib/api/generated";
 import { useApi } from "./useApi";
 
 /**

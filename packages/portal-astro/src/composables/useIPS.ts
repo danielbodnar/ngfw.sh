@@ -5,7 +5,7 @@
  */
 
 import { onMounted, ref } from "vue";
-import type { IPSAlert, IPSConfig, IPSRule } from "../lib/api/types";
+import type { IPSAlert, IPSConfig, IPSRule } from "../lib/api/generated";
 import { useApi } from "./useApi";
 
 /**

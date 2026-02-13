@@ -8,7 +8,7 @@ import type {
 	NATRule,
 	NATRuleCreate,
 	NATRuleUpdate,
-} from "../../lib/api/types";
+} from "../../lib/api/generated";
 import Badge from "../ui/Badge.vue";
 import Button from "../ui/Button.vue";
 import Card from "../ui/Card.vue";

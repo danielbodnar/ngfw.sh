@@ -22,7 +22,7 @@ import type {
 	VPNClientStatus,
 	VPNServerConfig,
 	VPNServerPeer,
-} from "../../src/lib/api/types";
+} from "../../src/lib/api/generated";
 
 const now = Date.now();
 

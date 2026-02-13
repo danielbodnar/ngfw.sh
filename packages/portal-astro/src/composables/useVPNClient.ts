@@ -5,7 +5,7 @@
  */
 
 import { onMounted, ref } from "vue";
-import type { VPNClientProfile, VPNClientStatus } from "../lib/api/types";
+import type { VPNClientProfile, VPNClientStatus } from "../lib/api/generated";
 import { useApi } from "./useApi";
 
 /**

@@ -4,7 +4,7 @@ import { useIPS } from "../../composables/useIPS";
 import { usePolling } from "../../composables/usePolling";
 import { useSelectedDevice } from "../../composables/useSelectedDevice";
 import { useToast } from "../../composables/useToast";
-import type { IPSAlert, IPSConfig } from "../../lib/api/types";
+import type { IPSAlert, IPSConfig } from "../../lib/api/generated";
 import Badge from "../ui/Badge.vue";
 import Button from "../ui/Button.vue";
 import Card from "../ui/Card.vue";

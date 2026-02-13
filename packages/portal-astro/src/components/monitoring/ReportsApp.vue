@@ -3,7 +3,7 @@ import { computed, ref } from "vue";
 import { usePolling } from "../../composables/usePolling";
 import { useReports } from "../../composables/useReports";
 import { useSelectedDevice } from "../../composables/useSelectedDevice";
-import type { ReportCreate } from "../../lib/api/types";
+import type { ReportCreate } from "../../lib/api/generated";
 import Badge from "../ui/Badge.vue";
 import Button from "../ui/Button.vue";
 import Card from "../ui/Card.vue";
