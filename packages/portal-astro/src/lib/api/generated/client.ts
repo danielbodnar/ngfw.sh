@@ -1,3 +1,4 @@
+import { makeApi, Zodios, type ZodiosOptions } from "@zodios/core";
 import { z } from "zod";
 
 const AgentMode = z.enum(["observe", "shadow", "takeover"]);
@@ -553,63 +554,10 @@ export const schemas = {
   WebhookConfig,
 };
 
-// Inferred TypeScript types from Zod schemas
-export type AgentMode = z.infer<typeof AgentMode>;
-export type AgentInfo = z.infer<typeof AgentInfo>;
-export type AlertType = z.infer<typeof AlertType>;
-export type AlertSeverity = z.infer<typeof AlertSeverity>;
-export type AlertMessage = z.infer<typeof AlertMessage>;
-export type ApplyTemplateRequest = z.infer<typeof ApplyTemplateRequest>;
-export type AuditLogEntry = z.infer<typeof AuditLogEntry>;
-export type AuthRequest = z.infer<typeof AuthRequest>;
-export type AuthResponse = z.infer<typeof AuthResponse>;
-export type BackupInfo = z.infer<typeof BackupInfo>;
-export type BootSlot = z.infer<typeof BootSlot>;
-export type CommandStatus = z.infer<typeof CommandStatus>;
-export type CommandResult = z.infer<typeof CommandResult>;
-export type CommandType = z.infer<typeof CommandType>;
-export type ConfigSection = z.infer<typeof ConfigSection>;
-export type ConfigAck = z.infer<typeof ConfigAck>;
-export type ConfigPush = z.infer<typeof ConfigPush>;
-export type ConfigTemplate = z.infer<typeof ConfigTemplate>;
-export type ConnectionCounts = z.infer<typeof ConnectionCounts>;
-export type CpuInfo = z.infer<typeof CpuInfo>;
-export type CreateTemplateRequest = z.infer<typeof CreateTemplateRequest>;
-export type ModeConfig = z.infer<typeof ModeConfig>;
-export type DeviceStatus = z.infer<typeof DeviceStatus>;
-export type Device = z.infer<typeof Device>;
-export type DeviceApplicationResult = z.infer<typeof DeviceApplicationResult>;
-export type DeviceCommand = z.infer<typeof DeviceCommand>;
-export type DeviceRegistration = z.infer<typeof DeviceRegistration>;
-export type InterfaceStatus = z.infer<typeof InterfaceStatus>;
-export type DeviceStatusUpdate = z.infer<typeof DeviceStatusUpdate>;
-export type DnsMetrics = z.infer<typeof DnsMetrics>;
-export type ExecCommand = z.infer<typeof ExecCommand>;
-export type ExecResult = z.infer<typeof ExecResult>;
-export type FanInfo = z.infer<typeof FanInfo>;
-export type FirmwareChannel = z.infer<typeof FirmwareChannel>;
-export type FirmwareInfo = z.infer<typeof FirmwareInfo>;
-export type FirmwareUpdate = z.infer<typeof FirmwareUpdate>;
-export type InterfaceHardware = z.infer<typeof InterfaceHardware>;
-export type MemoryInfo = z.infer<typeof MemoryInfo>;
-export type StorageInfo = z.infer<typeof StorageInfo>;
-export type TemperatureSensor = z.infer<typeof TemperatureSensor>;
-export type HardwareInfo = z.infer<typeof HardwareInfo>;
-export type InterfaceInfoStatus = z.infer<typeof InterfaceInfoStatus>;
-export type InterfaceInfo = z.infer<typeof InterfaceInfo>;
-export type InterfaceMetrics = z.infer<typeof InterfaceMetrics>;
-export type InterfaceRates = z.infer<typeof InterfaceRates>;
-export type LogLevel = z.infer<typeof LogLevel>;
-export type LogMessage = z.infer<typeof LogMessage>;
-export type MessageType = z.infer<typeof MessageType>;
-export type MetricsPayload = z.infer<typeof MetricsPayload>;
-export type ModeAckPayload = z.infer<typeof ModeAckPayload>;
-export type ModeUpdatePayload = z.infer<typeof ModeUpdatePayload>;
-export type RegisterDeviceRequest = z.infer<typeof RegisterDeviceRequest>;
-export type RpcMessage = z.infer<typeof RpcMessage>;
-export type StatusPayload = z.infer<typeof StatusPayload>;
-export type SystemStatus = z.infer<typeof SystemStatus>;
-export type TemplateApplicationResult = z.infer<typeof TemplateApplicationResult>;
-export type UpgradeCommand = z.infer<typeof UpgradeCommand>;
-export type WebhookEvent = z.infer<typeof WebhookEvent>;
-export type WebhookConfig = z.infer<typeof WebhookConfig>;
+const endpoints = makeApi([]);
+
+export const ngfwApi = new Zodios(endpoints);
+
+export function createApiClient(baseUrl: string, options?: ZodiosOptions) {
+  return new Zodios(baseUrl, endpoints, options);
+}
